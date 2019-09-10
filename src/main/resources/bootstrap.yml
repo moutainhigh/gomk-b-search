@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: gomk-b-core
+  profiles:
+    active: @spring.active@
+  cloud:
+    config:
+      profile: @spring.active@
+      label: master
+
+---
+
+spring:
+  profiles: local
+  cloud:
+    config:
+      enabled: true
+      uri: http://127.0.0.1:8002
+
+---
+
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://gomk-config-server-service:8002
+
+---
+
+spring:
+  profiles: test
+  cloud:
+    config:
+      uri: http://gomk-config-server-service:7001
+
+---
+
+spring:
+  profiles: prod
+  cloud:
+    config:
+      uri: http://gomk-config-server-service:7001
