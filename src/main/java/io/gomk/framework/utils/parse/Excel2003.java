@@ -1,34 +1,40 @@
-package io.gomk.framework.utils;
+package io.gomk.framework.utils.parse;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.CellType;
 
-public class Excel2007 {
+public class Excel2003 {
 
 	public String read(String filePath) {
 
 		StringBuilder sb = new StringBuilder();
 		String str = "";
-		XSSFWorkbook wb = null;
+		HSSFWorkbook wb = null;
 		try {
 
 			File xlsFile = new File(filePath);
-			wb = new XSSFWorkbook(new FileInputStream(xlsFile));
+			wb = new HSSFWorkbook(new FileInputStream(xlsFile));
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		XSSFSheet sheet = wb.getSheetAt(0); // 第一个sheet
+		HSSFSheet sheet = wb.getSheetAt(0); // 第一个sheet
 
 		// 得到总行数
 		int rowNum = sheet.getLastRowNum();
-		XSSFRow row = sheet.getRow(0);
+		HSSFRow row = sheet.getRow(0);
 		int colNum = row.getPhysicalNumberOfCells();
 
 		// 正文内容应该从第二行开始,第一行为表头的标题
@@ -36,7 +42,7 @@ public class Excel2007 {
 			row = sheet.getRow(i);
 			int j = 0;
 			while (j < colNum) {
-				XSSFCell cell = row.getCell(j);
+				HSSFCell cell = row.getCell((short) j);
 				str += getStringCellValue(cell).trim() + "";
 				sb.append(str);
 				j++;
@@ -45,7 +51,8 @@ public class Excel2007 {
 		return sb.toString();
 	}
 
-	private String getStringCellValue(XSSFCell cell) {
+	private String getStringCellValue(HSSFCell cell) {
+
 		if (cell == null) {
 			return "";
 		}

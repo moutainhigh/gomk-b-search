@@ -1,6 +1,8 @@
 package io.gomk.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -21,14 +23,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import io.gomk.common.rs.response.ResponseData;
+import io.gomk.common.utils.PageResult;
+import io.gomk.controller.response.SearchResultVO;
 import io.gomk.es6.ESRestClient;
 import io.gomk.framework.controller.SuperController;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -40,7 +49,7 @@ import io.swagger.annotations.ApiOperation;
  * @since 2019-09-08
  */
 @RestController
-@RequestMapping("/search")
+@RequestMapping("/es/zb")
 @Api(description = "搜索操作")
 public class SearchController extends SuperController {
 	
@@ -54,13 +63,20 @@ public class SearchController extends SuperController {
     private String analyzer;
 	
 	@ApiOperation("Search")
-	@PostMapping("/")
-	public ResponseData<String> search() throws IOException {
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/search")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> search(int page, int pageSize, String keyWord) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
+		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
         SearchRequest searchRequest = new SearchRequest(zbIndex); 
         searchRequest.types("_doc");
+      
         
         // 2、用SearchSourceBuilder来构造查询请求体 ,请仔细查看它的方法，构造各种查询的方法都在这。
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -74,12 +90,13 @@ public class SearchController extends SuperController {
         
         //sourceBuilder.query(QueryBuilders.matchAllQuery());
         		//.matchQuery("华安工业", "title")); 
-        sourceBuilder.query(QueryBuilders.matchQuery("title", "华安工业").analyzer(analyzer));
+       // sourceBuilder.query(QueryBuilders.matchQuery("title", keyWord).analyzer(analyzer));
         //sourceBuilder.query(QueryBuilders.termQuery("title", "华安工业"));
-        sourceBuilder.from(0); 
-        sourceBuilder.size(10); 
+        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyWord, "title", "content"));
+        sourceBuilder.from((page-1)*pageSize); 
+        sourceBuilder.size(pageSize); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
-        
+       
         //是否返回_source字段
         //sourceBuilder.fetchSource(false);
         
@@ -108,9 +125,15 @@ public class SearchController extends SuperController {
                 new HighlightBuilder.Field("title"); 
         highlightTitle.highlighterType("unified");  
         highlightBuilder.field(highlightTitle);  
-//        HighlightBuilder.Field highlightUser = new HighlightBuilder.Field("user");
-//        highlightBuilder.field(highlightUser);
+        HighlightBuilder.Field highlightContent = new HighlightBuilder.Field("content");
+        highlightBuilder.field(highlightContent);
         sourceBuilder.highlighter(highlightBuilder);
+        
+       /* HighlightBuilder highlightBuilder = new HighlightBuilder().field("*").requireFieldMatch(false);
+        highlightBuilder.preTags("<span style=\"color:red\">");
+        highlightBuilder.postTags("</span>");
+        sourceBuilder.highlighter(highlightBuilder);*/
+     
         
         
         //加入聚合
@@ -146,6 +169,7 @@ public class SearchController extends SuperController {
             // failures should be handled here
         }
         
+        String fragmentString = "";
         //处理搜索命中文档结果
         SearchHits hits = searchResponse.getHits();
         
@@ -155,14 +179,14 @@ public class SearchController extends SuperController {
         SearchHit[] searchHits = hits.getHits();
         for (SearchHit hit : searchHits) {
             // do something with the SearchHit
-            
+        	SearchResultVO vo = new SearchResultVO();
             String index = hit.getIndex();
             String type = hit.getType();
             String id = hit.getId();
             float score = hit.getScore();
             
             //取_source字段值
-            String sourceAsString = hit.getSourceAsString(); //取成json串
+            //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
             //从map中取字段值
             /*
@@ -171,15 +195,31 @@ public class SearchController extends SuperController {
             Map<String, Object> innerObject = (Map<String, Object>) sourceAsMap.get("innerObject");
             */
             logger.info("index:" + index + "  type:" + type + "  id:" + id);
-            logger.info(sourceAsString);
+         //   logger.info(sourceAsString);
+            
+            vo.setTitle(sourceAsMap.get("title").toString());
             
             //取高亮结果
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-            HighlightField highlight = highlightFields.get("title"); 
-            Text[] fragments = highlight.fragments();  
-            String fragmentString = fragments[0].string();
-            logger.info("fragments size:" + fragments.length);
-            logger.info("fragmentString:" + fragmentString);
+            HighlightField highlight1 = highlightFields.get("title");
+            if (highlight1 != null) {
+            	Text[] fragments1 = highlight1.fragments();  
+            	fragmentString = fragments1[0].string();
+            	logger.info("fragments1 size:" + fragments1.length);
+            	logger.info("fragmentString1:" + fragmentString);
+            	vo.setTitle(fragmentString);
+            }
+            
+            HighlightField highlight2 = highlightFields.get("content"); 
+            if (highlight2 != null) {
+            	Text[] fragments2 = highlight2.fragments();  
+            	fragmentString = fragments2[0].string();
+            	logger.info("fragments1 size:" + fragments2.length);
+            	logger.info("fragmentString1:" + fragmentString);
+            	vo.setContent(fragmentString);
+            }
+            result.add(vo);
+           
         }
         
         // 获取聚合结果
@@ -218,7 +258,8 @@ public class SearchController extends SuperController {
         */
   
         client.close();
-		return ResponseData.success();
+        PageResult pageResult = new PageResult(page, pageSize, totalHits, result);
+		return ResponseData.success(pageResult);
 	}
 	
 

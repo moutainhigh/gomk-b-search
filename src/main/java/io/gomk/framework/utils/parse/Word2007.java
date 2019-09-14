@@ -1,4 +1,4 @@
-package io.gomk.framework.utils;
+package io.gomk.framework.utils.parse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 
 public class Word2007 {
 
-	public String read(String filePath) {
+	public static String read(String filePath) {
 
 		String str = "";
 		try {

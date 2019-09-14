@@ -1,4 +1,4 @@
-package io.gomk.framework.utils;
+package io.gomk.framework.utils.parse;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,6 +1,8 @@
 package io.gomk.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESRestClient;
 import io.gomk.framework.controller.SuperController;
+import io.gomk.framework.utils.parse.ImportFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -39,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
  * @since 2019-09-08
  */
 @RestController
-@RequestMapping("/index")
+@RequestMapping("/es/index")
 @Api(description = "索引操作")
 public class IndexController extends SuperController {
 
@@ -137,9 +140,8 @@ public class IndexController extends SuperController {
 	
 
 	@ApiOperation("bulk index")
-	@PostMapping("/bulk")
+	@PostMapping("/doc/bulk")
 	public ResponseData<String> bulk() throws IOException {
-		RestHighLevelClient client = esClient.getClient();
 		
 		// 1、创建批量操作请求
         BulkRequest request = new BulkRequest(); 
@@ -150,6 +152,40 @@ public class IndexController extends SuperController {
         request.add(new IndexRequest(zbIndex, "_doc", "3")  
                 .source(XContentType.JSON,"title", "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
         
+        bulkIndex(request);
+		
+		return ResponseData.success();
+	}
+	
+	@ApiOperation("索引测试招标文件")
+	@PostMapping("/bulk/zb")
+	public ResponseData<String> bulkZB() throws IOException {
+		
+		// 1、创建批量操作请求
+        BulkRequest request = new BulkRequest(); 
+        
+        List<Map<String, Object>> sourceList = ImportFile.getSourceMap();
+        for (Map<String, Object> map : sourceList) {
+        	request.add(new IndexRequest(zbIndex, "_doc")  
+                    .source(map, XContentType.JSON));
+        }
+        /*request.add(new IndexRequest(zbIndex, "_doc", "1")  
+                .source(XContentType.JSON,"title", "foo"));
+        request.add(new IndexRequest(zbIndex, "_doc", "2")  
+                .source(XContentType.JSON,"title", "商品和服务"));
+        request.add(new IndexRequest(zbIndex, "_doc", "3")  
+                .source(XContentType.JSON,"title", "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
+        
+        */
+        
+        bulkIndex(request);
+		
+		return ResponseData.success();
+	}
+
+
+	private void bulkIndex(BulkRequest request) throws IOException {
+		RestHighLevelClient client = esClient.getClient();
         /*
         request.add(new DeleteRequest("mess", "_doc", "3")); 
         request.add(new UpdateRequest("mess", "_doc", "2") 
@@ -210,8 +246,6 @@ public class IndexController extends SuperController {
         client.bulkAsync(request, listener);
         */
         client.close();
-		
-		return ResponseData.success();
 	}
 
 }
