@@ -3,8 +3,18 @@ server:
   
 elasticsearch:
   ip: 39.105.192.98:29200
-#elasticsearch.ip=192.168.85.133:9200,192.168.85.133:9400,192.168.85.135:9200,192.168.85.135:9400
-
+  #elasticsearch.ip=192.168.85.133:9200,192.168.85.133:9400,192.168.85.135:9200,192.168.85.135:9400
+  index:
+    zbName: index_zhaobiao
+    tbName: index_toubiao
+    zjName: index_zaojia
+  shards: 3
+  replicas: 2
+  analyzer: hanlp
+  
+  
+  
+  
 minio:
   url: http://127.0.0.1:9000
   accessKey: O4X2RI01VT7TGELPDKP2

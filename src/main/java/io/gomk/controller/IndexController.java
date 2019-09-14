@@ -19,6 +19,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,17 +45,26 @@ public class IndexController extends SuperController {
 
 	@Autowired
 	ESRestClient esClient;
+	@Value("${elasticsearch.index.zbName}")
+    private String zbIndex;
+	@Value("${elasticsearch.shards}")
+    private Integer shards;
+	@Value("${elasticsearch.replicas}")
+    private Integer replicas;
+	@Value("${elasticsearch.analyzer}")
+    private String analyzer;
+	
 	
 	@ApiOperation("create index")
 	@PostMapping("/")
 	public ResponseData<String> create() throws IOException {
 		// 1、创建 创建索引request 参数：索引名mess
-		CreateIndexRequest request = new CreateIndexRequest("mess");
+		CreateIndexRequest request = new CreateIndexRequest(zbIndex);
 
 		// 2、设置索引的settings
-		request.settings(Settings.builder().put("index.number_of_shards", 3) // 分片数
-				.put("index.number_of_replicas", 2) // 副本数
-				.put("analysis.analyzer.default.tokenizer", "hanlp") // 默认分词器
+		request.settings(Settings.builder().put("index.number_of_shards", shards) // 分片数
+				.put("index.number_of_replicas", replicas) // 副本数
+				.put("analysis.analyzer.default.tokenizer", analyzer) // 默认分词器
 		);
 
 		// 3、设置索引的mappings
@@ -79,14 +89,14 @@ public class IndexController extends SuperController {
                 XContentType.JSON);
         
 		// 4、 设置索引的别名
-		request.alias(new Alias("test_1"));
+		//request.alias(new Alias("test_1"));
 
 		// 5、 发送请求
 		// 5.1 同步方式发送请求
 		RestHighLevelClient client = esClient.getClient();
 		
 		GetIndexRequest request1 = new GetIndexRequest();
-		request1.indices("mess");
+		request1.indices(zbIndex);
 		if (client.indices().exists(request1)) {
 			return ResponseData.error("index is exist.");
 		}
@@ -133,11 +143,11 @@ public class IndexController extends SuperController {
 		
 		// 1、创建批量操作请求
         BulkRequest request = new BulkRequest(); 
-        request.add(new IndexRequest("mess", "_doc", "1")  
+        request.add(new IndexRequest(zbIndex, "_doc", "1")  
                 .source(XContentType.JSON,"title", "foo"));
-        request.add(new IndexRequest("mess", "_doc", "2")  
+        request.add(new IndexRequest(zbIndex, "_doc", "2")  
                 .source(XContentType.JSON,"title", "商品和服务"));
-        request.add(new IndexRequest("mess", "_doc", "3")  
+        request.add(new IndexRequest(zbIndex, "_doc", "3")  
                 .source(XContentType.JSON,"title", "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
         
         /*
@@ -199,7 +209,7 @@ public class IndexController extends SuperController {
         };
         client.bulkAsync(request, listener);
         */
-        
+        client.close();
 		
 		return ResponseData.success();
 	}
