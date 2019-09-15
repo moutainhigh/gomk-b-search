@@ -40,7 +40,7 @@ spring:
 
 
 swagger:
-   host: 
+   host: 39.105.192.98:37106
    
 
    
