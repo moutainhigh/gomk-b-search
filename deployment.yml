@@ -57,4 +57,4 @@ spec:
           - path: /mb/search
             backend:
               serviceName: <P_NAME>-service
-              servicePort: 7023
+              servicePort: 7106
