@@ -7,9 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.IndexTokenizer;
+import com.hankcs.hanlp.tokenizer.NLPTokenizer;
+import com.hankcs.hanlp.tokenizer.StandardTokenizer;
+
 public class ImportFile {
 	public static void main(String[] args) throws IOException {
-		String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
+		/*String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
 		File directory = new File(directoryPath);
 		File[] files = directory.listFiles();
 		for (File f : files) {
@@ -25,7 +30,18 @@ public class ImportFile {
 				}
 				System.out.println("content:" + content);
 			}
+		}*/
+		
+		/*System.out.println(NLPTokenizer.segment("我新造一个词叫幻想乡你能识别并标注正确词性吗？"));
+		List<Term> termList = StandardTokenizer.segment("商品和服务");
+		System.out.println(termList);*/
+		List<Term> termList = IndexTokenizer.segment("主副食品");
+		for (Term term : termList)
+		{
+		    System.out.println(term + " [" + term.offset + ":" + (term.offset + term.word.length()) + "]");
+		    System.out.println(term.word);
 		}
+		
 	}
 	public static List<Map<String, Object>>  getSourceMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
@@ -47,6 +63,7 @@ public class ImportFile {
 				Map<String, Object> map = new HashMap<>();
 				map.put("title", fileName);
 				map.put("content", content);
+				map.put("keyword_suggest", content);
 				list.add(map);
 			}
 		}

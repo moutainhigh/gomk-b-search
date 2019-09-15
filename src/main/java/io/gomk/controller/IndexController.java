@@ -77,13 +77,17 @@ public class IndexController extends SuperController {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"hanlp\"\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
                 "          \"analyzer\": \"hanlp\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"keyword_suggest\": {\n" +
+                "          \"type\": \"completion\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
                 "        }\n" +
                 "      }\n" +
                 "    }\n" +
