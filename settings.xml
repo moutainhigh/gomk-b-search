@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+
+    <servers>
+      <server>
+        <id>nexus-release-repository</id>
+        <username>admin</username>
+        <password>linuxgz110411</password>
+      </server>
+    </servers>
+
+    <localRepository>/LIB/repository</localRepository>
+<!--
+    <mirrors>
+      <mirror>
+        <id>nexus</id>
+        <mirrorOf>*</mirrorOf>
+        <url>http://maven3:8081/repository/gomk-public/</url>
+      </mirror>
+    </mirrors>
+-->
+    <profiles>
+      <!--阿里云测试环境-->
+      <profile>
+        <id>test</id>
+        <repositories>
+          <repository>
+            <id>public</id>
+            <url>http://maven3:8081/repository/gomk-public/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+          </repository>
+        </repositories>
+       <pluginRepositories>
+          <pluginRepository>
+            <id>plugin</id>
+            <url>http://maven3:8081/repository/gomk-public/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+          </pluginRepository>
+        </pluginRepositories>
+      </profile>
+      <!--电厂生产环境-->
+      <profile>
+        <id>prod</id>
+        <repositories>
+          <repository>
+            <id>public</id>
+            <url>http://39.105.192.98:38081/repository/gomk-public/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+          </repository>
+        </repositories>
+       <pluginRepositories>
+          <pluginRepository>
+            <id>plugin</id>
+            <url>http://39.105.192.98:38081/repository/gomk-public/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+          </pluginRepository>
+        </pluginRepositories>
+      </profile>      
+    </profiles>
+    <activeProfiles>
+      <!--make the profile active all the time -->
+      <activeProfile>test</activeProfile>
+    </activeProfiles>
+</settings>

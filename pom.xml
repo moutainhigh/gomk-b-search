@@ -195,20 +195,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>public</id>
-			<name>Public Repositories</name>
-			<url>http://39.105.192.98:38081/repository/gomk-public/</url>
-		</repository>
-		<repository>
-			<id>sonatype</id>
-			<name>sonatype</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-		</repository>
-	</repositories>
-
 </project>
