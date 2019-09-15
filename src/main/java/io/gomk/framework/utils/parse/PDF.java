@@ -1,13 +1,10 @@
 package io.gomk.framework.utils.parse;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 public class PDF {
 
