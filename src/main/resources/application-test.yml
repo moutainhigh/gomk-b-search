@@ -40,7 +40,7 @@ spring:
 
 
 swagger:
-   host: 39.105.192.98:37106
+   host: gomk.io:34568/mb/search
    
 
    
