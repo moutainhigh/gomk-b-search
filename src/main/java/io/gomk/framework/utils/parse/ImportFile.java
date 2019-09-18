@@ -46,13 +46,14 @@ public class ImportFile {
 	public static List<Map<String, Object>>  getSourceMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
 		
-		String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
+		//String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zb";
 		File directory = new File(directoryPath);
 		File[] files = directory.listFiles();
 		for (File f : files) {
 			if (f.isFile()) {
 				String fileName = f.getName();
-				//System.out.println(fileName);
+				System.out.println(fileName);
 				String content = "";
 				if (fileName.endsWith(".doc")) {
 					content = Word2003.read(f.getAbsolutePath());
@@ -63,7 +64,7 @@ public class ImportFile {
 				Map<String, Object> map = new HashMap<>();
 				map.put("title", fileName);
 				map.put("content", content);
-				map.put("keyword_suggest", content);
+				//map.put("keyword_suggest", content);
 				list.add(map);
 			}
 		}

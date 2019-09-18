@@ -77,7 +77,7 @@ public class IndexController extends SuperController {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\"\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
@@ -87,7 +87,7 @@ public class IndexController extends SuperController {
                 "        },\n" +
                 "        \"keyword_suggest\": {\n" +
                 "          \"type\": \"completion\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"hanlp\"\n" +
                 "        }\n" +
                 "      }\n" +
                 "    }\n" +
@@ -181,7 +181,7 @@ public class IndexController extends SuperController {
                 .source(XContentType.JSON,"title", "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
         
         */
-        
+        request.timeout("0");
         bulkIndex(request);
 		
 		return ResponseData.success();
