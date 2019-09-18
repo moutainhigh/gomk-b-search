@@ -9,6 +9,7 @@ elasticsearch:
     zbName: index_zhaobiao
     tbName: index_toubiao
     zjName: index_zaojia
+    zgyqName: index_zgyq
   shards: 3
   replicas: 2
   analyzer: hanlp

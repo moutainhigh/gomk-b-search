@@ -50,6 +50,8 @@ public class IndexController extends SuperController {
 	ESRestClient esClient;
 	@Value("${elasticsearch.index.zbName}")
     private String zbIndex;
+	@Value("${elasticsearch.index.zgyqName}")
+    private String zgyqIndex;
 	@Value("${elasticsearch.shards}")
     private Integer shards;
 	@Value("${elasticsearch.replicas}")
@@ -58,11 +60,21 @@ public class IndexController extends SuperController {
     private String analyzer;
 	
 	
-	@ApiOperation("create index")
-	@PostMapping("/")
-	public ResponseData<String> create() throws IOException {
+	@ApiOperation("创建索引-招标文件")
+	@PostMapping("/zb")
+	public ResponseData<String> createZBIndex() throws IOException {
+		return createIndex(zbIndex);
+	}
+
+	@ApiOperation("创建索引-资格要求")
+	@PostMapping("/zgyq")
+	public ResponseData<String> createZGYQIndex() throws IOException {
+		return createIndex(zgyqIndex);
+	}
+
+	private ResponseData<String> createIndex(String indexName) throws IOException {
 		// 1、创建 创建索引request 参数：索引名mess
-		CreateIndexRequest request = new CreateIndexRequest(zbIndex);
+		CreateIndexRequest request = new CreateIndexRequest(indexName);
 
 		// 2、设置索引的settings
 		request.settings(Settings.builder().put("index.number_of_shards", shards) // 分片数
@@ -103,7 +115,7 @@ public class IndexController extends SuperController {
 		RestHighLevelClient client = esClient.getClient();
 		
 		GetIndexRequest request1 = new GetIndexRequest();
-		request1.indices(zbIndex);
+		request1.indices(indexName);
 		if (client.indices().exists(request1)) {
 			return ResponseData.error("index is exist.");
 		}
@@ -143,7 +155,8 @@ public class IndexController extends SuperController {
 	}
 	
 
-	@ApiOperation("bulk index")
+/**
+
 	@PostMapping("/doc/bulk")
 	public ResponseData<String> bulk() throws IOException {
 		
@@ -160,9 +173,9 @@ public class IndexController extends SuperController {
 		
 		return ResponseData.success();
 	}
-	
-	@ApiOperation("索引测试招标文件")
-	@PostMapping("/bulk/zb")
+ */	
+	@ApiOperation("批量添加招标文件")
+	@PostMapping("/zb/bulk")
 	public ResponseData<String> bulkZB() throws IOException {
 		
 		// 1、创建批量操作请求
@@ -186,6 +199,26 @@ public class IndexController extends SuperController {
 		
 		return ResponseData.success();
 	}
+	
+	@ApiOperation("批量添加资格要求")
+	@PostMapping("/zgyq/bulk")
+	public ResponseData<String> bulkZGYQ() throws IOException {
+		
+		// 1、创建批量操作请求
+        BulkRequest request = new BulkRequest(); 
+        
+        List<Map<String, Object>> sourceList = ImportFile.getSourceMap();
+        for (Map<String, Object> map : sourceList) {
+        	request.add(new IndexRequest(zgyqIndex, "_doc")  
+                    .source(map, XContentType.JSON));
+        }
+       
+        request.timeout("0");
+        bulkIndex(request);
+		
+		return ResponseData.success();
+	}
+
 
 
 	private void bulkIndex(BulkRequest request) throws IOException {

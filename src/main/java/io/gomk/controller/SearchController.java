@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiOperation;
  * @since 2019-09-08
  */
 @RestController
-@RequestMapping("/es/zb")
+@RequestMapping("/es/search")
 @Api(description = "搜索操作")
 public class SearchController extends SuperController {
 	
@@ -59,22 +59,39 @@ public class SearchController extends SuperController {
 	ESRestClient esClient;
 	@Value("${elasticsearch.index.zbName}")
     private String zbIndex;	
+	@Value("${elasticsearch.index.zgyqName}")
+    private String zgyqIndex;
 	@Value("${elasticsearch.analyzer}")
     private String analyzer;
 	
-	@ApiOperation("Search")
+	@ApiOperation("招标文件")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
 		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
 	})
-	@GetMapping("/search")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> search(int page, int pageSize, String keyWord) throws IOException {
+	@GetMapping("/zb")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord) throws IOException {
+		return execSearch(zbIndex, page, pageSize, keyWord);
+	}
+
+	@ApiOperation("资格要求库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/zgyq")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws IOException {
+		return execSearch(zgyqIndex, page, pageSize, keyWord);
+	}
+
+	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord) throws IOException{
 		RestHighLevelClient client = esClient.getClient();
 		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
-        SearchRequest searchRequest = new SearchRequest(zbIndex); 
+        SearchRequest searchRequest = new SearchRequest(indexName); 
         searchRequest.types("_doc");
       
         
@@ -210,14 +227,21 @@ public class SearchController extends SuperController {
             	vo.setTitle(fragmentString);
             }
             
-            HighlightField highlight2 = highlightFields.get("content"); 
-            if (highlight2 != null) {
-            	Text[] fragments2 = highlight2.fragments();  
-            	fragmentString = fragments2[0].string();
-            	logger.info("fragments1 size:" + fragments2.length);
-            	logger.info("fragmentString1:" + fragmentString);
-            	vo.setContent(fragmentString);
-            }
+            if (indexName.equals(zgyqIndex)) {
+            	String text = sourceAsMap.get("content").toString();
+            	vo.setContent(text.substring(text.indexOf("资格要求")));
+        	} else {
+        		HighlightField highlight2 = highlightFields.get("content"); 
+                if (highlight2 != null) {
+                	
+                	Text[] fragments2 = highlight2.fragments();  
+                	fragmentString = fragments2[0].string();
+                	logger.info("fragments1 size:" + fragments2.length);
+                	logger.info("fragmentString1:" + fragmentString);
+                	vo.setContent(fragmentString);
+                }
+        	}
+            
             result.add(vo);
            
         }

@@ -1,6 +1,6 @@
 server:
   port: 7106
-  
+
 elasticsearch:
   #ip: 39.105.192.98:29200
   ip: 58.119.224.27:29200
@@ -9,10 +9,12 @@ elasticsearch:
     zbName: index_zhaobiao
     tbName: index_toubiao
     zjName: index_zaojia
+    zgyqName: index_zgyq
   shards: 3
   replicas: 2
   analyzer: hanlp
   
+    
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
   global-config:

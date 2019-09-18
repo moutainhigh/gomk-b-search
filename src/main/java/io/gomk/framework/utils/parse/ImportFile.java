@@ -62,8 +62,11 @@ public class ImportFile {
 					content = Word2007.read(f.getAbsolutePath());
 				}
 				Map<String, Object> map = new HashMap<>();
+				fileName = fileName.substring(0, fileName.lastIndexOf("."));
 				map.put("title", fileName);
 				map.put("content", content);
+				map.put("keyword_suggest", fileName);
+				
 				//map.put("keyword_suggest", content);
 				list.add(map);
 			}
