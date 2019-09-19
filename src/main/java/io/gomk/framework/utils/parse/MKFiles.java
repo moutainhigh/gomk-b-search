@@ -1,12 +1,16 @@
 package io.gomk.framework.utils.parse;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -22,45 +26,129 @@ import com.github.junrar.rarfile.FileHeader;
 
 public class MKFiles {
 
+	// 读取文件，返回列表
+	public static List<String[]> readString(String m_RootPath) {
+
+		System.out.println("readString path:" + m_RootPath);
+		String[] arr = null;
+		List<String[]> list = new ArrayList<String[]>();
+		File f1 = new File(m_RootPath);
+		StringBuilder sb = null;
+		File f2 = null;
+		InputStreamReader reader = null;
+		BufferedReader bfreader = null;
+		String line = null;
+
+		for (int i = 1; i < 200; i++) {
+
+			arr = new String[5];
+			sb = new StringBuilder();
+			try {
+
+				// 第一个参数为一个目录文件，第二个参数为要在当前f1目录下要创建的文件
+				f2 = new File(f1, Integer.toString(i) + ".txt");
+				if (!f2.exists()) {
+					continue;
+				}
+
+				reader = new InputStreamReader(new FileInputStream(f2), "UTF-8");
+				bfreader = new BufferedReader(reader);
+				while ((line = bfreader.readLine()) != null) {
+					sb.append(line);
+				}
+				arr[0] = sb.toString();
+
+				f2 = new File(f1, Integer.toString(i) + "title.txt");
+				reader = new InputStreamReader(new FileInputStream(f2), "UTF-8");
+				bfreader = new BufferedReader(reader);
+				int rowindex = 1;
+				while ((line = bfreader.readLine()) != null) {
+					if (rowindex == 1) {
+						arr[1] = line;
+					} else if (rowindex == 2) {
+						arr[2] = line;
+					} else if (rowindex == 3) {
+						arr[3] = line;
+					}
+					rowindex++;
+				}
+				list.add(arr);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return list;
+	}
+
 	// 读取的数据再创建一个目录
-	public static String readString(String m_RootPath) {
+	// 1.txt保存全文件
+	// 1titie.txt,文件的信息
+	public static String saveString(String m_RootPath) {
+
+		File m_RootPathFile0 = new File(m_RootPath);
+		File m_RootPathFile = new File(m_RootPathFile0.getPath() + "Test");
 
 		try {
 
-			File m_RootPathFile0 = new File(m_RootPath);
-			File m_RootPathFile = new File(m_RootPathFile0.getPath() + "Test");
 			if (m_RootPathFile.exists()) { // 先删除再创建
 				FileUtils.deleteDirectory(m_RootPathFile);
 			}
 			m_RootPathFile.mkdirs(); // 创建目录
 
 			List<String> list = ForPathDoc(m_RootPath);
-			for (String path : list) {
-				System.out.println("doc filename:" + path);
+			int fileorder = 1;
+			for (String filename : list) {
 
-				File pathFile = new File(path);
-				String m_Suffix = getSuffix(path.toLowerCase());
+				File pathFile = new File(filename);
+				String m_Suffix = getSuffix(pathFile.getName().toLowerCase());
+				String content = "";
+				String title = "";
 				if (m_Suffix.equals("doc")) {
 
 					io.gomk.framework.utils.parse.Word2003 word = new io.gomk.framework.utils.parse.Word2003();
-					String str = word.read(path);
-					System.out.println("doc filename:" + str);
+					// content = word.read(filename);
 				} else if (m_Suffix.equals("docx")) {
 
 					io.gomk.framework.utils.parse.Word2007 word = new io.gomk.framework.utils.parse.Word2007();
-					String str = word.read(path);
-					System.out.println("doc filename:" + str);
+					// content = word.read(filename);
 				} else if (m_Suffix.equals("pdf")) {
 
 					io.gomk.framework.utils.parse.PDF word = new io.gomk.framework.utils.parse.PDF();
-					String str = word.read(path);
-					System.out.println("doc filename:" + str);
+					content = word.read(filename);
 				}
+
+				if (content.length() > 200) {
+					title += filename + "\r\n";
+					title += pathFile.getName().toLowerCase() + "\r\n";
+					title += Integer.toString(content.length()) + "\r\n";
+					writeFile(m_RootPathFile, Integer.toString(fileorder) + ".txt", content);
+					writeFile(m_RootPathFile, Integer.toString(fileorder) + "title.txt", title);
+				}
+				System.out.println("filename:" + Integer.toString(fileorder) + "," + Integer.toString(content.length())
+						+ "," + filename);
+				fileorder++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "";
+		return m_RootPathFile.getPath();
+	}
+
+	public static void writeFile(File m_PathFile, String m_FileNameNonPath, String content) {
+
+		try {
+
+			// 第一个参数为一个目录文件，第二个参数为要在当前f1目录下要创建的文件
+			// 第二个参数为true，从文件末尾写入 为false则从开头写入
+			File f2 = new File(m_PathFile, m_FileNameNonPath);
+			PrintWriter printWriter = new PrintWriter(new FileWriter(f2, true), true);
+			printWriter.println(content);
+			printWriter.close();// 记得关闭输入流
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	// 下载，解压，返回根目录
