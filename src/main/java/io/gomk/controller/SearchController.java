@@ -85,7 +85,7 @@ public class SearchController extends SuperController {
 	})
 	@GetMapping("/zgyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws IOException {
-		return execSearch(zgyqIndex, page, pageSize, keyWord, false);
+		return execSearch(zgyqIndex, page, pageSize, keyWord, true);
 	}
 	@ApiOperation("造价成果库")
 	@ApiImplicitParams({
@@ -96,10 +96,10 @@ public class SearchController extends SuperController {
 	@GetMapping("/zjcg")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws IOException {
 		//return execSearch(zjcgIndex, page, pageSize, keyWord);
-		return execSearch(zgyqIndex, page, pageSize, keyWord, true);
+		return execSearch(zgyqIndex, page, pageSize, keyWord, false);
 	}
 
-	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord, boolean bl) throws IOException{
+	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{
 		RestHighLevelClient client = esClient.getClient();
 		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
@@ -243,7 +243,7 @@ public class SearchController extends SuperController {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setTitle(fragmentString);
             }
-            if (bl= true) {
+            if (bl == true) {
             	if (i%2 == 0) {
             		vo.setFileUrl("zj/国华双辽莲花山风电场一期工程结算审核/"+vo.getTitle());
             	} else {
@@ -251,7 +251,7 @@ public class SearchController extends SuperController {
             	}
             	
             }
-            if (indexName.equals(zgyqIndex) && !bl) {
+            if (indexName.equals(zgyqIndex) && bl) {
             	String text = sourceAsMap.get("content").toString();
             	vo.setContent(text.substring(text.indexOf("资格要求")));
         	} else {
