@@ -12,6 +12,9 @@ public class Word2003 {
 
 	public static String read(String filePath) throws IOException {
 
+		if (filePath.contains("~")) {
+			return "";
+		}
 		// 这个构造函数从InputStream中加载Word文档。
 		FileInputStream fis = new FileInputStream(filePath);
 		HWPFDocument doc = new HWPFDocument(fis);

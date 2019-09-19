@@ -74,7 +74,7 @@ public class SearchController extends SuperController {
 	})
 	@GetMapping("/zb")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord) throws IOException {
-		return execSearch(zbIndex, page, pageSize, keyWord);
+		return execSearch(zbIndex, page, pageSize, keyWord, false);
 	}
 
 	@ApiOperation("资格要求库")
@@ -85,7 +85,7 @@ public class SearchController extends SuperController {
 	})
 	@GetMapping("/zgyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws IOException {
-		return execSearch(zgyqIndex, page, pageSize, keyWord);
+		return execSearch(zgyqIndex, page, pageSize, keyWord, false);
 	}
 	@ApiOperation("造价成果库")
 	@ApiImplicitParams({
@@ -95,10 +95,11 @@ public class SearchController extends SuperController {
 	})
 	@GetMapping("/zjcg")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws IOException {
-		return execSearch(zjcgIndex, page, pageSize, keyWord);
+		//return execSearch(zjcgIndex, page, pageSize, keyWord);
+		return execSearch(zgyqIndex, page, pageSize, keyWord, true);
 	}
 
-	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord) throws IOException{
+	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord, boolean bl) throws IOException{
 		RestHighLevelClient client = esClient.getClient();
 		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
@@ -206,6 +207,7 @@ public class SearchController extends SuperController {
         float maxScore = hits.getMaxScore();
         
         SearchHit[] searchHits = hits.getHits();
+        int i =1;
         for (SearchHit hit : searchHits) {
             // do something with the SearchHit
         	SearchResultVO vo = new SearchResultVO();
@@ -241,8 +243,15 @@ public class SearchController extends SuperController {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setTitle(fragmentString);
             }
-            
-            if (indexName.equals(zgyqIndex)) {
+            if (bl= true) {
+            	if (i%2 == 0) {
+            		vo.setFileUrl("zj/国华双辽莲花山风电场一期工程结算审核/"+vo.getTitle());
+            	} else {
+            		vo.setFileUrl("zj/CSIE-准能-地下管网破裂紧急维修工程/"+vo.getTitle());
+            	}
+            	
+            }
+            if (indexName.equals(zgyqIndex) && !bl) {
             	String text = sourceAsMap.get("content").toString();
             	vo.setContent(text.substring(text.indexOf("资格要求")));
         	} else {
@@ -258,7 +267,7 @@ public class SearchController extends SuperController {
         	}
             
             result.add(vo);
-           
+           i++;
         }
         
         // 获取聚合结果

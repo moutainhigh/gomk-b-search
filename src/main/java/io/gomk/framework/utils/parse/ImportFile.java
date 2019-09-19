@@ -12,6 +12,8 @@ import java.util.Map;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
+import io.gomk.framework.utils.FileListUtil;
+
 public class ImportFile {
 	static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	public static void main(String[] args) throws IOException {
@@ -44,7 +46,7 @@ public class ImportFile {
 		}
 		
 	}
-	public static List<Map<String, Object>>  getSourceMap() throws IOException {
+	public static List<Map<String, Object>>  getZBMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
 		 
 		String now = format.format(new Date());
@@ -79,4 +81,40 @@ public class ImportFile {
 		return list;
 	}
 	
+	public static List<Map<String, Object>>  getZJMap() throws IOException {
+		List<Map<String, Object>> list = new ArrayList<>();
+		 
+		String now = format.format(new Date());
+		//String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
+		FileListUtil.find(directoryPath, directoryPath, 3, list);
+		
+		File directory = new File(directoryPath);
+		File[] files = directory.listFiles();
+		for (File f : files) {
+			if (f.isFile()) {
+				String fileName = f.getName();
+				System.out.println(fileName);
+				String content = "";
+				if (fileName.endsWith(".doc")) {
+					content = Word2003.read(f.getAbsolutePath());
+				}
+				if (fileName.endsWith(".docx")) {
+					content = Word2007.read(f.getAbsolutePath());
+				}
+				Map<String, Object> map = new HashMap<>();
+				fileName = fileName.substring(0, fileName.lastIndexOf("."));
+				map.put("title", fileName);
+				map.put("content", content);
+				map.put("keyword_suggest", fileName);
+				map.put("tag", "");
+				map.put("add_date", now);
+				map.put("file_url", "");
+				
+				//map.put("keyword_suggest", content);
+				list.add(map);
+			}
+		}
+		return list;
+	}
 }

@@ -260,7 +260,7 @@ public class IndexController extends SuperController {
 		// 1、创建批量操作请求
         BulkRequest request = new BulkRequest(); 
         
-        List<Map<String, Object>> sourceList = ImportFile.getSourceMap();
+        List<Map<String, Object>> sourceList = ImportFile.getZBMap();
         int i = 1;
         for (Map<String, Object> map : sourceList) {
         	request.add(new IndexRequest(zbIndex, "_doc")  
@@ -297,18 +297,53 @@ public class IndexController extends SuperController {
 		// 1、创建批量操作请求
         BulkRequest request = new BulkRequest(); 
         
-        List<Map<String, Object>> sourceList = ImportFile.getSourceMap();
-        for (Map<String, Object> map : sourceList) {
-        	request.add(new IndexRequest(zgyqIndex, "_doc")  
-                    .source(map, XContentType.JSON));
-        }
-       
-        request.timeout("0");
-        bulkIndex(request);
+        List<Map<String, Object>> sourceList = ImportFile.getZBMap();
+//        int i = 1;
+//        for (Map<String, Object> map : sourceList) {
+//        	request.add(new IndexRequest(zgyqIndex, "_doc")  
+//                    .source(map, XContentType.JSON));
+//        	if (i%5 == 0) {
+//        		bulkIndex(request);
+//        		request = new BulkRequest(); 
+//        		i++;
+//        		continue;
+//        	}
+//        	if (i == map.size() && i%5 != 0) {
+//        		bulkIndex(request);
+//        	}
+//        	i++;
+//        }
 		
 		return ResponseData.success();
 	}
 
+	@ApiOperation("批量添加造价成果")
+	@PostMapping("/zj/bulk")
+	public ResponseData<String> bulkZJ() throws IOException {
+		
+		// 1、创建批量操作请求
+        
+        
+		BulkRequest request = new BulkRequest(); 
+        List<Map<String, Object>> sourceList = ImportFile.getZJMap();
+        int i = 1;
+        for (Map<String, Object> map : sourceList) {
+        	request.add(new IndexRequest(zjcgIndex, "_doc")  
+        			.source(map, XContentType.JSON));
+        	if (i%2 == 0) {
+        		bulkIndex(request);
+        		request = new BulkRequest(); 
+        		//i++;
+        		continue;
+        	}
+        	if (i == map.size() && i%2 != 0) {
+        		bulkIndex(request);
+        	}
+        	i++;
+        }
+        request.timeout("0");
+		return ResponseData.success();
+	}
 
 
 	private void bulkIndex(BulkRequest request) throws IOException {
@@ -322,11 +357,11 @@ public class IndexController extends SuperController {
         */
         
         // 2、可选的设置
-        /*
-        request.timeout("2m");
+        
+        //request.timeout("2m");
         request.setRefreshPolicy("wait_for");  
         request.waitForActiveShards(2);
-        */
+        
         
         
         //3、发送请求        

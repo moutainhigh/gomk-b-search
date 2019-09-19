@@ -8,7 +8,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 public class PDF {
 
-	public String read(String filePath) {
+	public static String read(String filePath) {
 
 		// 这个构造函数从InputStream中加载Word文档。
 		PDDocument helloDocument = null;
@@ -19,7 +19,9 @@ public class PDF {
 			str = textStripper.getText(helloDocument);
 			helloDocument.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println(e.getMessage());
+			return "";
 		}
 		return str;
 	}
