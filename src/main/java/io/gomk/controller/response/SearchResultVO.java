@@ -11,4 +11,15 @@ public class SearchResultVO {
 	
 	@ApiModelProperty(value = "正文")
 	private String content;
+	
+	@ApiModelProperty(value = "入库时间")
+	private String addDate;
+	
+	@ApiModelProperty(value = "标签")
+	private String tag;
+	
+	@ApiModelProperty(value = "文件路径")
+	private String fileUrl;
+	
+	
 }

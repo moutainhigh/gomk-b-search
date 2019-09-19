@@ -59,6 +59,8 @@ public class SearchController extends SuperController {
 	ESRestClient esClient;
 	@Value("${elasticsearch.index.zbName}")
     private String zbIndex;	
+	@Value("${elasticsearch.index.zjName}")
+    private String zjcgIndex;
 	@Value("${elasticsearch.index.zgyqName}")
     private String zgyqIndex;
 	@Value("${elasticsearch.analyzer}")
@@ -84,6 +86,16 @@ public class SearchController extends SuperController {
 	@GetMapping("/zgyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws IOException {
 		return execSearch(zgyqIndex, page, pageSize, keyWord);
+	}
+	@ApiOperation("造价成果库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/zjcg")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws IOException {
+		return execSearch(zjcgIndex, page, pageSize, keyWord);
 	}
 
 	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord) throws IOException{
@@ -215,7 +227,10 @@ public class SearchController extends SuperController {
          //   logger.info(sourceAsString);
             
             vo.setTitle(sourceAsMap.get("title").toString());
-            
+            vo.setAddDate(sourceAsMap.get("add_date").toString());
+            vo.setTag(sourceAsMap.get("tag").toString());
+            Object fileUrl = sourceAsMap.get("file_url");
+            vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
             //取高亮结果
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();
             HighlightField highlight1 = highlightFields.get("title");

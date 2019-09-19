@@ -52,6 +52,8 @@ public class IndexController extends SuperController {
     private String zbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
     private String zgyqIndex;
+	@Value("${elasticsearch.index.zjName}")
+    private String zjcgIndex;
 	@Value("${elasticsearch.shards}")
     private Integer shards;
 	@Value("${elasticsearch.replicas}")
@@ -59,32 +61,93 @@ public class IndexController extends SuperController {
 	@Value("${elasticsearch.analyzer}")
     private String analyzer;
 	
+	public String mapping = "  {\n" +
+            "    \"_doc\": {\n" +
+            "      \"properties\": {\n" +
+            "        \"title\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"term_vector\": \"with_positions_offsets\"\n" +
+            "        },\n" +
+            "        \"content\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"term_vector\": \"with_positions_offsets\"\n" +
+            "        },\n" +
+            "        \"keyword_suggest\": {\n" +
+            "          \"type\": \"completion\",\n" +
+            "          \"analyzer\": \"hanlp\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }";
 	
 	@ApiOperation("创建索引-招标文件")
 	@PostMapping("/zb")
 	public ResponseData<String> createZBIndex() throws IOException {
-		return createIndex(zbIndex);
+		return createIndex(zbIndex, mapping);
 	}
 
 	@ApiOperation("创建索引-资格要求")
 	@PostMapping("/zgyq")
 	public ResponseData<String> createZGYQIndex() throws IOException {
-		return createIndex(zgyqIndex);
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(zgyqIndex, mapping);
 	}
-
-	private ResponseData<String> createIndex(String indexName) throws IOException {
-		// 1、创建 创建索引request 参数：索引名mess
-		CreateIndexRequest request = new CreateIndexRequest(indexName);
-
-		// 2、设置索引的settings
-		request.settings(Settings.builder().put("index.number_of_shards", shards) // 分片数
-				.put("index.number_of_replicas", replicas) // 副本数
-				.put("analysis.analyzer.default.tokenizer", analyzer) // 默认分词器
-		);
-
-		// 3、设置索引的mappings
-        request.mapping("_doc",
-                "  {\n" +
+	
+	@ApiOperation("创建索引-造价成果库")
+	@PostMapping("/zjcg")
+	public ResponseData<String> createZjcgIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(zjcgIndex, mapping);
+	}
+	
+	@ApiOperation("创建索引-搜索补全")
+	@PostMapping("/keyword/suggest")
+	public ResponseData<String> createKeywordSuggestIndex() throws IOException {
+		String mapping = "  {\n" +
                 "    \"_doc\": {\n" +
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
@@ -103,8 +166,24 @@ public class IndexController extends SuperController {
                 "        }\n" +
                 "      }\n" +
                 "    }\n" +
-                "  }",
-                
+                "  }";
+		return createIndex(zgyqIndex, mapping);
+	}
+	
+
+	private ResponseData<String> createIndex(String indexName, String mapping) throws IOException {
+		// 1、创建 创建索引request 参数：索引名mess
+		CreateIndexRequest request = new CreateIndexRequest(indexName);
+
+		// 2、设置索引的settings
+		request.settings(Settings.builder().put("index.number_of_shards", shards) // 分片数
+				.put("index.number_of_replicas", replicas) // 副本数
+				.put("analysis.analyzer.default.tokenizer", analyzer) // 默认分词器
+		);
+
+		// 3、设置索引的mappings
+        request.mapping("_doc",
+                mapping, 
                 XContentType.JSON);
         
 		// 4、 设置索引的别名
@@ -182,9 +261,20 @@ public class IndexController extends SuperController {
         BulkRequest request = new BulkRequest(); 
         
         List<Map<String, Object>> sourceList = ImportFile.getSourceMap();
+        int i = 1;
         for (Map<String, Object> map : sourceList) {
         	request.add(new IndexRequest(zbIndex, "_doc")  
                     .source(map, XContentType.JSON));
+        	if (i%5 == 0) {
+        		bulkIndex(request);
+        		request = new BulkRequest(); 
+        		i++;
+        		continue;
+        	}
+        	if (i == map.size() && i%5 != 0) {
+        		bulkIndex(request);
+        	}
+        	i++;
         }
         /*request.add(new IndexRequest(zbIndex, "_doc", "1")  
                 .source(XContentType.JSON,"title", "foo"));
@@ -194,8 +284,8 @@ public class IndexController extends SuperController {
                 .source(XContentType.JSON,"title", "上海华安工业（集团）公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"));
         
         */
-        request.timeout("0");
-        bulkIndex(request);
+       // request.timeout("0");
+        
 		
 		return ResponseData.success();
 	}

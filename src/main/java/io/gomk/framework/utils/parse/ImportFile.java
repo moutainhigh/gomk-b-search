@@ -2,17 +2,18 @@ package io.gomk.framework.utils.parse;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
-import com.hankcs.hanlp.tokenizer.NLPTokenizer;
-import com.hankcs.hanlp.tokenizer.StandardTokenizer;
 
 public class ImportFile {
+	static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	public static void main(String[] args) throws IOException {
 		/*String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
 		File directory = new File(directoryPath);
@@ -45,7 +46,8 @@ public class ImportFile {
 	}
 	public static List<Map<String, Object>>  getSourceMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
-		
+		 
+		String now = format.format(new Date());
 		//String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/zb";
 		File directory = new File(directoryPath);
@@ -66,6 +68,9 @@ public class ImportFile {
 				map.put("title", fileName);
 				map.put("content", content);
 				map.put("keyword_suggest", fileName);
+				map.put("tag", "");
+				map.put("add_date", now);
+				map.put("file_url", "");
 				
 				//map.put("keyword_suggest", content);
 				list.add(map);
