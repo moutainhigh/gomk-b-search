@@ -37,7 +37,7 @@ public class AppMain {
 			urlarr2[4] = m_RootPathText;
 		}
 
-		// 结束就删除2个文件, zip文件，解压之后的目录 1234
+		// 结束就删除2个文件, zip文件，解压之后的目录 12346789
 //		try {
 //			File m_zipFile = new File(m_DescPath + m_FileName);
 //			if (m_zipFile.exists()) {
