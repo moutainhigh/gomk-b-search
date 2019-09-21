@@ -297,22 +297,22 @@ public class IndexController extends SuperController {
 		// 1、创建批量操作请求
         BulkRequest request = new BulkRequest(); 
         
-        List<Map<String, Object>> sourceList = ImportFile.getZBMap();
-//        int i = 1;
-//        for (Map<String, Object> map : sourceList) {
-//        	request.add(new IndexRequest(zgyqIndex, "_doc")  
-//                    .source(map, XContentType.JSON));
-//        	if (i%5 == 0) {
-//        		bulkIndex(request);
-//        		request = new BulkRequest(); 
-//        		i++;
-//        		continue;
-//        	}
-//        	if (i == map.size() && i%5 != 0) {
-//        		bulkIndex(request);
-//        	}
-//        	i++;
-//        }
+        List<Map<String, Object>> sourceList = ImportFile.getZGYQMap();
+        int i = 1;
+        for (Map<String, Object> map : sourceList) {
+        	request.add(new IndexRequest(zgyqIndex, "_doc")  
+                    .source(map, XContentType.JSON));
+        	if (i%5 == 0) {
+        		bulkIndex(request);
+        		request = new BulkRequest(); 
+        		i++;
+        		continue;
+        	}
+        	if (i == map.size() && i%5 != 0) {
+        		bulkIndex(request);
+        	}
+        	i++;
+        }
 		
 		return ResponseData.success();
 	}

@@ -12,6 +12,12 @@ public class SearchResultVO {
 	@ApiModelProperty(value = "正文")
 	private String content;
 	
+	@ApiModelProperty(value = "资格要求")
+	private String zgyqInfo;
+	
+	@ApiModelProperty(value = "招标范围")
+	private String zbfwInfo;
+	
 	@ApiModelProperty(value = "入库时间")
 	private String addDate;
 	

@@ -12,6 +12,8 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -96,7 +98,7 @@ public class SearchController extends SuperController {
 	@GetMapping("/zjcg")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws IOException {
 		//return execSearch(zjcgIndex, page, pageSize, keyWord);
-		return execSearch(zgyqIndex, page, pageSize, keyWord, false);
+		return execSearch(zjcgIndex, page, pageSize, keyWord, false);
 	}
 
 	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{
@@ -120,13 +122,12 @@ public class SearchController extends SuperController {
         
         //sourceBuilder.query(QueryBuilders.matchAllQuery());
         		//.matchQuery("华安工业", "title")); 
-       // sourceBuilder.query(QueryBuilders.matchQuery("title", keyWord).analyzer(analyzer));
+        //sourceBuilder.query(QueryBuilders.matchQuery("content", keyWord).operator(Operator.AND));
         //sourceBuilder.query(QueryBuilders.termQuery("title", "华安工业"));
-        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyWord, "title", "content"));
+        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyWord, "title", "content").operator(Operator.AND));
         sourceBuilder.from((page-1)*pageSize); 
         sourceBuilder.size(pageSize); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
-       
         //是否返回_source字段
         //sourceBuilder.fetchSource(false);
         
@@ -147,7 +148,6 @@ public class SearchController extends SuperController {
         
         // 可选的设置
         //searchRequest.routing("routing");
-        
         // 高亮设置
        
         HighlightBuilder highlightBuilder = new HighlightBuilder(); 
@@ -207,7 +207,6 @@ public class SearchController extends SuperController {
         float maxScore = hits.getMaxScore();
         
         SearchHit[] searchHits = hits.getHits();
-        int i =1;
         for (SearchHit hit : searchHits) {
             // do something with the SearchHit
         	SearchResultVO vo = new SearchResultVO();
@@ -243,31 +242,25 @@ public class SearchController extends SuperController {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setTitle(fragmentString);
             }
-            if (bl == true) {
-            	if (i%2 == 0) {
-            		vo.setFileUrl("zj/国华双辽莲花山风电场一期工程结算审核/"+vo.getTitle());
-            	} else {
-            		vo.setFileUrl("zj/CSIE-准能-地下管网破裂紧急维修工程/"+vo.getTitle());
-            	}
-            	
-            }
-            if (indexName.equals(zgyqIndex) && bl) {
+ 
+            if (indexName.equals(zgyqIndex)) {
             	String text = sourceAsMap.get("content").toString();
-            	vo.setContent(text.substring(text.indexOf("资格要求")));
-        	} else {
-        		HighlightField highlight2 = highlightFields.get("content"); 
-                if (highlight2 != null) {
-                	
-                	Text[] fragments2 = highlight2.fragments();  
-                	fragmentString = fragments2[0].string();
-                	logger.info("fragments1 size:" + fragments2.length);
-                	logger.info("fragmentString1:" + fragmentString);
-                	vo.setContent(fragmentString);
-                }
-        	}
+            	if (text.indexOf("资格要求") != -1) {
+            		vo.setZgyqInfo(text.substring(text.indexOf("资格要求")));
+            		vo.setZbfwInfo(text.substring(0, text.indexOf("资格要求")));
+            	}
+        	} 
+            
+    		HighlightField highlight2 = highlightFields.get("content"); 
+            if (highlight2 != null) {
+            	Text[] fragments2 = highlight2.fragments();  
+            	fragmentString = fragments2[0].string();
+            	logger.info("fragments1 size:" + fragments2.length);
+            	logger.info("fragmentString1:" + fragmentString);
+            	vo.setContent(fragmentString);
+            }
             
             result.add(vo);
-           i++;
         }
         
         // 获取聚合结果

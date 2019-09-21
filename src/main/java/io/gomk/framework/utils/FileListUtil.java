@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hankcs.hanlp.HanLP;
+
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.framework.utils.parse.PDF;
 import io.gomk.framework.utils.parse.Word2003;
@@ -86,7 +88,9 @@ public class FileListUtil {
 				map.put("title", fileName);
 				map.put("content", content);
 				map.put("keyword_suggest", fileName);
-				map.put("tag", "");
+			//	List<String> keywordList = HanLP.extractKeyword(content, 5);
+				List<String> keywordList = HanLP.extractPhrase(content, 3);
+				map.put("tag", keywordList.toString());
 				map.put("add_date", now);
 				map.put("file_url", filePath.replace(delPath, "|--"));
 				list.add(map);
