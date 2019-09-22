@@ -16,12 +16,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
-import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.w3c.dom.Document;
 
 public class Word2007 {
 
