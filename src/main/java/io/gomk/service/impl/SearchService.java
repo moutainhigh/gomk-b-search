@@ -30,8 +30,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.SearchController;
-import io.gomk.controller.response.ESRestClient;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.es6.ESRestClient;
 import io.gomk.service.ISearchService;
 
 

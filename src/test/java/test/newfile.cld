@@ -3831,8 +3831,8 @@
         </net.java.amateras.uml.properties.BooleanPropertyDescriptor>
       </propertyDescriptors>
       <stereoType></stereoType>
-      <name>io.gomk.controller.DictController</name>
-      <path>/gomk-b-search/src/main/java/io/gomk/controller/DictController.java</path>
+      <name>io.gomk.es6.DictController</name>
+      <path>/gomk-b-search/src/main/java/io/gomk/es6/DictController.java</path>
       <isAbstract>false</isAbstract>
     </net.java.amateras.uml.classdiagram.model.ClassModel>
     <net.java.amateras.uml.classdiagram.model.InterfaceModel reference="../net.java.amateras.uml.classdiagram.model.ClassModel/parent/children/net.java.amateras.uml.classdiagram.model.InterfaceModel"/>

@@ -1,7 +1,4 @@
-package io.gomk.controller.response;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+package io.gomk.es6;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;

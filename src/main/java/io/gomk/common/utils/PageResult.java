@@ -19,12 +19,12 @@ public class PageResult<T> implements Serializable {
 	public PageResult() {
 	}
 
-//    public PageResult(int page, int pageSize, long totalRows, List<T> rows ) {
-//        this.setRows(rows);
-//        this.setTotalRows(totalRows);
-//        this.setPage(page);
-//        this.setPageSize(pageSize);
-//        this.setTotalPage((int)totalRows/pageSize + 1);
-//    }
+    public PageResult(int page, int pageSize, long totalRows, List<T> rows ) {
+        this.setRows(rows);
+        this.setTotalRows(totalRows);
+        this.setPage(page);
+        this.setPageSize(pageSize);
+        this.setTotalPage((int)totalRows/pageSize + 1);
+    }
 
 }
