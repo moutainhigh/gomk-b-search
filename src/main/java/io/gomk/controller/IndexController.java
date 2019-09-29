@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.gomk.common.rs.response.ResponseData;
-import io.gomk.es6.ESRestClient;
+import io.gomk.controller.response.ESRestClient;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.parse.ImportFile;
 import io.swagger.annotations.Api;

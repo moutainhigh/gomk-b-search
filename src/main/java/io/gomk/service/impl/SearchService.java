@@ -1,4 +1,4 @@
-package io.gomk.controller;
+package io.gomk.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -25,37 +24,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
+import io.gomk.controller.SearchController;
 import io.gomk.controller.response.ESRestClient;
 import io.gomk.controller.response.SearchResultVO;
-import io.gomk.framework.controller.SuperController;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.gomk.service.ISearchService;
 
-/**
- * <p>
- * 搜索
- * </p>
- *
- * @author Robinxiao
- * @since 2019-09-08
- */
-@RestController
-@RequestMapping("/es/search")
-@Api(description = "搜索操作")
-public class SearchController extends SuperController {
-	
-	private Logger logger = LoggerFactory.getLogger(SearchController.class);
+
+public class SearchService implements ISearchService {
+
+	private Logger logger = LoggerFactory.getLogger(SearchService.class);
 	
 	@Autowired
 	ESRestClient esClient;
@@ -68,40 +50,12 @@ public class SearchController extends SuperController {
 	@Value("${elasticsearch.analyzer}")
     private String analyzer;
 	
-	@ApiOperation("招标文件")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
-		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
-	})
-	@GetMapping("/zb")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord) throws IOException {
-		return execSearch(zbIndex, page, pageSize, keyWord, false);
-	}
-
-	@ApiOperation("资格要求库")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
-		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
-	})
-	@GetMapping("/zgyq")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws IOException {
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord) throws Exception {
 		return execSearch(zgyqIndex, page, pageSize, keyWord, true);
 	}
-	@ApiOperation("造价成果库")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
-		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
-	})
-	@GetMapping("/zjcg")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws IOException {
-		//return execSearch(zjcgIndex, page, pageSize, keyWord);
-		return execSearch(zjcgIndex, page, pageSize, keyWord, false);
-	}
-
-	private ResponseData<PageResult<Page<List<SearchResultVO>>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{
+	
+	private PageResult<Page<List<SearchResultVO>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{
 		RestHighLevelClient client = esClient.getClient();
 		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
@@ -300,10 +254,63 @@ public class SearchController extends SuperController {
   
         client.close();
         PageResult pageResult = new PageResult(page, pageSize, totalHits, result);
-		return ResponseData.success(pageResult);
+		return pageResult;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZGYQ(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZHUANJIA(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZBR(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchTBWJ(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchPBBF(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchJSYQ(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZCFG(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZJCG(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchPrice(int page, int pageSize, String keyWord) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 
-	
 
 }

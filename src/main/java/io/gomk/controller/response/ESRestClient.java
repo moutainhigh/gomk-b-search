@@ -1,4 +1,4 @@
-package io.gomk.es6;
+package io.gomk.controller.response;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

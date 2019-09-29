@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 
-import io.gomk.mapper.FactoryOrgMapper;
+import io.gomk.mapper.DictMapper;
 
 @RunWith(SpringRunner.class)
 @MybatisTest
@@ -22,17 +22,12 @@ import io.gomk.mapper.FactoryOrgMapper;
 public class ApplicationTest {
 	
 	@Autowired
-	private FactoryOrgMapper orgMapper;
+	private DictMapper orgMapper;
 	@Bean
 	@ConfigurationProperties("spring.datasource.druid")
 	public DataSource dataSource() {
 		return DruidDataSourceBuilder.create().build();
 	}
 	
-	//@Test
-	@Rollback
-	public void update() {
-		orgMapper.selectById(1);
-	}
 	
 }
