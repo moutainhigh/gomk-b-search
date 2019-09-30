@@ -1,13 +1,14 @@
 package io.gomk.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.gomk.controller.request.DictRequest;
 import io.gomk.controller.response.ResultVO;
 import io.gomk.mapper.DictMapper;
 import io.gomk.service.IDictService;
 
-
+@Service
 public class DictService implements IDictService {
 
 	@Autowired

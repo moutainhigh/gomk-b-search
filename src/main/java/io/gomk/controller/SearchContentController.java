@@ -50,54 +50,54 @@ public class SearchContentController extends SuperController {
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord) throws Exception {
 		return ResponseData.success(searchService.searchZB(page, pageSize, keyWord));
 	}
-
-	@ApiOperation("资格要求库")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
-		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
-	})
-	@GetMapping("/zgyq") //资格要求
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZGYQ(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/zhuanjia") //专家库
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZHUANJIA(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZHUANJIA(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/zbr")//招标人
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZBR(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZBR(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/tbwj")//投标文件
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchTBWJ(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchTBWJ(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/pbbf")//评标办法
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchPBBF(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/jsyq")//技术要求
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchJSYQ(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/price")//价格
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPrice(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchPrice(page, pageSize, keyWord));
-	}
-	
-	@GetMapping("/zcfg") //政策法规
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZCFG(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZCFG(page, pageSize, keyWord));
-	}
-	@GetMapping("/zjcg") //造价成果
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZJCG(page, pageSize, keyWord));
-	}
+//
+//	@ApiOperation("资格要求库")
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+//		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+//		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+//	})
+//	@GetMapping("/zgyq") //资格要求
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchZGYQ(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/zhuanjia") //专家库
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZHUANJIA(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchZHUANJIA(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/zbr")//招标人
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZBR(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchZBR(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/tbwj")//投标文件
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchTBWJ(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchTBWJ(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/pbbf")//评标办法
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchPBBF(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/jsyq")//技术要求
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchJSYQ(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/price")//价格
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPrice(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchPrice(page, pageSize, keyWord));
+//	}
+//	
+//	@GetMapping("/zcfg") //政策法规
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZCFG(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchZCFG(page, pageSize, keyWord));
+//	}
+//	@GetMapping("/zjcg") //造价成果
+//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws Exception {
+//		return ResponseData.success(searchService.searchZJCG(page, pageSize, keyWord));
+//	}
 }

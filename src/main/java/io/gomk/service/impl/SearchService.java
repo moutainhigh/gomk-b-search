@@ -22,37 +22,22 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
-import io.gomk.controller.SearchController;
 import io.gomk.controller.response.SearchResultVO;
-import io.gomk.es6.ESRestClient;
 import io.gomk.service.ISearchService;
 
-
-public class SearchService implements ISearchService {
+@Service
+public class SearchService extends EsBaseService implements ISearchService {
 
 	private Logger logger = LoggerFactory.getLogger(SearchService.class);
 	
-	@Autowired
-	ESRestClient esClient;
-	@Value("${elasticsearch.index.zbName}")
-    private String zbIndex;	
-	@Value("${elasticsearch.index.zjName}")
-    private String zjcgIndex;
-	@Value("${elasticsearch.index.zgyqName}")
-    private String zgyqIndex;
-	@Value("${elasticsearch.analyzer}")
-    private String analyzer;
-	
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord) throws Exception {
-		return execSearch(zgyqIndex, page, pageSize, keyWord, true);
+		return execSearch(zbIndex, page, pageSize, keyWord, true);
 	}
 	
 	private PageResult<Page<List<SearchResultVO>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{

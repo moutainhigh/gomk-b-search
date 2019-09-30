@@ -15,16 +15,17 @@ public class Word2003 {
 		if (filePath.contains("~")) {
 			return "";
 		}
-		// 这个构造函数从InputStream中加载Word文档。
-		FileInputStream fis = new FileInputStream(filePath);
-		HWPFDocument doc = new HWPFDocument(fis);
 		try {
-
-			return getContent(doc);
+			System.out.println("filePath:" + filePath);
+			// 这个构造函数从InputStream中加载Word文档。
+			FileInputStream fis = new FileInputStream(filePath);
+			HWPFDocument doc = new HWPFDocument(fis);
+			String content = getContent(doc);
+			doc.close();
+			return content;
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		doc.close();
+			System.out.println("error:" + e.getMessage());
+		} 
 		return "";
 	}
 
