@@ -1,18 +1,16 @@
 package io.gomk.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.gomk.common.rs.response.ResponseData;
-import io.gomk.controller.request.DictRequest;
-import io.gomk.controller.request.TagRequest;
+import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.service.ITagService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * <p>
@@ -27,32 +25,42 @@ import io.swagger.annotations.Api;
 @Api(description = "标签操作")
 public class TagsController extends SuperController {
 	
-	private Logger logger = LoggerFactory.getLogger(TagsController.class);
+	//private Logger logger = LoggerFactory.getLogger(TagsController.class);
 	
 	@Autowired
 	ITagService tagService;
 	
-	@GetMapping("/add")
-	public ResponseData<?> add(TagRequest request) throws Exception {
-		tagService.add(request);
+	@ApiOperation("批量添加标签")
+	@PostMapping("/doc")
+	public ResponseData<?> add(AddDocTagRequest request) throws Exception {
+		String tagName = request.getTag();
+		// ? 检查数据库中是否存在 tagName
+		
+		tagService.addDocTag(tagName, request.getIds());
 		return ResponseData.success();
 	}
-	@GetMapping("/delete")
-	public ResponseData<?> delete(Integer id) throws Exception {
-		tagService.delete(id);
-		return ResponseData.success();
-	}
-	
-	@GetMapping("/update")
-	public ResponseData<?> update(TagRequest request) throws Exception {
-		tagService.update(request);
-		return ResponseData.success();
-	}
-	
-	@GetMapping("/search")
-	public ResponseData<?> search(TagRequest request) throws Exception {
-		tagService.search(request);
-		return ResponseData.success();
-	}
+//	
+//	@GetMapping("/add")
+//	public ResponseData<?> add(TagRequest request) throws Exception {
+//		tagService.add(request);
+//		return ResponseData.success();
+//	}
+//	@GetMapping("/delete")
+//	public ResponseData<?> delete(Integer id) throws Exception {
+//		tagService.delete(id);
+//		return ResponseData.success();
+//	}
+//	
+//	@GetMapping("/update")
+//	public ResponseData<?> update(TagRequest request) throws Exception {
+//		tagService.update(request);
+//		return ResponseData.success();
+//	}
+//	
+//	@GetMapping("/search")
+//	public ResponseData<?> search(TagRequest request) throws Exception {
+//		tagService.search(request);
+//		return ResponseData.success();
+//	}
 
 }

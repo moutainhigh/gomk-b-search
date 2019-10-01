@@ -13,4 +13,5 @@ public interface IIndexService {
 	public ResponseData<?> createJSYQIndex() throws IOException;
 	public ResponseData<?> createZJIndex() throws IOException;
 	public ResponseData<String> bulkZBDoc() throws IOException;
+	public ResponseData<String> deleteIndex(String zbIndex);
 }

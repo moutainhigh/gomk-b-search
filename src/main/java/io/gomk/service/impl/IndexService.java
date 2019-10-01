@@ -8,7 +8,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
@@ -41,6 +41,9 @@ public class IndexService extends EsBaseService implements IIndexService {
 	            "          \"type\": \"text\",\n" +
 	            "          \"analyzer\": \"hanlp\"\n" +
 	            "        },\n" +
+	            "        \"abstract\": {\n" +
+	            "          \"type\": \"keyword\"\n" +
+	            "        },\n" +
 	            "        \"add_date\": {\n" +
                 "          \"type\": \"keyword\"\n" +
                 "        }\n" +
@@ -57,6 +60,15 @@ public class IndexService extends EsBaseService implements IIndexService {
 		return ResponseData.success();
 	}
 
+	@Override
+	public ResponseData<String> deleteIndex(String zbIndex) {
+//		RestHighLevelClient client = esClient.getClient();
+//		DeleteRequest request = new DeleteRequest(zbIndex, "_doc", "1");
+//		
+//		client.delete(deleteRequest, headers)
+		return null;
+	}
+	
 	@Override
 	public ResponseData<?> createZGYQIndex() throws IOException {
 		String mapping = "  {\n" +
@@ -181,14 +193,14 @@ public class IndexService extends EsBaseService implements IIndexService {
       for (Map<String, Object> map : sourceList) {
           request.add(new IndexRequest(index, "_doc")  
       			.source(map, XContentType.JSON));
-          if (i%3 == 0) {
+          if (i%2 == 0) {
 	          // 同步请求
 	        client.bulk(request);
 	        request = new BulkRequest(); 
 	  		i++;
 	  		continue;
 	  	}
-	  	if (i == sourceList.size() && i%3 != 0) {
+	  	if (i == sourceList.size() && i%2 != 0) {
 	  		client.bulk(request);
 	  	}
 	  	i++;
@@ -239,6 +251,7 @@ public class IndexService extends EsBaseService implements IIndexService {
         */
         client.close();
 	}
+
 	
 
 

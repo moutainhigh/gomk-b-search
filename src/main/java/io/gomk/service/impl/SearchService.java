@@ -2,17 +2,22 @@ package io.gomk.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -34,21 +39,16 @@ import io.gomk.service.ISearchService;
 public class SearchService extends EsBaseService implements ISearchService {
 
 	private Logger logger = LoggerFactory.getLogger(SearchService.class);
-	
+
 	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord) throws Exception {
-		return execSearch(zbIndex, page, pageSize, keyWord, true);
+	public List<String> getConmpletion(int size, String keyWord) {
+		size = size > 10 ? 10 : size;
+		return null;
 	}
 	
-	private PageResult<Page<List<SearchResultVO>>> execSearch(String indexName, int page, int pageSize, String keyWord, Boolean bl) throws IOException{
-		RestHighLevelClient client = esClient.getClient();
-		List<SearchResultVO> result = new ArrayList<>();
-		 // 1、创建search请求
-        //SearchRequest searchRequest = new SearchRequest();
-        SearchRequest searchRequest = new SearchRequest(indexName); 
-        searchRequest.types("_doc");
-      
-        
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
+
         // 2、用SearchSourceBuilder来构造查询请求体 ,请仔细查看它的方法，构造各种查询的方法都在这。
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
         
@@ -63,7 +63,17 @@ public class SearchService extends EsBaseService implements ISearchService {
         		//.matchQuery("华安工业", "title")); 
         //sourceBuilder.query(QueryBuilders.matchQuery("content", keyWord).operator(Operator.AND));
         //sourceBuilder.query(QueryBuilders.termQuery("title", "华安工业"));
-        sourceBuilder.query(QueryBuilders.multiMatchQuery(keyWord, "title", "content").operator(Operator.AND));
+        
+        BoolQueryBuilder query = QueryBuilders.boolQuery();
+        if (StringUtils.isNotBlank(keyWord)) {
+        	MultiMatchQueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(keyWord, "title", "content").operator(Operator.AND);
+        	query.must(matchQueryBuilder);
+        }
+        if (StringUtils.isNotBlank(tag)) {
+        	query.must(QueryBuilders.termQuery("tag", tag));
+        }
+        sourceBuilder.query(query);
+        
         sourceBuilder.from((page-1)*pageSize); 
         sourceBuilder.size(pageSize); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
@@ -81,6 +91,29 @@ public class SearchService extends EsBaseService implements ISearchService {
         
         // 设置返回 profile 
         //sourceBuilder.profile(true);
+		return execSearch(zbIndex, sourceBuilder);
+	}
+	
+	@Override
+	public PageResult<Page<List<SearchResultVO>>> searchZBRecommend(int size, String tag) throws IOException {
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		QueryBuilder queryBuilder = QueryBuilders.matchQuery("tag", tag);
+		sourceBuilder.query(queryBuilder);
+		sourceBuilder.from(0); 
+        sourceBuilder.size(size > 10 ? 10 : size); 
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
+		return execSearch(zbIndex, sourceBuilder);
+	}
+
+	
+	private PageResult<Page<List<SearchResultVO>>> execSearch(String indexName, SearchSourceBuilder sourceBuilder) throws IOException{
+		RestHighLevelClient client = esClient.getClient();
+		List<SearchResultVO> result = new ArrayList<>();
+		 // 1、创建search请求
+        //SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(indexName); 
+        searchRequest.types("_doc");
+      
         
         //将请求体加入到请求中
         searchRequest.source(sourceBuilder);
@@ -153,6 +186,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             String type = hit.getType();
             String id = hit.getId();
             float score = hit.getScore();
+            vo.setId(id);
             
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
@@ -168,7 +202,14 @@ public class SearchService extends EsBaseService implements ISearchService {
             
             vo.setTitle(sourceAsMap.get("title").toString());
             vo.setAddDate(sourceAsMap.get("add_date").toString());
-            vo.setTag(sourceAsMap.get("tag").toString());
+            Object obj = sourceAsMap.get("tag");
+            HashSet<String> tags = new HashSet<>();
+		    if (obj instanceof ArrayList<?>) {
+		        for (Object o : (List<?>) obj) {
+		            tags.add(String.class.cast(o));
+		        }
+		    }
+            vo.setTags(tags);
             Object fileUrl = sourceAsMap.get("file_url");
             vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
             //取高亮结果
@@ -197,6 +238,9 @@ public class SearchService extends EsBaseService implements ISearchService {
             	logger.info("fragments1 size:" + fragments2.length);
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setContent(fragmentString);
+            } else {
+            	Object abstracts = sourceAsMap.get("abstract");
+                vo.setContent(abstracts == null ? "" : abstracts.toString());
             }
             
             result.add(vo);
@@ -238,7 +282,7 @@ public class SearchService extends EsBaseService implements ISearchService {
         */
   
         client.close();
-        PageResult pageResult = new PageResult(page, pageSize, totalHits, result);
+        PageResult pageResult = new PageResult(sourceBuilder.from(), sourceBuilder.size(), totalHits, result);
 		return pageResult;
 	}
 
@@ -295,6 +339,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 	
 
 

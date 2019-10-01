@@ -1,10 +1,15 @@
 package io.gomk.controller.response;
 
+import java.util.HashSet;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 public class SearchResultVO {
+	
+	@ApiModelProperty(value = "id")
+    private String id;
 	
 	@ApiModelProperty(value = "标题")
     private String title;
@@ -22,7 +27,7 @@ public class SearchResultVO {
 	private String addDate;
 	
 	@ApiModelProperty(value = "标签")
-	private String tag;
+	private HashSet<String> tags;
 	
 	@ApiModelProperty(value = "文件路径")
 	private String fileUrl;

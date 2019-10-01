@@ -1,5 +1,8 @@
 package io.gomk.controller.response;
 
-public class ResultVO {
+import io.swagger.annotations.ApiModelProperty;
 
+public class ResultVO {
+	@ApiModelProperty(value = "id")
+    private String id;
 }

@@ -1,32 +1,17 @@
 package io.gomk.controller;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.DocWriteResponse;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.gomk.common.rs.response.ResponseData;
+import io.gomk.es6.ESRestClient;
 import io.gomk.framework.controller.SuperController;
-import io.gomk.framework.utils.parse.ImportFile;
 import io.gomk.service.IIndexService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,6 +31,13 @@ public class IndexController extends SuperController {
 
 	@Autowired
 	IIndexService indexService;
+	@Autowired
+	protected ESRestClient esClient;
+	@Value("${elasticsearch.index.zbName}")
+	protected String zbIndex;
+	@Value("${elasticsearch.index.zgyqName}")
+	protected String zgyqIndex;
+	@Value("${elasticsearch.index.zjName}")
 	
 	@ApiOperation("创建索引-招标文件")
 	@PostMapping("/zb")
@@ -58,7 +50,12 @@ public class IndexController extends SuperController {
 	public ResponseData<String> bulkZB() throws IOException {
 		
 		return indexService.bulkZBDoc();
-		
+	}
+	
+	@ApiOperation("删除索引-招标文件")
+	@DeleteMapping("/zb")
+	public ResponseData<String> deleteZBIndex() throws IOException {
+		return indexService.deleteIndex(zbIndex);
 	}
 //	@ApiOperation("创建索引-资格要求")
 //	@PostMapping("/zgyq")

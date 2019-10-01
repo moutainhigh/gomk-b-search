@@ -40,15 +40,36 @@ public class SearchContentController extends SuperController {
 	@Autowired
 	ISearchService searchService;
 	
+	@ApiOperation("搜索补全")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/completion")
+	public ResponseData<List<String>> searchCompletion(int size, String keyWord) throws Exception {
+		return ResponseData.success(searchService.getConmpletion(size, keyWord));
+	}
+	
 	@ApiOperation("招标文件")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="设备")
 	})
 	@GetMapping("/zbwj")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord) throws Exception {
-		return ResponseData.success(searchService.searchZB(page, pageSize, keyWord));
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
+		return ResponseData.success(searchService.searchZB(page, pageSize, keyWord, tag));
+	}
+	
+	@ApiOperation("招标文件推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="大项目")
+	})
+	@GetMapping("/zbwj/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> recommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchZBRecommend(size, tag));
 	}
 //
 //	@ApiOperation("资格要求库")
