@@ -1,6 +1,5 @@
 package io.gomk.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.framework.controller.SuperController;
+import io.gomk.service.IGCompletionService;
 import io.gomk.service.ISearchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,6 +39,8 @@ public class SearchContentController extends SuperController {
 	
 	@Autowired
 	ISearchService searchService;
+	@Autowired
+	IGCompletionService completionService;
 	
 	@ApiOperation("搜索补全")
 	@ApiImplicitParams({
@@ -47,7 +49,8 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/completion")
 	public ResponseData<List<String>> searchCompletion(int size, String keyWord) throws Exception {
-		return ResponseData.success(searchService.getConmpletion(size, keyWord));
+		size = size > 10 ? 10 : size;
+		return ResponseData.success(completionService.getConmpletion(size, keyWord));
 	}
 	
 	@ApiOperation("招标文件")

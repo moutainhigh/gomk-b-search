@@ -40,11 +40,6 @@ public class SearchService extends EsBaseService implements ISearchService {
 
 	private Logger logger = LoggerFactory.getLogger(SearchService.class);
 
-	@Override
-	public List<String> getConmpletion(int size, String keyWord) {
-		size = size > 10 ? 10 : size;
-		return null;
-	}
 	
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {

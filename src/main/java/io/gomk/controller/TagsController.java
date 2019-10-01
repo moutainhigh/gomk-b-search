@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.framework.controller.SuperController;
-import io.gomk.service.ITagService;
+import io.gomk.service.IGTagService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -28,15 +28,26 @@ public class TagsController extends SuperController {
 	//private Logger logger = LoggerFactory.getLogger(TagsController.class);
 	
 	@Autowired
-	ITagService tagService;
+	IGTagService tagService;
 	
 	@ApiOperation("批量添加标签")
 	@PostMapping("/doc")
 	public ResponseData<?> add(AddDocTagRequest request) throws Exception {
 		String tagName = request.getTag();
 		// ? 检查数据库中是否存在 tagName
-		
+		int count = tagService.getCountByTagName(tagName);
+		if (count == 0) {
+			return ResponseData.error("tag is not exist.");
+		}
 		tagService.addDocTag(tagName, request.getIds());
+		return ResponseData.success();
+	}
+	
+	@ApiOperation("标签树")
+	@PostMapping("/tree")
+	public ResponseData<?> tree() throws Exception {
+		
+	//	tagService.addDocTag(tagName, request.getIds());
 		return ResponseData.success();
 	}
 //	

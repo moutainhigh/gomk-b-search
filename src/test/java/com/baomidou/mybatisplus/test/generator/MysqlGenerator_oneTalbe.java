@@ -16,6 +16,8 @@
 package com.baomidou.mybatisplus.test.generator;
 
 
+import org.junit.Test;
+
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 
 /**
@@ -31,9 +33,9 @@ public class MysqlGenerator_oneTalbe extends SuperGenerator {
      * MySQL generator
      * </p>
      */
-	 //@Test
+	 @Test
     public void generator() {
-		String tableName = "t_tenant_user";
+		String tableName = "t_g_completion";
         // 代码生成器
         AutoGenerator mpg = getAutoGenerator(tableName);
         mpg.execute();

@@ -72,7 +72,7 @@ public class SuperGenerator {
      */
     protected PackageConfig getPackageConfig() {
         return new PackageConfig()
-                .setParent("io.matryoshka.microservice.dfs")
+                .setParent("io.gomk")
                 .setController("controller")
                 .setEntity("model")
                 .setMapper("mapper")
@@ -171,7 +171,7 @@ public class SuperGenerator {
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("matryoshka")
                 .setPassword("Abcd1234!")
-                .setUrl("jdbc:mysql://39.105.192.98:33306/m_tenant_dev?characterEncoding=utf8");
+                .setUrl("jdbc:mysql://39.105.192.98:33306/bidata?characterEncoding=utf8");
     }
 
     /**
