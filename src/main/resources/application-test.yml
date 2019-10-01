@@ -6,10 +6,12 @@ elasticsearch:
   ip: 58.119.224.27:29200
   #elasticsearch.ip=192.168.85.133:9200,192.168.85.133:9400,192.168.85.135:9200,192.168.85.135:9400
   index:
-    zbName: index_zhaobiao
+    zbName: index_zhaobiao_test #招标文件
+    zgyqName: index_zgyq_test #资格要求
+    jsyqName: index_jsyq_test #技术要求
+    pbbfName: index_pbbf_test #评标办法
+    zjName: index_zaojia_test #造价成果
     tbName: index_toubiao
-    zjName: index_zaojia
-    zgyqName: index_zgyq
   shards: 3
   replicas: 2
   analyzer: hanlp
