@@ -113,10 +113,10 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	}
 
 	@Override
-	public List<TreeDto> getTreeByScope(TagClassifyScopeEnum scope) {
+	public List<TreeDto> getTreeByScope(Integer scope) {
 		List<TreeDto> totalList = new ArrayList<>();
 		//二级分类
-		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope.getValue());
+		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope);
 		totalList.addAll(secondList);
 		//一级分类
 		HashSet<String> ids = new HashSet<>();
@@ -132,7 +132,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			totalList.add(dto);
 		}
 		//具体标签
-		List<TreeDto> tagList = tagMapper.selectByScope(scope.getValue());
+		List<TreeDto> tagList = tagMapper.selectByScope(scope);
 		totalList.addAll(tagList);
 		return TreeUtils.getTree(totalList);
 	}

@@ -19,6 +19,9 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
 	public Integer getValue() {
 		return this.value;
 	}
+	public String getDesc() {
+		return this.desc;
+	}
 	public static TagClassifyScopeEnum fromValue(Integer value) throws Exception {
 		for (TagClassifyScopeEnum tEnum : TagClassifyScopeEnum.values()) {
             if (tEnum.getValue() == value) {

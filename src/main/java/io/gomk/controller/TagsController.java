@@ -1,7 +1,9 @@
 package io.gomk.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.controller.request.TagClassifyRequest;
+import io.gomk.controller.response.EnumVO;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.tree.TreeDto;
@@ -61,9 +64,22 @@ public class TagsController extends SuperController {
 	@ApiOperation("标签树")
 	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
 	@GetMapping("/tree/{scope}")
-	public ResponseData<List<TreeDto>> tree(@PathVariable("scope") TagClassifyScopeEnum scope) throws Exception {
-		
+	public ResponseData<List<TreeDto>> tree(@PathVariable("scope") Integer scope) throws Exception {
+		TagClassifyScopeEnum.fromValue(scope);
 		List<TreeDto> list = tagService.getTreeByScope(scope);
+		return ResponseData.success(list);
+	}
+	
+	@ApiOperation("创建二级分类时，库范围列表")
+	@GetMapping("/scope")
+	public ResponseData<List<EnumVO>> scopeList() throws Exception {
+		List<EnumVO> list = new ArrayList<>();
+		for (TagClassifyScopeEnum t : TagClassifyScopeEnum.values()) {
+			EnumVO vo = new EnumVO();
+			vo.setDesc(t.getDesc());
+			vo.setId(t.getValue());
+			list.add(vo);
+		}
 		return ResponseData.success(list);
 	}
 	

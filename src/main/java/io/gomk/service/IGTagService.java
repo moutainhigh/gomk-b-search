@@ -23,6 +23,6 @@ public interface IGTagService extends IService<GTag> {
 
 	int getCountByTagName(String name);
 
-	List<TreeDto> getTreeByScope(TagClassifyScopeEnum scope);
+	List<TreeDto> getTreeByScope(Integer scope);
 
 }
