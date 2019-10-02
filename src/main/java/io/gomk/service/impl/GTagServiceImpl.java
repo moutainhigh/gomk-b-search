@@ -20,9 +20,14 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.es6.ESRestClient;
+import io.gomk.framework.utils.tree.TreeDto;
+import io.gomk.framework.utils.tree.TreeUtils;
+import io.gomk.mapper.GTagClassifyMapper;
 import io.gomk.mapper.GTagMapper;
 import io.gomk.model.GTag;
+import io.gomk.model.GTagClassify;
 import io.gomk.service.IGTagService;
 
 /**
@@ -45,6 +50,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	
 	@Autowired
 	GTagMapper tagMapper;
+	
+	@Autowired
+	GTagClassifyMapper tagClassifyMapper;
 	
 	@Override
 	public void addDocTag(String tagName, List<String> ids) throws IOException {
@@ -102,6 +110,31 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Override
 	public int getCountByTagName(String name) {
 		return tagMapper.getCountByTagName(name);
+	}
+
+	@Override
+	public List<TreeDto> getTreeByScope(TagClassifyScopeEnum scope) {
+		List<TreeDto> totalList = new ArrayList<>();
+		//二级分类
+		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope.getValue());
+		totalList.addAll(secondList);
+		//一级分类
+		HashSet<String> ids = new HashSet<>();
+		for (TreeDto dto : secondList) {
+			ids.add(dto.getParentId());
+		}
+		List<GTagClassify> classifyList = tagClassifyMapper.selectBatchIds(ids);
+		for (GTagClassify classify : classifyList) {
+			TreeDto dto = new TreeDto();
+			dto.setId(classify.getId() + "");
+			dto.setName(classify.getClassifyName());
+			dto.setParentId(classify.getParentId() + "");
+			totalList.add(dto);
+		}
+		//具体标签
+		List<TreeDto> tagList = tagMapper.selectByScope(scope.getValue());
+		totalList.addAll(tagList);
+		return TreeUtils.getTree(totalList);
 	}
 
 }

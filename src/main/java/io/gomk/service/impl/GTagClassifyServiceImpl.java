@@ -1,10 +1,19 @@
 package io.gomk.service.impl;
 
-import io.gomk.model.GTagClassify;
-import io.gomk.mapper.GTagClassifyMapper;
-import io.gomk.service.IGTagClassifyService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.mapper.GTagClassifyMapper;
+import io.gomk.mapper.GTagClassifyScopeMapper;
+import io.gomk.model.GTagClassify;
+import io.gomk.model.GTagClassifyScope;
+import io.gomk.service.IGTagClassifyService;
 
 /**
  * <p>
@@ -16,5 +25,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GTagClassifyServiceImpl extends ServiceImpl<GTagClassifyMapper, GTagClassify> implements IGTagClassifyService {
+
+	@Autowired
+	GTagClassifyScopeMapper tagClassifyScopeMapper;
+	
+	@Transactional
+	@Override
+	public void saveByScope(GTagClassify entity, List<Integer> scopes) throws Exception {
+		super.getBaseMapper().insert(entity);
+		for (Integer scope : scopes) {
+			GTagClassifyScope scopeEntity = new GTagClassifyScope();
+			scopeEntity.setClassifyId(entity.getId());
+			scopeEntity.setScopes(TagClassifyScopeEnum.fromValue(scope));
+			tagClassifyScopeMapper.insert(scopeEntity);
+		}
+	}
 
 }
