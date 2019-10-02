@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
  * @since 2019-09-27
  */
 @RestController
-@RequestMapping("/tag")
+@RequestMapping("/tags")
 @Api(description = "标签操作")
 public class TagsController extends SuperController {
 	
@@ -108,7 +108,7 @@ public class TagsController extends SuperController {
 	}
 	
 	@ApiOperation("标签树-添加标签")
-	@PostMapping("/tree/value")
+	@PostMapping("/tree/tag")
 	public ResponseData<?> addTag(@RequestBody TagClassifyRequest request) throws Exception {
 		GTagClassify dbEntity = tagClassifyService.getById(request.getParentId());
 		if (dbEntity == null) {
