@@ -169,12 +169,44 @@ public class IndexService extends EsBaseService implements IIndexService {
 	}
 
 	@Override
-	public ResponseData<String> createZJIndex() {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseData<String> createZJIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"search_analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"search_analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"file_url\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(zjIndex, mapping);
 	}
 
-	
+	@Override
+	public ResponseData<String> bulkZJCGDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getZJCGMap();
+		bulkDoc(zjIndex, sourceList);
+		return ResponseData.success();
+	}
+
 
 	@Override
 	public ResponseData<String> bulkJSYQDoc() throws IOException {

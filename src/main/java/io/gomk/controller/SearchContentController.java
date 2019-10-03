@@ -154,6 +154,27 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, pbbfIndex));
 	}
 	
+	@ApiOperation("造价成果办法库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="露天煤矿"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/zjcg")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZjcg(int page, int pageSize, String keyWord, String tag) throws Exception {
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zjcgIndex));
+	}
+	
+	@ApiOperation("造价成果库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zjcg/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zjcgRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zjcgIndex));
+	}
 	
 //
 //	@ApiOperation("资格要求库")

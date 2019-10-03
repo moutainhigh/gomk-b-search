@@ -38,7 +38,7 @@ public class IndexController extends SuperController {
 	@Value("${elasticsearch.index.zgyqName}")
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.zjName}")
-	
+	protected String zjIndex;
 	@ApiOperation("创建索引-招标文件")
 	@PostMapping("/zb")
 	public ResponseData<String> createZBIndex() throws IOException {
@@ -100,72 +100,17 @@ public class IndexController extends SuperController {
 		return indexService.bulkPBBFDoc();
 	}
 	
-//	@ApiOperation("创建索引-造价成果库")
-//	@PostMapping("/zjcg")
-//	public ResponseData<String> createZjcgIndex() throws IOException {
-//		
-//		return createIndex(zjcgIndex, mapping);
-//	}
-//	
-
+	@ApiOperation("创建索引-造价成果库")
+	@PostMapping("/zjcg")
+	public ResponseData<String> createZjcgIndex() throws IOException {
+		return indexService.createZJIndex();
+	}
 	
-	
-//	@ApiOperation("批量添加资格要求")
-//	@PostMapping("/zgyq/bulk")
-//	public ResponseData<String> bulkZGYQ() throws IOException {
-//		
-//		// 1、创建批量操作请求
-//        BulkRequest request = new BulkRequest(); 
-//        
-//        List<Map<String, Object>> sourceList = ImportFile.getZGYQMap();
-//        int i = 1;
-//        for (Map<String, Object> map : sourceList) {
-//        	request.add(new IndexRequest(zgyqIndex, "_doc")  
-//                    .source(map, XContentType.JSON));
-//        	if (i%5 == 0) {
-//        		bulkIndex(request);
-//        		request = new BulkRequest(); 
-//        		i++;
-//        		continue;
-//        	}
-//        	if (i == map.size() && i%5 != 0) {
-//        		bulkIndex(request);
-//        	}
-//        	i++;
-//        }
-//		
-//		return ResponseData.success();
-//	}
-//
-//	@ApiOperation("批量添加造价成果")
-//	@PostMapping("/zj/bulk")
-//	public ResponseData<String> bulkZJ() throws IOException {
-//		
-//		// 1、创建批量操作请求
-//        
-//        
-//		BulkRequest request = new BulkRequest(); 
-//        List<Map<String, Object>> sourceList = ImportFile.getZJMap();
-//        int i = 1;
-//        for (Map<String, Object> map : sourceList) {
-//        	request.add(new IndexRequest(zjcgIndex, "_doc")  
-//        			.source(map, XContentType.JSON));
-//        	if (i%2 == 0) {
-//        		bulkIndex(request);
-//        		request = new BulkRequest(); 
-//        		//i++;
-//        		continue;
-//        	}
-//        	if (i == map.size() && i%2 != 0) {
-//        		bulkIndex(request);
-//        	}
-//        	i++;
-//        }
-//        request.timeout("0");
-//		return ResponseData.success();
-//	}
-
-
+	@ApiOperation("批量添加造价成果")
+	@PostMapping("/zjcg/bulk")
+	public ResponseData<String> bulkZJCG() throws IOException {
+		return indexService.bulkZJCGDoc();
+	}
 	
 
 }

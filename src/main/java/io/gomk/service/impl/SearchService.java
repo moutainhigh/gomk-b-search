@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hankcs.hanlp.seg.common.Term;
+import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.SearchResultVO;
@@ -61,11 +63,18 @@ public class SearchService extends EsBaseService implements ISearchService {
         
         BoolQueryBuilder query = QueryBuilders.boolQuery();
         if (StringUtils.isNotBlank(keyWord)) {
-        	MultiMatchQueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(keyWord, "title", "content").operator(Operator.AND);
+        	List<Term> termList = IndexTokenizer.segment(keyWord);
+        	String words = "";
+        	for (Term t : termList) {
+        		words += t.word + " ";
+        	}
+        	MultiMatchQueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(words, "title", "content")
+        			.operator(Operator.AND)
+        			.analyzer(analyzer);
         	query.must(matchQueryBuilder);
         }
         if (StringUtils.isNotBlank(tag)) {
-        	query.must(QueryBuilders.termQuery("tag", tag));
+        	query.must(QueryBuilders.matchQuery("tag", tag).analyzer(analyzer));
         }
         sourceBuilder.query(query);
         
@@ -122,8 +131,11 @@ public class SearchService extends EsBaseService implements ISearchService {
                 new HighlightBuilder.Field("title"); 
         highlightTitle.highlighterType("unified");  
         highlightBuilder.field(highlightTitle);  
+        
         HighlightBuilder.Field highlightContent = new HighlightBuilder.Field("content");
+        highlightTitle.highlighterType("fvh");  
         highlightBuilder.field(highlightContent);
+        highlightBuilder.requireFieldMatch(false);
         sourceBuilder.highlighter(highlightBuilder);
         
        /* HighlightBuilder highlightBuilder = new HighlightBuilder().field("*").requireFieldMatch(false);

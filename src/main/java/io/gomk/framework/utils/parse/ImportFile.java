@@ -59,6 +59,9 @@ public class ImportFile {
 		        "三，无限的算法，是那些由于没有定义终止定义条件，或定义的条件无法由输入的数据满足而不终止运行的算法。通常，无限算法的产生是由于未能确定的定义终止条件。";
 		List<String> sentenceList = HanLP.extractSummary(document, 3);
 		System.out.println(sentenceList);
+		String p = "/Users/vko/Documents/my-code/DOC/zj/CSIE-神延-YB-16011 西湾露天煤矿生态试点项目－猪舍、羊舍、园区工程 下午10.49.11/1、成果文件/1、封面-标准.doc";
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
+		System.out.println(p.replace(directoryPath, ""));
 	}
 	public static List<Map<String, Object>>  getZBMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
@@ -196,49 +199,44 @@ public class ImportFile {
 		return list;
 	}
 	
-	public static List<Map<String, Object>>  getZJMap() throws IOException {
+	public static List<Map<String, Object>> getZJCGMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
-		 
 		String now = format.format(new Date());
-		//String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
-		FileListUtil.find(directoryPath, directoryPath, 3, list);
-//		
-//		File directory = new File(directoryPath);
-//		File[] files = directory.listFiles();
-//		for (File f : files) {
-//			if (f.isFile()) {
-//				String fileName = f.getName();
-//				System.out.println(fileName);
-//				String content = "";
-//				if (fileName.endsWith(".doc")) {
-//					content = Word2003.read(f.getAbsolutePath());
-//				}
-//				if (fileName.endsWith(".docx")) {
-//					content = Word2007.read(f.getAbsolutePath());
-//				}
-//				
-//				if (!"".equals(content)) {
-//					Map<String, Object> map = new HashMap<>();
-//					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-//					map.put("title", fileName);
-//					map.put("content", content);
-//					map.put("keyword_suggest", fileName);
-//					List<String> keywordList = HanLP.extractKeyword(content, 5);
-//					
-//					map.put("tag", keywordList.toString());
-//					map.put("add_date", now);
-//					map.put("file_url", "");
-//					
-//					//map.put("keyword_suggest", content);
-//					list.add(map);
-//				}
-//				
-//			}
-//		}
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		
+		for (File f : files) {
+			if (f.isFile()) {
+				String fileName = f.getName();
+				System.out.println(fileName);
+				String filePath = f.getAbsolutePath();
+				if (filePath.indexOf("施工图") != -1 || filePath.indexOf("图纸") != -1 || filePath.contains("~")) {
+					continue;
+				}
+				
+				String content = "";
+				if (fileName.endsWith(".doc")) {
+					content = Word2003.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".docx")) {
+					content = Word2007.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".pdf")) {
+					content = PDF.read(f.getAbsolutePath());
+				}
+				if (!"".equals(content)) {
+					Map<String, Object> map = new HashMap<>();
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					map.put("title", fileName);
+					map.put("content", content);
+					map.put("tag", "");
+					String fileUrl = filePath.replace(directoryPath, "");
+					map.put("file_url", fileUrl);
+					map.put("add_date", now);
+					list.add(map);
+				}
+			}
+		}
 		return list;
 	}
-	
-	
 	
 }

@@ -17,4 +17,5 @@ public interface IIndexService {
 	public ResponseData<String> bulkZGYQDoc() throws IOException;
 	public ResponseData<String> bulkJSYQDoc() throws IOException;
 	public ResponseData<String> bulkPBBFDoc() throws IOException;
+	public ResponseData<String> bulkZJCGDoc() throws IOException;
 }
