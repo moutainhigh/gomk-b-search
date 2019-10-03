@@ -17,6 +17,9 @@ public class SearchResultVO {
 	@ApiModelProperty(value = "正文")
 	private String content;
 	
+	@ApiModelProperty(value = "详细内容")
+	private String detail;
+	
 	@ApiModelProperty(value = "资格要求")
 	private String zgyqInfo;
 	

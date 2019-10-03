@@ -8,10 +8,13 @@ import io.gomk.common.rs.response.ResponseData;
 public interface IIndexService {
 
 	public ResponseData<String> createZBIndex() throws IOException;
-	public ResponseData<?> createZGYQIndex() throws IOException;
-	public ResponseData<?> createPBBFIndex() throws IOException;
-	public ResponseData<?> createJSYQIndex() throws IOException;
-	public ResponseData<?> createZJIndex() throws IOException;
+	public ResponseData<String> createZGYQIndex() throws IOException;
+	public ResponseData<String> createPBBFIndex() throws IOException;
+	public ResponseData<String> createJSYQIndex() throws IOException;
+	public ResponseData<String> createZJIndex() throws IOException;
 	public ResponseData<String> bulkZBDoc() throws IOException;
 	public ResponseData<String> deleteIndex(String zbIndex);
+	public ResponseData<String> bulkZGYQDoc() throws IOException;
+	public ResponseData<String> bulkJSYQDoc() throws IOException;
+	public ResponseData<String> bulkPBBFDoc() throws IOException;
 }

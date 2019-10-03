@@ -12,8 +12,11 @@ public class EsBaseService {
 	protected String zbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
 	protected String zgyqIndex;
-	@Value("${elasticsearch.index.zjName}")
-	protected String zjcgIndex;
+	@Value("${elasticsearch.index.jsyqName}")
+	protected String jsyqIndex;
+	@Value("${elasticsearch.index.pbbfName}")
+	protected String pbbfIndex;
+	
 	@Value("${elasticsearch.shards}")
 	protected Integer shards;
 	@Value("${elasticsearch.replicas}")

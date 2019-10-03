@@ -42,7 +42,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 
 	
 	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
+	public PageResult<Page<List<SearchResultVO>>> commonSearch(int page, int pageSize, String keyWord, String tag, String indexName) throws Exception {
 
         // 2、用SearchSourceBuilder来构造查询请求体 ,请仔细查看它的方法，构造各种查询的方法都在这。
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -86,18 +86,18 @@ public class SearchService extends EsBaseService implements ISearchService {
         
         // 设置返回 profile 
         //sourceBuilder.profile(true);
-		return execSearch(zbIndex, sourceBuilder);
+		return execSearch(indexName, sourceBuilder);
 	}
 	
 	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZBRecommend(int size, String tag) throws IOException {
+	public PageResult<Page<List<SearchResultVO>>> searchCommonRecommend(int size, String tag, String indexName) throws IOException {
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		QueryBuilder queryBuilder = QueryBuilders.matchQuery("tag", tag);
 		sourceBuilder.query(queryBuilder);
 		sourceBuilder.from(0); 
         sourceBuilder.size(size > 10 ? 10 : size); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
-		return execSearch(zbIndex, sourceBuilder);
+		return execSearch(indexName, sourceBuilder);
 	}
 
 	
@@ -186,6 +186,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
+            Object abstracts = sourceAsMap.get("abstract");
             //从map中取字段值
             /*
             String documentTitle = (String) sourceAsMap.get("title"); 
@@ -197,6 +198,12 @@ public class SearchService extends EsBaseService implements ISearchService {
             
             vo.setTitle(sourceAsMap.get("title").toString());
             vo.setAddDate(sourceAsMap.get("add_date").toString());
+            if (indexName.equals(zbIndex)) {
+                vo.setDetail(abstracts == null ? "" : abstracts.toString());
+        	} else {
+        		vo.setDetail(sourceAsMap.get("content").toString());
+        	}
+            
             Object obj = sourceAsMap.get("tag");
             HashSet<String> tags = new HashSet<>();
 		    if (obj instanceof ArrayList<?>) {
@@ -217,14 +224,6 @@ public class SearchService extends EsBaseService implements ISearchService {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setTitle(fragmentString);
             }
- 
-            if (indexName.equals(zgyqIndex)) {
-            	String text = sourceAsMap.get("content").toString();
-            	if (text.indexOf("资格要求") != -1) {
-            		vo.setZgyqInfo(text.substring(text.indexOf("资格要求")));
-            		vo.setZbfwInfo(text.substring(0, text.indexOf("资格要求")));
-            	}
-        	} 
             
     		HighlightField highlight2 = highlightFields.get("content"); 
             if (highlight2 != null) {
@@ -234,9 +233,22 @@ public class SearchService extends EsBaseService implements ISearchService {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setContent(fragmentString);
             } else {
-            	Object abstracts = sourceAsMap.get("abstract");
-                vo.setContent(abstracts == null ? "" : abstracts.toString());
+            	if (indexName.equals(zbIndex)) {
+                    vo.setContent(abstracts == null ? "" : abstracts.toString());
+            	} else {
+            		Object zbfw = sourceAsMap.get("zbfw");
+            		vo.setContent(zbfw == null ? "" : zbfw.toString());
+            	}
             }
+            
+            if (indexName.equals(zgyqIndex)) {
+            	Object zgyq = sourceAsMap.get("zgyq");
+            	Object zbfw = sourceAsMap.get("zbfw");
+            	vo.setZgyqInfo(zgyq == null ? "" : zgyq.toString());
+            	vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString());
+        	} 
+            
+            
             
             result.add(vo);
         }
@@ -281,59 +293,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 		return pageResult;
 	}
 
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZGYQ(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZHUANJIA(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZBR(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchTBWJ(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchPBBF(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchJSYQ(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZCFG(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchZJCG(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PageResult<Page<List<SearchResultVO>>> searchPrice(int page, int pageSize, String keyWord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	
 	

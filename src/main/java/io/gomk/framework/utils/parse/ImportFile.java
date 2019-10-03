@@ -99,9 +99,10 @@ public class ImportFile {
 		 
 		String now = format.format(new Date());
 		//String directoryPath = "C:\\gitcode\\gomk\\DOC\\zhaobiao";
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zb";
-		File directory = new File(directoryPath);
-		File[] files = directory.listFiles();
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zgyq";
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		
 		for (File f : files) {
 			if (f.isFile()) {
 				String fileName = f.getName();
@@ -109,22 +110,85 @@ public class ImportFile {
 				String content = "";
 				if (fileName.endsWith(".doc")) {
 					content = Word2003.read(f.getAbsolutePath());
-				}
-				if (fileName.endsWith(".docx")) {
+				} else if (fileName.endsWith(".docx")) {
 					content = Word2007.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".pdf")) {
+					content = PDF.read(f.getAbsolutePath());
 				}
-				Map<String, Object> map = new HashMap<>();
-				fileName = fileName.substring(0, fileName.lastIndexOf("."));
-				map.put("title", fileName);
-				map.put("content", content);
-				map.put("keyword_suggest", fileName);
-				map.put("tag", "");
-				map.put("add_date", now);
-				map.put("file_url", "");
-				
-				//map.put("keyword_suggest", content);
-				
-				if (content.indexOf("资格要求") != -1) {
+				if (!"".equals(content)) {
+					Map<String, Object> map = new HashMap<>();
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					map.put("title", fileName);
+					map.put("content", content);
+					int location = content.indexOf("资格要求") == -1 ? content.indexOf("资质要求") : content.indexOf("资格要求");
+					map.put("zbfw", content.substring(0, location));
+					map.put("zgyq", content.substring(location));
+					map.put("add_date", now);
+					list.add(map);
+				}
+			}
+		}
+		return list;
+	}
+	
+	public static List<Map<String, Object>> getJSYQMap() throws IOException {
+		List<Map<String, Object>> list = new ArrayList<>();
+		String now = format.format(new Date());
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/JSYQ";
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		
+		for (File f : files) {
+			if (f.isFile()) {
+				String fileName = f.getName();
+				System.out.println(fileName);
+				String content = "";
+				if (fileName.endsWith(".doc")) {
+					content = Word2003.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".docx")) {
+					content = Word2007.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".pdf")) {
+					content = PDF.read(f.getAbsolutePath());
+				}
+				if (!"".equals(content)) {
+					Map<String, Object> map = new HashMap<>();
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					map.put("title", fileName);
+					map.put("content", content);
+					map.put("tag", "");
+					map.put("add_date", now);
+					list.add(map);
+				}
+			}
+		}
+		return list;
+	}
+	public static List<Map<String, Object>> getPBBFMap() throws IOException {
+		List<Map<String, Object>> list = new ArrayList<>();
+		String now = format.format(new Date());
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/pbbf";
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		
+		for (File f : files) {
+			if (f.isFile()) {
+				String fileName = f.getName();
+				System.out.println(fileName);
+				String content = "";
+				if (fileName.endsWith(".doc")) {
+					content = Word2003.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".docx")) {
+					content = Word2007.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".pdf")) {
+					content = PDF.read(f.getAbsolutePath());
+				}
+				if (!"".equals(content)) {
+					Map<String, Object> map = new HashMap<>();
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					map.put("title", fileName);
+					map.put("content", content);
+					map.put("tag", "");
+					map.put("add_date", now);
 					list.add(map);
 				}
 			}
@@ -174,6 +238,7 @@ public class ImportFile {
 //		}
 		return list;
 	}
+	
 	
 	
 }

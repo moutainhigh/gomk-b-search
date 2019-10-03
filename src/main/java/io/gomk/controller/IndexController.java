@@ -52,18 +52,54 @@ public class IndexController extends SuperController {
 		return indexService.bulkZBDoc();
 	}
 	
-	@ApiOperation("删除索引-招标文件")
-	@DeleteMapping("/zb")
-	public ResponseData<String> deleteZBIndex() throws IOException {
-		return indexService.deleteIndex(zbIndex);
-	}
-//	@ApiOperation("创建索引-资格要求")
-//	@PostMapping("/zgyq")
-//	public ResponseData<String> createZGYQIndex() throws IOException {
-//		
-//		return createIndex(zgyqIndex, mapping);
+//	@ApiOperation("删除索引-招标文件")
+//	@DeleteMapping("/zb")
+//	public ResponseData<String> deleteZBIndex() throws IOException {
+//		return indexService.deleteIndex(zbIndex);
 //	}
-//	
+	
+	@ApiOperation("创建索引-资格要求")
+	@PostMapping("/zgyq")
+	public ResponseData<String> createZGYQIndex() throws IOException {
+		
+		return indexService.createZGYQIndex();
+	}
+	
+	@ApiOperation("批量添加资格要求文件")
+	@PostMapping("/zgyq/bulk")
+	public ResponseData<String> bulkZGYQ() throws IOException {
+		
+		return indexService.bulkZGYQDoc();
+	}
+	
+	@ApiOperation("创建索引-技术要求")
+	@PostMapping("/jsyq")
+	public ResponseData<String> createJSYQIndex() throws IOException {
+		
+		return indexService.createJSYQIndex();
+	}
+	
+	@ApiOperation("批量添加技术要求文件")
+	@PostMapping("/jsyq/bulk")
+	public ResponseData<String> bulkJSYQ() throws IOException {
+		
+		return indexService.bulkJSYQDoc();
+	}
+	
+	@ApiOperation("创建索引-评标办法")
+	@PostMapping("/pbbf")
+	public ResponseData<String> createPBBFIndex() throws IOException {
+		
+		return indexService.createPBBFIndex();
+	}
+	
+	@ApiOperation("批量添加评标办法文件")
+	@PostMapping("/pbbf/bulk")
+	public ResponseData<String> bulkPBBF() throws IOException {
+		
+		return indexService.bulkPBBFDoc();
+	}
+	
 //	@ApiOperation("创建索引-造价成果库")
 //	@PostMapping("/zjcg")
 //	public ResponseData<String> createZjcgIndex() throws IOException {

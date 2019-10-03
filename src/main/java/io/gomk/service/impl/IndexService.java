@@ -13,6 +13,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.gomk.common.rs.response.ResponseData;
@@ -21,7 +22,7 @@ import io.gomk.service.IIndexService;
 
 @Service
 public class IndexService extends EsBaseService implements IIndexService {
-
+	
 	@Override
 	public ResponseData<String> createZBIndex() throws IOException {
 		String mapping = "  {\n" +
@@ -70,7 +71,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 	}
 	
 	@Override
-	public ResponseData<?> createZGYQIndex() throws IOException {
+	public ResponseData<String> createZGYQIndex() throws IOException {
 		String mapping = "  {\n" +
                 "    \"_doc\": {\n" +
                 "      \"properties\": {\n" +
@@ -80,6 +81,11 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"zbfw\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"zgyq\": {\n" +
                 "          \"type\": \"text\",\n" +
                 "          \"analyzer\": \"hanlp\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
@@ -102,21 +108,86 @@ public class IndexService extends EsBaseService implements IIndexService {
 	}
 
 	@Override
-	public ResponseData<?> createPBBFIndex() {
+	public ResponseData<String> bulkZGYQDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getZGYQMap();
+		bulkDoc(zgyqIndex, sourceList);
+		return ResponseData.success();
+	}
+
+	@Override
+	public ResponseData<String> createPBBFIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(pbbfIndex, mapping);
+	}
+
+	@Override
+	public ResponseData<String> createJSYQIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(jsyqIndex, mapping);
+	}
+
+	@Override
+	public ResponseData<String> createZJIndex() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	
+
 	@Override
-	public ResponseData<?> createJSYQIndex() {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseData<String> bulkJSYQDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getJSYQMap();
+		bulkDoc(jsyqIndex, sourceList);
+		return ResponseData.success();
 	}
 
 	@Override
-	public ResponseData<?> createZJIndex() {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseData<String> bulkPBBFDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getPBBFMap();
+		bulkDoc(pbbfIndex, sourceList);
+		return ResponseData.success();
 	}
 
 	private ResponseData<String> createIndex(String indexName, String mapping) throws IOException {
@@ -251,8 +322,6 @@ public class IndexService extends EsBaseService implements IIndexService {
         */
         client.close();
 	}
-
-	
 
 
 }

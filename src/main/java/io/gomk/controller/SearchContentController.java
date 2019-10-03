@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,17 @@ public class SearchContentController extends SuperController {
 	
 	private Logger logger = LoggerFactory.getLogger(SearchContentController.class);
 	
+	@Value("${elasticsearch.index.zbName}")
+	protected String zbIndex;
+	@Value("${elasticsearch.index.zgyqName}")
+	protected String zgyqIndex;
+	@Value("${elasticsearch.index.jsyqName}")
+	protected String jsyqIndex;
+	@Value("${elasticsearch.index.pbbfName}")
+	protected String pbbfIndex;
+	@Value("${elasticsearch.index.zjName}")
+	protected String zjcgIndex;
+	
 	@Autowired
 	ISearchService searchService;
 	@Autowired
@@ -58,22 +70,91 @@ public class SearchContentController extends SuperController {
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
 		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备"),
-		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="设备")
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
 	})
 	@GetMapping("/zbwj")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
-		return ResponseData.success(searchService.searchZB(page, pageSize, keyWord, tag));
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbIndex));
 	}
 	
 	@ApiOperation("招标文件推荐(右边)")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="大项目")
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
 	})
 	@GetMapping("/zbwj/recommend")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> recommend(int size, String tag) throws Exception {
-		return ResponseData.success(searchService.searchZBRecommend(size, tag));
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zbIndex));
 	}
+	
+
+	@ApiOperation("资格要求库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="王家岭煤业"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/zgyq")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zgyqIndex));
+	}
+	
+	@ApiOperation("资格要求库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zgyq/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zgyqRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zgyqIndex));
+	}
+	
+	@ApiOperation("技术要求库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="王家岭煤业"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/jsyq")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, jsyqIndex));
+	}
+	
+	@ApiOperation("技术要求库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/jsyq/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> JSYQRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, jsyqIndex));
+	}
+	
+	@ApiOperation("评标办法库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="王家岭煤业"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/pbbf")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord, String tag) throws Exception {
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, pbbfIndex));
+	}
+	
+	@ApiOperation("评标办法库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/pbbf/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> pbbfRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, pbbfIndex));
+	}
+	
+	
 //
 //	@ApiOperation("资格要求库")
 //	@ApiImplicitParams({
