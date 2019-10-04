@@ -42,10 +42,14 @@ spring:
       url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
       username: root
       password: Abcd1234!
-
+#  data:
+#    hbase:
+#      quorum: xxx
+#      rootDir: xxx
+#      nodeParent: xxx
 
 swagger:
    host: 
    
-
-   
+hdfs.path: hdfs://localhost:9000
+hdfs.username: root
