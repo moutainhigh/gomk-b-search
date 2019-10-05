@@ -16,7 +16,7 @@ public class SchedulerService {
 
     @Scheduled(fixedRate = 1000)
     public void task1(){
-        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
+       // System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
 
     }
 
