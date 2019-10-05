@@ -39,9 +39,12 @@ spring:
       initial-size: 5
       driver-class-name: com.mysql.cj.jdbc.Driver
       max-wait: 10
-      url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+      #url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+      #username: root
+      #password: Abcd1234!
+      url: jdbc:mysql://58.119.224.27:3306/gomk_test?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
       username: root
-      password: Abcd1234!
+      password: root@2019
 #  data:
 #    hbase:
 #      quorum: xxx
