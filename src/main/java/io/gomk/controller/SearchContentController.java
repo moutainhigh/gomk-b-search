@@ -65,6 +65,17 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(completionService.getConmpletion(size, keyWord));
 	}
 	
+	@ApiOperation("标的物查询")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/bdw")
+	public ResponseData<PageResult<Page<List<String>>>> searchCompletion(int page, int pageSize, String keyWord) throws Exception {
+		return ResponseData.success(completionService.getBdw(page, pageSize, keyWord));
+	}
+	
 	@ApiOperation("招标文件")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),

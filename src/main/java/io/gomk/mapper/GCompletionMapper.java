@@ -21,5 +21,9 @@ public interface GCompletionMapper extends BaseMapper<GCompletion> {
 
 	@Select("select words from t_g_completion where words like '%${keyWord}%' limit #{size}")
 	List<String> getConmpletion(@Param("size")int size, @Param("keyWord")String keyWord);
+	@Select("select words from t_g_completion where words like '%${keyWord}%' limit #{from}, #{to}")
+	List<String> getBdw(@Param("from")int from, @Param("to")int to, @Param("keyWord")String keyWord);
+	@Select("select count(*) from t_g_completion where words like '%${keyWord}%'")
+	int countBdw(@Param("keyWord")String keyWord);
 
 }

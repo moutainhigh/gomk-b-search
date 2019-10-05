@@ -1,8 +1,11 @@
 package io.gomk.service.impl;
 
 import io.gomk.model.GCompletion;
+import io.gomk.common.utils.PageResult;
 import io.gomk.mapper.GCompletionMapper;
 import io.gomk.service.IGCompletionService;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.List;
@@ -27,6 +30,13 @@ public class GCompletionServiceImpl extends ServiceImpl<GCompletionMapper, GComp
 	@Override
 	public List<String> getConmpletion(int size, String keyWord) {
 		return completionMapper.getConmpletion(size, keyWord);
+	}
+
+	@Override
+	public PageResult<Page<List<String>>> getBdw(int page, int pageSize, String keyWord) {
+		int totalHits = completionMapper.countBdw(keyWord);
+		List<String> result = completionMapper.getBdw((page-1)*pageSize, pageSize, keyWord);
+		return new PageResult(page, pageSize, totalHits, result);
 	}
 
 }
