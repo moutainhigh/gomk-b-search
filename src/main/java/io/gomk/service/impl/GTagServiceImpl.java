@@ -137,4 +137,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		return TreeUtils.getTree(totalList);
 	}
 
+	@Override
+	public List<GTag> getTagBySecondId(Integer id) {
+		return tagMapper.getTagBySecondId(id);
+	}
+
 }

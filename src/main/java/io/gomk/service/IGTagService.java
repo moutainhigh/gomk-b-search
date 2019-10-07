@@ -25,4 +25,6 @@ public interface IGTagService extends IService<GTag> {
 
 	List<TreeDto> getTreeByScope(Integer scope);
 
+	List<GTag> getTagBySecondId(Integer id);
+
 }

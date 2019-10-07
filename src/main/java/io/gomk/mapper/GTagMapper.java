@@ -26,5 +26,7 @@ public interface GTagMapper extends BaseMapper<GTag> {
 			" inner join t_g_tag_classify_scope tgtcs on tgtc.id = tgtcs.classify_id" + 
 			" where tgtcs.scopes =#{scope}")
 	List<TreeDto> selectByScope(Integer scope);
+	@Select("select * from t_g_tag where classify_id = #{id}")
+	List<GTag> getTagBySecondId(Integer id);
 
 }

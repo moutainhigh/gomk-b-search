@@ -70,6 +70,14 @@ public class TagsController extends SuperController {
 		return ResponseData.success(list);
 	}
 	
+	@ApiOperation("标签树-根据二级分类查第三级")
+	@ApiImplicitParam(name="classifyId", value="二级分类ID", required=true, paramType="path", dataType="Integer", defaultValue="1")
+	@GetMapping("/tree/tag/{classifyId}")
+	public ResponseData<List<GTag>> getTag(@PathVariable("classifyId") Integer classifyId) throws Exception {
+		List<GTag> list = tagService.getTagBySecondId(classifyId);
+		return ResponseData.success(list);
+	}
+	
 	@ApiOperation("创建二级分类时，库范围列表")
 	@GetMapping("/scope")
 	public ResponseData<List<EnumVO>> scopeList() throws Exception {
