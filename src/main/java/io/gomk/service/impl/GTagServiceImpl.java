@@ -142,4 +142,19 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		return tagMapper.getTagBySecondId(id);
 	}
 
+	@Override
+	public List<TreeDto> getEditTreeByScope(Integer scope) {
+		List<TreeDto> totalList = new ArrayList<>();
+		//二级分类
+		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope);
+		totalList.addAll(secondList);
+		//一级分类
+		List<TreeDto> classifyList = tagClassifyMapper.selectAllClassify();
+		totalList.addAll(classifyList);
+		//具体标签
+		List<TreeDto> tagList = tagMapper.selectByScope(scope);
+		totalList.addAll(tagList);
+		return TreeUtils.getTree(totalList);
+	}
+
 }

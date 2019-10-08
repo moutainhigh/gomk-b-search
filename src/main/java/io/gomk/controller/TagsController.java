@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.controller.request.TagClassifyRequest;
@@ -61,12 +63,21 @@ public class TagsController extends SuperController {
 		return ResponseData.success();
 	}
 	
-	@ApiOperation("标签树")
+	@ApiOperation("标签树--搜索用")
 	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
 	@GetMapping("/tree/{scope}")
 	public ResponseData<List<TreeDto>> tree(@PathVariable("scope") Integer scope) throws Exception {
 		TagClassifyScopeEnum.fromValue(scope);
 		List<TreeDto> list = tagService.getTreeByScope(scope);
+		return ResponseData.success(list);
+	}
+	
+	@ApiOperation("标签树--添加标签时用")
+	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
+	@GetMapping("/tree/edit/{scope}")
+	public ResponseData<List<TreeDto>> editTree(@PathVariable("scope") Integer scope) throws Exception {
+		TagClassifyScopeEnum.fromValue(scope);
+		List<TreeDto> list = tagService.getEditTreeByScope(scope);
 		return ResponseData.success(list);
 	}
 	
@@ -95,7 +106,15 @@ public class TagsController extends SuperController {
 	@PostMapping("/tree/first")
 	public ResponseData<?> first(@RequestBody TagClassifyRequest request) throws Exception {
 		GTagClassify entity = new GTagClassify();
-		entity.setClassifyName(request.getName());
+		String name = request.getName();
+		QueryWrapper<GTagClassify> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda()
+    		.eq(GTagClassify::getClassifyName, name);
+		GTagClassify classify = tagClassifyService.getOne(queryWrapper);
+		if (classify != null) {
+			return ResponseData.error("name is exist..");
+		}
+		entity.setClassifyName(name);
 		entity.setParentId(0);
 		tagClassifyService.save(entity);
 		return ResponseData.success();
@@ -108,6 +127,16 @@ public class TagsController extends SuperController {
 		if (dbEntity == null) {
 			return ResponseData.error("id is not exist.");
 		}
+		
+		String name = request.getName();
+		QueryWrapper<GTagClassify> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda()
+    		.eq(GTagClassify::getClassifyName, name);
+		GTagClassify classify = tagClassifyService.getOne(queryWrapper);
+		if (classify != null) {
+			return ResponseData.error("name is exist..");
+		}
+		
 		GTagClassify entity = new GTagClassify();
 		entity.setClassifyName(request.getName());
 		entity.setParentId(request.getParentId());
