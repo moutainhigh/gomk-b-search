@@ -150,6 +150,32 @@ public class TagsController extends SuperController {
 		return ResponseData.success();
 	}
 	
+	@ApiOperation("标签树-删除分类")
+	@ApiImplicitParam(name="id", value="分类ID", required=true, paramType="path", dataType="String", defaultValue="1")
+	@DeleteMapping("/tree/classify/{id}")
+	public ResponseData<?> deleteClassify(@PathVariable("id") String id) throws Exception {
+		
+		if (tagClassifyService.getById(id) == null) {
+			return ResponseData.error("id is not exist.");
+		}
+		tagClassifyService.removeById(id);
+		
+		return ResponseData.success();
+	}
+	
+
+	@ApiOperation("标签树-删除标签")
+	@ApiImplicitParam(name="id", value="标签的ID", required=true, paramType="path", dataType="String", defaultValue="1")
+	@DeleteMapping("/tree/tag/{id}")
+	public ResponseData<?> deleteTag(@PathVariable("id") String id) throws Exception {
+		if (tagService.getById(id) == null) {
+			return ResponseData.error("id is not exist.");
+		}
+		tagService.removeById(id);
+		
+		return ResponseData.success();
+	}
+	
 //	
 //	@GetMapping("/add")
 //	public ResponseData<?> add(TagRequest request) throws Exception {
