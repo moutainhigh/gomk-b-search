@@ -101,7 +101,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> searchCommonRecommend(int size, String tag, String indexName) throws IOException {
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		QueryBuilder queryBuilder = QueryBuilders.matchQuery("tag", tag);
+		QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("tag", tag);
 		sourceBuilder.query(queryBuilder);
 		sourceBuilder.from(0); 
         sourceBuilder.size(size > 10 ? 10 : size); 
