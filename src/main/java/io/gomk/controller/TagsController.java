@@ -151,9 +151,19 @@ public class TagsController extends SuperController {
 		if (dbEntity == null) {
 			return ResponseData.error("id is not exist.");
 		}
+		
+		String name = request.getName();
+		QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda()
+    		.eq(GTag::getTagName, name);
+		GTag tag = tagService.getOne(queryWrapper);
+		if (tag != null) {
+			return ResponseData.error("name is exist..");
+		}
+		
 		GTag entity = new GTag();
 		entity.setClassifyId(request.getParentId());
-		entity.setTagName(request.getName());
+		entity.setTagName(name);
 		entity.setTagDesc(request.getDesc());
 		tagService.save(entity);
 		return ResponseData.success();

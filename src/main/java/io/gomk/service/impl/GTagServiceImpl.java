@@ -134,6 +134,10 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		//具体标签
 		List<TreeDto> tagList = tagMapper.selectByScope(scope);
 		totalList.addAll(tagList);
+		
+		HashSet h = new HashSet(totalList);   
+		totalList.clear();   
+		totalList.addAll(h);
 		return TreeUtils.getTree(totalList);
 	}
 
@@ -154,6 +158,11 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		//具体标签
 		List<TreeDto> tagList = tagMapper.selectByScope(scope);
 		totalList.addAll(tagList);
+		
+		HashSet h = new HashSet(totalList);   
+		totalList.clear();   
+		totalList.addAll(h);
+		
 		return TreeUtils.getTree(totalList);
 	}
 
