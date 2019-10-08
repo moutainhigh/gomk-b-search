@@ -130,26 +130,26 @@ public class TagsController extends SuperController {
 		return ResponseData.success();
 	}
 	
-	@ApiOperation("标签树-删除分类或标签")
-	@ApiImplicitParam(name="id", value="分类或标签的ID", required=true, paramType="path", dataType="String", defaultValue="1")
-	@DeleteMapping("/tree/{id}")
-	public ResponseData<?> delete(@PathVariable("id") String id) throws Exception {
-		if (id.startsWith("T")) {
-			id = id.replace("T", "");
-			if (tagService.getById(id) == null) {
-				return ResponseData.error("id is not exist.");
-			}
-			tagService.removeById(id);
-		} else {
-			if (tagClassifyService.getById(id) == null) {
-				return ResponseData.error("id is not exist.");
-			}
-			tagClassifyService.removeById(id);
-		}
-		
-		return ResponseData.success();
-	}
-	
+//	@ApiOperation("标签树-删除分类或标签")
+//	@ApiImplicitParam(name="id", value="分类或标签的ID", required=true, paramType="path", dataType="String", defaultValue="1")
+//	@DeleteMapping("/tree/{id}")
+//	public ResponseData<?> delete(@PathVariable("id") String id) throws Exception {
+//		if (id.startsWith("T")) {
+//			id = id.replace("T", "");
+//			if (tagService.getById(id) == null) {
+//				return ResponseData.error("id is not exist.");
+//			}
+//			tagService.removeById(id);
+//		} else {
+//			if (tagClassifyService.getById(id) == null) {
+//				return ResponseData.error("id is not exist.");
+//			}
+//			tagClassifyService.removeById(id);
+//		}
+//		
+//		return ResponseData.success();
+//	}
+//	
 	@ApiOperation("标签树-删除分类")
 	@ApiImplicitParam(name="id", value="分类ID", required=true, paramType="path", dataType="String", defaultValue="1")
 	@DeleteMapping("/tree/classify/{id}")
