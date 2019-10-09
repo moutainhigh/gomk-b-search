@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.es6.ESRestClient;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
@@ -81,6 +81,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			}
 			
 	        UpdateRequest request = new UpdateRequest(zbIndex, "_doc", id).doc(jsonMap);
+	        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
 			UpdateResponse updateResponse = client.update(request);
 	        log.info(updateResponse.getId() + ":" +updateResponse.getResult().toString());
 	      //异步执行
