@@ -76,6 +76,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/bdw")
 	public ResponseData<PageResult<Page<List<String>>>> searchCompletion(int page, int pageSize, String keyWord) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.success();
+		}
 		return ResponseData.success(completionService.getBdw(page, pageSize, keyWord));
 	}
 	
@@ -89,7 +92,7 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/zbwj")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
-			return ResponseData.error("请输入关键字..");
+			return ResponseData.success();
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbIndex));
 	}
