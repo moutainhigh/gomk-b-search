@@ -2,6 +2,7 @@ package io.gomk.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,7 @@ public class SearchContentController extends SuperController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备")
 	})
 	@GetMapping("/bdw")
 	public ResponseData<PageResult<Page<List<String>>>> searchCompletion(int page, int pageSize, String keyWord) throws Exception {
@@ -87,6 +88,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/zbwj")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZB(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.error("请输入关键字..");
+		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbIndex));
 	}
 	
@@ -110,6 +114,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/zgyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.error("请输入关键字..");
+		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zgyqIndex));
 	}
 	
@@ -132,6 +139,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/jsyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.error("请输入关键字..");
+		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, jsyqIndex));
 	}
 	
@@ -154,6 +164,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/pbbf")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.error("请输入关键字..");
+		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, pbbfIndex));
 	}
 	
@@ -176,6 +189,9 @@ public class SearchContentController extends SuperController {
 	})
 	@GetMapping("/zjcg")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZjcg(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.error("请输入关键字..");
+		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zjcgIndex));
 	}
 	
