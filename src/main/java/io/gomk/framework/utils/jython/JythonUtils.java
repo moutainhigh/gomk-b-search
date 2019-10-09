@@ -1,5 +1,9 @@
 package io.gomk.framework.utils.jython;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 /***@ClassName:  JythonUtils   
 * @Description:TODO(jython 工具类)   
 * @author: zy
@@ -28,7 +32,7 @@ public class JythonUtils {
 	public static PythonInterpreter jythonInit() {
 		// 初始化site 配置
 		Properties props = new Properties();
-		props.put("python.home", ""); // python Lib 或 jython Lib,根据系统中该文件目录路径
+		props.put("python.home", "/System/Library/Frameworks/Python.framework/Versions/2.7/lib"); // python Lib 或 jython Lib,根据系统中该文件目录路径
 		props.put("python.console.encoding", "UTF-8");
 		props.put("python.security.respectJavaAccessibility", "false");
 		props.put("python.import.site", "false");
@@ -88,6 +92,15 @@ public class JythonUtils {
 		PyObject pyobj = func.__call__(new PyString(paramName));
 		return (String) pyobj.__tojava__(String.class);
 	}
+	
+	/**
+	 * @Title: execFuncToString @Description: TODO(执行有参方法,返回一个字符串) @param: @param
+	 * func @param: @param paramName ，参数名 @param: @return @return: String @throws
+	 */
+	public static String execFuncToString2(PyFunction func, String param1, String param2) {
+		PyObject pyobj = func.__call__(new PyString(param1), new PyString(param2));
+		return (String) pyobj.__tojava__(String.class);
+	}
 
 	/**
 	 * @Title: execFuncToInteger @Description:
@@ -121,22 +134,64 @@ public class JythonUtils {
 	public void execFuncToByParamsList(PyFunction func, List<T> paramsList) {
 
 	}
+	
 
-	public static void main(String[] args) {
+	public static String getContrastResult(String str1, String str2) {
 		PythonInterpreter interp = jythonInit();
 		// 文件名
-		String filePath = "F:\\jpython_jar\\jpythonTest\\pythonTest.py";
+		String filePath = "/Users/vko/Documents/git-code/gomk/test.py";
 		interp = loadPythonFile(interp, filePath);
 		// 函数名
-		String functionName = "count";
+		String functionName = "myscript";
 		PyFunction func = loadPythonFunc(interp, functionName);
 		// 执行无参方法，返回PyObject
-		PyObject pyobj = execFunc(func);
+		//PyObject pyobj = execFunc(func);
 		// 执行无参方法，返回String
-		String resultStr = execFuncToString(func);
+		//String resultStr = execFuncToString(func);
 		// 执行有参方法，返回String
 		String paramName = "name";
 		String resultStr2 = execFuncToString2(func, paramName);
+		System.out.println("result:" + resultStr2);
+		return null;
 	}
+
+	public static void main(String[] args) {
+//		PythonInterpreter interp = jythonInit();
+//		// 文件名
+//		String filePath = "/Users/vko/Documents/git-code/gomk/test.py";
+//		interp = loadPythonFile(interp, filePath);
+//		// 函数名
+//		String functionName = "diffdo";
+//		PyFunction func = loadPythonFunc(interp, functionName);
+//		// 执行无参方法，返回PyObject
+//		//PyObject pyobj = execFunc(func);
+//		// 执行无参方法，返回String
+//		//String resultStr = execFuncToString(func);
+//		// 执行有参方法，返回String
+//		String paramName = "name";
+//		String resultStr2 = execFuncToString2(func, paramName, "222");
+//		System.out.println("result:" + resultStr2);
+		
+		try {
+			String filePath = "/Users/vko/Documents/git-code/gomk/test.py";
+		    String[] args1 = new String[] { "python", filePath, 
+		    		"/Users/vko/Documents/git-code/gomk/1.doc", 
+		    		"/Users/vko/Documents/git-code/gomk/2.doc" };
+		    Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
+		 
+		    BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+		    String line = null;
+		    while ((line = in.readLine()) != null) {
+		        System.out.println(line);
+		    }
+		    in.close();
+		    proc.waitFor();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
+		}
+	}
+
 
 }

@@ -23,7 +23,8 @@ public interface GTagClassifyMapper extends BaseMapper<GTagClassify> {
 			+ "inner join t_g_tag_classify_scope tgtcs  on tgtcs.classify_id=tgtc.id " + 
 			" where tgtcs.scopes=#{scope}")
 	List<TreeDto> selectByScope(Integer scope);
-	@Select("select tgtc.id as id, tgtc.classify_name as name, tgtc.parent_id as parentId from t_g_tag_classify tgtc ")
+	@Select("select tgtc.id as id, tgtc.classify_name as name, tgtc.parent_id as parentId "
+			+ "from t_g_tag_classify tgtc where parent_id=0")
 	List<TreeDto> selectAllClassify();
 
 }

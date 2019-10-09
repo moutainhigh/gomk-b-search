@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.framework.controller.SuperController;
+import io.gomk.framework.utils.jython.JythonUtils;
 import io.gomk.service.IGCompletionService;
 import io.gomk.service.ISearchService;
 import io.swagger.annotations.Api;
@@ -185,6 +187,14 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/zjcg/recommend")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zjcgRecommend(int size, String tag) throws Exception {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zjcgIndex));
+	}
+	
+	@ApiOperation("文件对比")
+	@PostMapping("/contrast")
+	public ResponseData<String> contrast(int page, int pageSize, String keyWord, String tag) throws Exception {
+		String str1 = "";
+		String str2 = "";
+		return ResponseData.success(JythonUtils.getContrastResult(str1, str2));
 	}
 	
 //
