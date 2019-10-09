@@ -115,7 +115,7 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/zgyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
-			return ResponseData.error("请输入关键字..");
+			return ResponseData.success();
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zgyqIndex));
 	}
@@ -140,7 +140,7 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/jsyq")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord, String tag) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
-			return ResponseData.error("请输入关键字..");
+			return ResponseData.success();
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, jsyqIndex));
 	}
@@ -165,7 +165,7 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/pbbf")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord, String tag) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
-			return ResponseData.error("请输入关键字..");
+			return ResponseData.success();
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, pbbfIndex));
 	}
@@ -190,7 +190,7 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/zjcg")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZjcg(int page, int pageSize, String keyWord, String tag) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
-			return ResponseData.error("请输入关键字..");
+			return ResponseData.success();
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zjcgIndex));
 	}
