@@ -313,6 +313,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 		String result = "";
 		result = fragmentString.replaceAll("(\r)\\1+","$1").replace("\t", "").replace("\r", " ");
 		result = result.replaceAll("(\n)\\1+","$1").replace("\n", " ");
+		result = result.replaceAll("\\s{1,}", " ");
 		return result;
 	}
 
