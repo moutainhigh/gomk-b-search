@@ -23,6 +23,7 @@ public class Word2007 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		//str = str.replaceAll("(\r)\\1+","$1").replace("\t", "").replace("\r", " ");
 		return str;
 	}
 }

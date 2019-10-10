@@ -16,4 +16,6 @@ public interface ISearchService {
 	
 	PageResult<Page<List<SearchResultVO>>> searchCommonRecommend(int size, String tag, String indexName) throws IOException;
 
+
+
 }

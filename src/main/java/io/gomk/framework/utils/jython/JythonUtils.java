@@ -18,12 +18,18 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.poi.ss.formula.functions.T;
+import org.python.core.Py;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JythonUtils {
+	
 
 	/**
 	 * @Title: jythonInit @Description: TODO(初始化jython) @param: @return @return:
@@ -32,7 +38,7 @@ public class JythonUtils {
 	public static PythonInterpreter jythonInit() {
 		// 初始化site 配置
 		Properties props = new Properties();
-		props.put("python.home", "/System/Library/Frameworks/Python.framework/Versions/2.7/lib"); // python Lib 或 jython Lib,根据系统中该文件目录路径
+		props.put("python.home", "/System/Library/Frameworks/Python.framework/Versions/2.7"); // python Lib 或 jython Lib,根据系统中该文件目录路径
 		props.put("python.console.encoding", "UTF-8");
 		props.put("python.security.respectJavaAccessibility", "false");
 		props.put("python.import.site", "false");
@@ -40,6 +46,9 @@ public class JythonUtils {
 		PythonInterpreter.initialize(preprops, props, new String[0]);
 		// 创建PythonInterpreter 对象
 		PythonInterpreter interp = new PythonInterpreter();
+		PySystemState sys = Py.getSystemState();
+		sys.path.add("/System/Library/Frameworks/Python.framework/Versions/2.7/lib");
+		interp.exec("import difflib");
 		return interp;
 	}
 
@@ -137,22 +146,30 @@ public class JythonUtils {
 	
 
 	public static String getContrastResult(String str1, String str2) {
-		PythonInterpreter interp = jythonInit();
-		// 文件名
-		String filePath = "/Users/vko/Documents/git-code/gomk/test.py";
-		interp = loadPythonFile(interp, filePath);
-		// 函数名
-		String functionName = "myscript";
-		PyFunction func = loadPythonFunc(interp, functionName);
-		// 执行无参方法，返回PyObject
-		//PyObject pyobj = execFunc(func);
-		// 执行无参方法，返回String
-		//String resultStr = execFuncToString(func);
-		// 执行有参方法，返回String
-		String paramName = "name";
-		String resultStr2 = execFuncToString2(func, paramName);
-		System.out.println("result:" + resultStr2);
-		return null;
+		
+		StringBuilder sb = new StringBuilder();
+		try {
+			//String filePath = "/Users/vko/Documents/git-code/gomk/testText.py";
+			String filePath = "/root/python/difflib/diffString.py";
+		    String[] args1 = new String[] { "python", filePath, str1, str2};
+		    Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
+		 
+		    BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+		    String line = null;
+		    
+		    while ((line = in.readLine()) != null) {
+		    	sb.append(line);
+		       
+		    }
+		    in.close();
+		    proc.waitFor();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} catch (InterruptedException e) {
+		    e.printStackTrace();
+		}
+		// System.out.println(sb.toString());
+		return sb.toString();
 	}
 
 	public static void main(String[] args) {
@@ -171,12 +188,12 @@ public class JythonUtils {
 //		String paramName = "name";
 //		String resultStr2 = execFuncToString2(func, paramName, "222");
 //		System.out.println("result:" + resultStr2);
-		
+//		
 		try {
 			String filePath = "/Users/vko/Documents/git-code/gomk/test.py";
 		    String[] args1 = new String[] { "python", filePath, 
-		    		"/Users/vko/Documents/git-code/gomk/1.doc", 
-		    		"/Users/vko/Documents/git-code/gomk/2.doc" };
+		    		"/Users/vko/Documents/git-code/gomk/v11.txt", 
+		    		"/Users/vko/Documents/git-code/gomk/v12.txt" };
 		    Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 		 
 		    BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));

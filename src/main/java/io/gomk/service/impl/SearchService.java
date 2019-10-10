@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
@@ -117,15 +119,12 @@ public class SearchService extends EsBaseService implements ISearchService {
         //SearchRequest searchRequest = new SearchRequest();
         SearchRequest searchRequest = new SearchRequest(indexName); 
         searchRequest.types("_doc");
-      
         
         //将请求体加入到请求中
         searchRequest.source(sourceBuilder);
         
         // 可选的设置
         //searchRequest.routing("routing");
-        // 高亮设置
-       
         HighlightBuilder highlightBuilder = new HighlightBuilder(); 
         HighlightBuilder.Field highlightTitle =
                 new HighlightBuilder.Field("title"); 
@@ -243,13 +242,18 @@ public class SearchService extends EsBaseService implements ISearchService {
             	fragmentString = fragments2[0].string();
             	logger.info("fragments1 size:" + fragments2.length);
             	logger.info("fragmentString1:" + fragmentString);
-            	vo.setContent(fragmentString);
+            	vo.setContent(replaceRN(fragmentString));
             } else {
             	if (indexName.equals(zbIndex)) {
                     vo.setContent(abstracts == null ? "" : abstracts.toString());
             	} else {
             		Object zbfw = sourceAsMap.get("zbfw");
-            		vo.setContent(zbfw == null ? "" : zbfw.toString());
+            		String text = "";
+            		if (zbfw != null) {
+            			text = zbfw.toString();
+            			text = replaceRN(text);
+            		}
+            		vo.setContent(text);
             	}
             }
             
@@ -305,10 +309,13 @@ public class SearchService extends EsBaseService implements ISearchService {
 		return pageResult;
 	}
 
-	
+	private String replaceRN(String fragmentString) {
+		String result = "";
+		result = fragmentString.replaceAll("(\r)\\1+","$1").replace("\t", "").replace("\r", " ");
+		result = result.replaceAll("(\n)\\1+","$1").replace("\n", " ");
+		return result;
+	}
 
-	
-	
 
 
 }
