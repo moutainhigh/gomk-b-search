@@ -18,4 +18,6 @@ public interface IIndexService {
 	public ResponseData<String> bulkJSYQDoc() throws IOException;
 	public ResponseData<String> bulkPBBFDoc() throws IOException;
 	public ResponseData<String> bulkZJCGDoc() throws IOException;
+	public ResponseData<String> createCompletionIndex() throws IOException;
+	public ResponseData<String> BulkCompletionDoc() throws IOException;
 }

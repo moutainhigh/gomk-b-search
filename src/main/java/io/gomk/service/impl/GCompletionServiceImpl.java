@@ -2,6 +2,7 @@ package io.gomk.service.impl;
 
 import io.gomk.model.GCompletion;
 import io.gomk.common.utils.PageResult;
+import io.gomk.es6.ESRestClient;
 import io.gomk.mapper.GCompletionMapper;
 import io.gomk.service.IGCompletionService;
 
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +28,11 @@ public class GCompletionServiceImpl extends ServiceImpl<GCompletionMapper, GComp
 
 	@Autowired
 	GCompletionMapper completionMapper;
+	@Autowired
+	protected ESRestClient esClient;
+	
+	@Value("${elasticsearch.index.completionName}")
+	protected String completionIndex;
 	
 	@Override
 	public List<String> getConmpletion(int size, String keyWord) {

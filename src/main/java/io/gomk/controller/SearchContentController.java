@@ -67,7 +67,8 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/completion")
 	public ResponseData<List<String>> searchCompletion(int size, String keyWord) throws Exception {
 		size = size > 10 ? 10 : size;
-		return ResponseData.success(completionService.getConmpletion(size, keyWord));
+		//return ResponseData.success(completionService.getConmpletion(size, keyWord));
+		return ResponseData.success(searchService.getConmpletion(size, keyWord));
 	}
 	
 	@ApiOperation("标的物查询")

@@ -39,10 +39,17 @@ public class IndexController extends SuperController {
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.zjName}")
 	protected String zjIndex;
-	@ApiOperation("创建索引-招标文件")
-	@PostMapping("/zb")
-	public ResponseData<String> createZBIndex() throws IOException {
-		return indexService.createZBIndex();
+	
+	@ApiOperation("创建索引-搜索补全")
+	@PostMapping("/completion")
+	public ResponseData<String> createCompletionIndex() throws IOException {
+		return indexService.createCompletionIndex();
+	}
+	
+	@ApiOperation("增加搜索补全短语")
+	@PostMapping("/completion/words")
+	public ResponseData<String> AddCompletWords() throws IOException {
+		return indexService.BulkCompletionDoc();
 	}
 
 	@ApiOperation("批量添加招标文件")

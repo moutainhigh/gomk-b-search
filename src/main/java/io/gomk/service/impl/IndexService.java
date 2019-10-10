@@ -355,5 +355,30 @@ public class IndexService extends EsBaseService implements IIndexService {
         client.close();
 	}
 
+	@Override
+	public ResponseData<String> createCompletionIndex() throws IOException {
+		String mapping = "  {\n" +
+	            "    \"_doc\": {\n" +
+	            "      \"properties\": {\n" +
+	            "        \"words\": {\n" +
+	            "          \"type\": \"text\",\n" +
+	            "          \"analyzer\": \"hanlp\"" +
+	            "        },\n" +
+	            "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+	            "      }\n" +
+	            "    }\n" +
+	            "  }";
+		return createIndex(completionIndex, mapping);
+	}
+
+	@Override
+	public ResponseData<String> BulkCompletionDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getCompletionMap();
+		bulkDoc(completionIndex, sourceList);
+		return ResponseData.success();
+	}
+
 
 }

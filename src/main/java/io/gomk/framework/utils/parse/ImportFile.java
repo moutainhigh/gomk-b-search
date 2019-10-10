@@ -1,6 +1,8 @@
 package io.gomk.framework.utils.parse;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.seg.common.Term;
-import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
 import io.gomk.framework.utils.FileListUtil;
 
@@ -236,6 +236,24 @@ public class ImportFile {
 				}
 			}
 		}
+		return list;
+	}
+	
+	public static List<Map<String, Object>>  getCompletionMap() throws IOException {
+		List<Map<String, Object>> list = new ArrayList<>();
+		String now = format.format(new Date());
+		String filePath = "/Users/vko/Documents/my-code/DOC/数据库中已有的标的物.txt";
+		File file = new File(filePath);
+	    BufferedReader reader = new BufferedReader(new FileReader(file));
+        String tempStr;
+        while ((tempStr = reader.readLine()) != null) {
+        	Map<String, Object> map = new HashMap<>();
+    		map.put("words", tempStr);
+    		map.put("add_date", now);
+    		list.add(map);
+        }
+        reader.close();
+		
 		return list;
 	}
 	

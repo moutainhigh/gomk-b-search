@@ -317,6 +317,79 @@ public class SearchService extends EsBaseService implements ISearchService {
 		return result;
 	}
 
+	@Override
+	public List<String> getConmpletion(int size, String keyWord) throws IOException {
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		QueryBuilder queryBuilder = QueryBuilders.matchQuery("words", keyWord);
+		sourceBuilder.query(queryBuilder);
+		sourceBuilder.from(0); 
+        sourceBuilder.size(size > 10 ? 10 : size); 
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
+        
+        RestHighLevelClient client = esClient.getClient();
+		List<String> result = new ArrayList<>();
+		 // 1、创建search请求
+        //SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(completionIndex); 
+        searchRequest.types("_doc");
+        
+        //将请求体加入到请求中
+        searchRequest.source(sourceBuilder);
+        
+        // 可选的设置
+        //searchRequest.routing("routing");
+        HighlightBuilder highlightBuilder = new HighlightBuilder(); 
+        HighlightBuilder.Field highlightTitle =
+                new HighlightBuilder.Field("words"); 
+        highlightTitle.highlighterType("unified");  
+        highlightBuilder.field(highlightTitle);  
+        sourceBuilder.highlighter(highlightBuilder);
+        
+        //3、发送请求        
+        SearchResponse searchResponse = client.search(searchRequest);
+        String fragmentString = "";
+        //处理搜索命中文档结果
+        SearchHits hits = searchResponse.getHits();
+        
+        long totalHits = hits.getTotalHits();
+        float maxScore = hits.getMaxScore();
+        
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            // do something with the SearchHit
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            
+            //取_source字段值
+            //String sourceAsString = hit.getSourceAsString(); //取成json串
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
+            //从map中取字段值
+            /*
+            String documentTitle = (String) sourceAsMap.get("title"); 
+            List<Object> users = (List<Object>) sourceAsMap.get("user");
+            Map<String, Object> innerObject = (Map<String, Object>) sourceAsMap.get("innerObject");
+            */
+            logger.info("index:" + index + "  type:" + type + "  id:" + id);
+         //   logger.info(sourceAsString);
+            
+            //取高亮结果
+            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+            HighlightField highlight1 = highlightFields.get("words");
+            if (highlight1 != null) {
+            	Text[] fragments1 = highlight1.fragments();  
+            	fragmentString = fragments1[0].string();
+            	logger.info("fragments1 size:" + fragments1.length);
+            	logger.info("fragmentString1:" + fragmentString);
+            	result.add(fragmentString);
+            }
+        
+        }
+        client.close();
+        return result;
+	}
+
 
 
 }
