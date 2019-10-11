@@ -31,7 +31,7 @@ public class RuntimeUtils {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println(sb.toString());
+		//System.out.println(sb.toString());
 		String encodedText = encoder.encodeToString(sb.toString().getBytes());
 		return encodedText;
 	}
