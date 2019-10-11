@@ -3,13 +3,12 @@ package io.gomk.controller;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.get.GetResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,10 +16,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
-import io.gomk.controller.request.ContrastRequest;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
-import io.gomk.framework.utils.jython.JythonUtils;
+import io.gomk.framework.utils.jython.RuntimeUtils;
 import io.gomk.service.IGCompletionService;
 import io.gomk.service.ISearchService;
 import io.swagger.annotations.Api;
@@ -211,17 +210,55 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zjcgIndex));
 	}
 	
+
 	@ApiOperation("文件对比")
-	@PostMapping("/contrast")
-	public ResponseData<String> contrast(@RequestBody ContrastRequest request) throws Exception {
-		String content1 = request.getContent1();
-		String content2 = request.getContent2();
-		if (StringUtils.isBlank(content1) || StringUtils.isBlank(content2)) {
-			return ResponseData.success();
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="id1", value="id1", required=true, paramType="query", dataType="String", defaultValue="10"),
+		@ApiImplicitParam(name="id2", value="id2", required=true, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/contrast")
+	public ResponseData<String> contrast(int scope, String id1, String id2) throws Exception {
+		if (StringUtils.isBlank(id1) || StringUtils.isBlank(id2)) {
+			return ResponseData.error("请选择条目!");
 		}
-		
-		return ResponseData.success(JythonUtils.getContrastResult(content1, content2));
+		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
+		String indexName = "";
+		switch (scopes) {
+			case ZGYQ:
+				indexName = zgyqIndex;
+				break;
+			case JSYQ:
+				indexName = jsyqIndex;
+				break;
+			case PBBF:
+				indexName = pbbfIndex;
+				break;
+			default:
+				break;
+		}
+		GetResponse esResponse1 = searchService.getEsDoc(indexName, id1);
+		GetResponse esResponse2 = searchService.getEsDoc(indexName, id2);
+		Object obj1 = esResponse1.getSourceAsMap().get("content");
+		Object obj2 = esResponse2.getSourceAsMap().get("content");
+		if (obj1 == null || obj2 == null) {
+			return ResponseData.error("id or scope is error.");
+		}
+		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
 	}
+	
+//	
+//	@ApiOperation("文件对比")
+//	@PostMapping("/contrast")
+//	public ResponseData<String> contrast(@RequestBody ContrastRequest request) throws Exception {
+//		String content1 = request.getContent1();
+//		String content2 = request.getContent2();
+//		if (StringUtils.isBlank(content1) || StringUtils.isBlank(content2)) {
+//			return ResponseData.success();
+//		}
+//		
+//		return ResponseData.success(RuntimeUtils.getContrastResult(content1, content2));
+//	}
 	
 //
 //	@ApiOperation("资格要求库")

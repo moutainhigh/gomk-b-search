@@ -149,8 +149,8 @@ public class JythonUtils {
 		
 		StringBuilder sb = new StringBuilder();
 		try {
-			//String filePath = "/Users/vko/Documents/git-code/gomk/testText.py";
-			String filePath = "/root/python/difflib/diffString.py";
+			String filePath = "/Users/vko/Documents/git-code/gomk/testText.py";
+			//String filePath = "/root/python/difflib/diffString.py";
 		    String[] args1 = new String[] { "python", filePath, str1, str2};
 		    Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 		 
@@ -168,7 +168,7 @@ public class JythonUtils {
 		} catch (InterruptedException e) {
 		    e.printStackTrace();
 		}
-		// System.out.println(sb.toString());
+		 System.out.println(sb.toString());
 		return sb.toString();
 	}
 

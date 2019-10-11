@@ -3,9 +3,10 @@ package io.gomk.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.elasticsearch.action.get.GetResponse;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.SearchResultVO;
 
@@ -19,6 +20,9 @@ public interface ISearchService {
 
 
 	List<String> getConmpletion(int size, String keyWord) throws IOException;
+
+
+	GetResponse getEsDoc(String indexName, String id) throws IOException;
 
 
 

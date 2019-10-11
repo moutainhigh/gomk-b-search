@@ -390,6 +390,15 @@ public class SearchService extends EsBaseService implements ISearchService {
         return result;
 	}
 
+	@Override
+	public GetResponse getEsDoc(String indexName, String id) throws IOException {
+		RestHighLevelClient client = esClient.getClient();
+		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
+		GetResponse getResponse = client.get(getRequest);
+		client.close();
+		return getResponse;
+	}
+
 
 
 }
