@@ -239,6 +239,9 @@ public class SearchContentController extends SuperController {
 		}
 		GetResponse esResponse1 = searchService.getEsDoc(indexName, id1);
 		GetResponse esResponse2 = searchService.getEsDoc(indexName, id2);
+		if (!esResponse1.isExists() || !esResponse2.isExists()) {
+			return ResponseData.error("id is not found!");
+		}
 		Object obj1 = esResponse1.getSourceAsMap().get("content");
 		Object obj2 = esResponse2.getSourceAsMap().get("content");
 		if (obj1 == null || obj2 == null) {
