@@ -40,7 +40,7 @@ def diffdo(t1,t2):
 #print ('\n'.join(list(diff)))
 
    
-    d = difflib.HtmlDiff(tabsize=4,wrapcolumn=100)
+    d = difflib.HtmlDiff(tabsize=4,wrapcolumn=150)
 #print (d.make_file(text1_lines,text2_lines))
 
     
