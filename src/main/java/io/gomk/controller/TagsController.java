@@ -64,7 +64,7 @@ public class TagsController extends SuperController {
 	}
 	
 	@ApiOperation("标签树--搜索用")
-	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
+	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
 	@GetMapping("/tree/{scope}")
 	public ResponseData<List<TreeDto>> tree(@PathVariable("scope") Integer scope) throws Exception {
 		TagClassifyScopeEnum.fromValue(scope);
@@ -73,7 +73,7 @@ public class TagsController extends SuperController {
 	}
 	
 	@ApiOperation("标签树--添加标签时用")
-	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
+	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
 	@GetMapping("/tree/edit/{scope}")
 	public ResponseData<List<TreeDto>> editTree(@PathVariable("scope") Integer scope) throws Exception {
 		TagClassifyScopeEnum.fromValue(scope);

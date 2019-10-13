@@ -267,7 +267,7 @@ public class SearchContentController extends SuperController {
 	}
 	@ApiOperation("文件对比")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
 		@ApiImplicitParam(name="id1", value="id1", required=true, paramType="query", dataType="String", defaultValue="10"),
 		@ApiImplicitParam(name="id2", value="id2", required=true, paramType="query", dataType="String", defaultValue="中型项目")
 	})
@@ -287,6 +287,12 @@ public class SearchContentController extends SuperController {
 				break;
 			case PBBF:
 				indexName = pbbfIndex;
+				break;
+			case ZCFG:
+				indexName = zcfgIndex;
+				break;
+			case ZBFB:
+				indexName = zbfbIndex;
 				break;
 			default:
 				break;
