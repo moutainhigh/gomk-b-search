@@ -8,6 +8,7 @@ import org.elasticsearch.action.get.GetResponse;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.gomk.common.utils.PageResult;
+import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
 
 
@@ -23,6 +24,9 @@ public interface ISearchService {
 
 
 	GetResponse getEsDoc(String indexName, String id) throws IOException;
+
+
+	PageResult<Page<List<NumberVO>>> getBdw(int page, int pageSize, String keyWord) throws IOException;
 
 
 

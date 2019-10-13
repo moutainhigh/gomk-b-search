@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
+import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
@@ -81,11 +82,11 @@ public class SearchContentController extends SuperController {
 		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备")
 	})
 	@GetMapping("/bdw")
-	public ResponseData<PageResult<Page<List<String>>>> searchCompletion(int page, int pageSize, String keyWord) throws Exception {
+	public ResponseData<PageResult<Page<List<NumberVO>>>> searchCompletion(int page, int pageSize, String keyWord) throws Exception {
 		if (StringUtils.isBlank(keyWord)) {
 			return ResponseData.success();
 		}
-		return ResponseData.success(completionService.getBdw(page, pageSize, keyWord));
+		return ResponseData.success(searchService.getBdw(page, pageSize, keyWord));
 	}
 	
 	@ApiOperation("招标文件")

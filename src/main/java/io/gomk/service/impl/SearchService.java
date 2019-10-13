@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,7 @@ import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
 import io.gomk.common.utils.PageResult;
+import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.service.ISearchService;
 
@@ -365,6 +367,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
+            result.add(sourceAsMap.get("words").toString());
             //从map中取字段值
             /*
             String documentTitle = (String) sourceAsMap.get("title"); 
@@ -374,16 +377,16 @@ public class SearchService extends EsBaseService implements ISearchService {
             logger.info("index:" + index + "  type:" + type + "  id:" + id);
          //   logger.info(sourceAsString);
             
-            //取高亮结果
-            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-            HighlightField highlight1 = highlightFields.get("words");
-            if (highlight1 != null) {
-            	Text[] fragments1 = highlight1.fragments();  
-            	fragmentString = fragments1[0].string();
-            	logger.info("fragments1 size:" + fragments1.length);
-            	logger.info("fragmentString1:" + fragmentString);
-            	result.add(fragmentString);
-            }
+//            //取高亮结果
+//            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+//            HighlightField highlight1 = highlightFields.get("words");
+//            if (highlight1 != null) {
+//            	Text[] fragments1 = highlight1.fragments();  
+//            	fragmentString = fragments1[0].string();
+//            	logger.info("fragments1 size:" + fragments1.length);
+//            	logger.info("fragmentString1:" + fragmentString);
+//            	result.add(fragmentString);
+//            }
         
         }
         client.close();
@@ -397,6 +400,65 @@ public class SearchService extends EsBaseService implements ISearchService {
 		GetResponse getResponse = client.get(getRequest);
 		client.close();
 		return getResponse;
+	}
+
+	@Override
+	public PageResult<Page<List<NumberVO>>> getBdw(int page, int pageSize, String keyWord) throws IOException {
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		QueryBuilder queryBuilder = QueryBuilders.matchQuery("words", keyWord);
+		sourceBuilder.query(queryBuilder);
+		sourceBuilder.from(0); 
+        sourceBuilder.size(pageSize > 10 ? 10 : pageSize); 
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
+        
+        RestHighLevelClient client = esClient.getClient();
+		List<NumberVO> result = new ArrayList<>();
+		 // 1、创建search请求
+        //SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(completionIndex); 
+        searchRequest.types("_doc");
+        
+        //将请求体加入到请求中
+        searchRequest.source(sourceBuilder);
+        
+        // 可选的设置
+        //searchRequest.routing("routing");
+        HighlightBuilder highlightBuilder = new HighlightBuilder(); 
+        HighlightBuilder.Field highlightTitle =
+                new HighlightBuilder.Field("words"); 
+        highlightTitle.highlighterType("unified");  
+        highlightBuilder.field(highlightTitle);  
+        sourceBuilder.highlighter(highlightBuilder);
+        
+        //3、发送请求        
+        SearchResponse searchResponse = client.search(searchRequest);
+        String fragmentString = "";
+        //处理搜索命中文档结果
+        SearchHits hits = searchResponse.getHits();
+        
+        long totalHits = hits.getTotalHits();
+        float maxScore = hits.getMaxScore();
+        
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+            // do something with the SearchHit
+            String index = hit.getIndex();
+            String type = hit.getType();
+            String id = hit.getId();
+            float score = hit.getScore();
+            
+            //取_source字段值
+            //String sourceAsString = hit.getSourceAsString(); //取成json串
+            Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
+            NumberVO vo = new NumberVO();
+            vo.setWords(sourceAsMap.get("words").toString());
+            vo.setPkgCode(new HashSet<String>((List<String>)sourceAsMap.get("pkg_code")));
+            vo.setSupplDocumentCode(new HashSet<String>((List<String>)sourceAsMap.get("suppl_document_code")));
+            result.add(vo);
+        }
+        client.close();
+        PageResult pageResult = new PageResult(sourceBuilder.from(), sourceBuilder.size(), totalHits, result);
+        return pageResult;
 	}
 
 

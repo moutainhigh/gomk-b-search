@@ -364,6 +364,12 @@ public class IndexService extends EsBaseService implements IIndexService {
 	            "          \"type\": \"text\",\n" +
 	            "          \"analyzer\": \"hanlp\"" +
 	            "        },\n" +
+	            "        \"pkg_code\": {\n" +
+	            "          \"type\": \"keyword\"\n" +
+	            "        },\n" +
+	            "        \"suppl_document_code\": {\n" +
+	            "          \"type\": \"keyword\"\n" +
+	            "        },\n" +
 	            "        \"add_date\": {\n" +
                 "          \"type\": \"keyword\"\n" +
                 "        }\n" +

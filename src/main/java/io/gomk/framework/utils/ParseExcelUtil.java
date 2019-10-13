@@ -28,7 +28,7 @@ public class ParseExcelUtil {
 	private static Row row;
 
 	public static void main(String[] args) throws Exception {
-		String filePath = "/Users/vko/Documents/my-code/DOC/数据v1.1.csv";
+		String filePath = "/Users/vko/Desktop/t_g_completion.xls";
 		Map<Integer, Map<Integer, Object>> content = getExcelContent(filePath);
 		
 		System.out.println("end.");
