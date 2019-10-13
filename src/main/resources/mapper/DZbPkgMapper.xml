@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.DZbPkgMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.DZbPkg">
+        <result column="DATE_TIME" property="dateTime" />
+        <result column="PKG_CODE" property="pkgCode" />
+        <result column="PKG_NAME" property="pkgName" />
+        <result column="PKG_DESCRIBE" property="pkgDescribe" />
+        <result column="PRJ_CODE" property="prjCode" />
+        <result column="PRJ_NAME" property="prjName" />
+        <result column="STATE" property="state" />
+        <result column="WIN_BID_TYPE" property="winBidType" />
+        <result column="ALL_TIME" property="allTime" />
+        <result column="ENTRUST_AMT" property="entrustAmt" />
+        <result column="TENDERING_CNT" property="tenderingCnt" />
+        <result column="ANNOUNC_DATE" property="announcDate" />
+        <result column="RE_BID_ANNOUNC_DATE" property="reBidAnnouncDate" />
+        <result column="RE_BID_CAUSE" property="reBidCause" />
+        <result column="QULIF_EXAM_ANNOUNC_DATE" property="qulifExamAnnouncDate" />
+        <result column="SET_TIME" property="setTime" />
+        <result column="EXPECT_OPEN_BID_DATE" property="expectOpenBidDate" />
+        <result column="REAL_OPEN_BID_DATE" property="realOpenBidDate" />
+        <result column="EVAL_BID_RLT_SEND_TIME" property="evalBidRltSendTime" />
+        <result column="EVAL_BID_RLT_CALLBACK_TIME" property="evalBidRltCallbackTime" />
+        <result column="EVAL_BID_DATE" property="evalBidDate" />
+        <result column="EVAL_BID_DAYS" property="evalBidDays" />
+        <result column="WIN_BID_CADI_PUBL_DATE" property="winBidCadiPublDate" />
+        <result column="WIN_BID_NOTICE_SEND_DATE" property="winBidNoticeSendDate" />
+        <result column="OPEN_BID_PLACE" property="openBidPlace" />
+        <result column="NEGO_TYPE" property="negoType" />
+        <result column="NEGO_DATE" property="negoDate" />
+        <result column="NEGO_PLACE" property="negoPlace" />
+        <result column="RESULT_NOTICE_SEND_DATE" property="resultNoticeSendDate" />
+        <result column="STOP_STEP" property="stopStep" />
+        <result column="END_STEP" property="endStep" />
+        <result column="END_REASON" property="endReason" />
+        <result column="PKG_WIN_BID_AMT" property="pkgWinBidAmt" />
+        <result column="WIN_BID_NOTICE_QTY" property="winBidNoticeQty" />
+        <result column="CUR_STATE_TIME" property="curStateTime" />
+        <result column="IF_SENT_WIN_BID_NOTICE" property="ifSentWinBidNotice" />
+        <result column="IF_STOP" property="ifStop" />
+        <result column="IF_NORMAL_END" property="ifNormalEnd" />
+        <result column="IF_END" property="ifEnd" />
+        <result column="IF_CHANGE_OPEN_BID" property="ifChangeOpenBid" />
+        <result column="IF_CHANGE_WIN_BID" property="ifChangeWinBid" />
+        <result column="IF_RE_BID" property="ifReBid" />
+        <result column="IF_NO_BIDDER" property="ifNoBidder" />
+        <result column="IF_CHANGE_PUR_TYPE" property="ifChangePurType" />
+        <result column="IF_NO_BIDDER_CADI" property="ifNoBidderCadi" />
+        <result column="END_TYPE" property="endType" />
+        <result column="END_DATE" property="endDate" />
+        <result column="STOP_REASON" property="stopReason" />
+        <result column="STOP_DATE" property="stopDate" />
+        <result column="DATA_SOURCE" property="dataSource" />
+        <result column="BID_TYPE" property="bidType" />
+        <result column="BID_TYPE_CODE" property="bidTypeCode" />
+    </resultMap>
+
+    <select id="queryGroup" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from d_zb_pkg
+        from bi_dict_item
+        where pkg_code = #{pkgCode}
+    </select>
+    <!--标的物名称查询-->
+    <select id="matename" parameterType="java.lang.String" resultType="java.lang.String">
+      select distinct mate_name from gcgs_zb.i_zb_line_prj_suppl where mate_name = #{metaName}
+    </select>
+    <!--基于标的物查询属于那个标段-->
+    <select id="pkgname" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct
+         t.pkg_code,t.pkg_name
+         from d_zb_pkg t
+        inner join i_zb_line_prj_suppl t1 on t1.pkg_code=t.pkg_code
+        where  t1.mate_name = #{metaName}
+    </select>
+    <!--出现的项目-->
+    <select id="prjname" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct t.prj_code,t.prj_name from d_zb_prj t
+        inner join d_zb_pkg t1 on t1.prj_code=t.prj_code
+        inner join i_zb_line_prj_suppl t2 on t2.pkg_code=t1.pkg_code
+        where t2.mate_name = #{metaName}
+    </select>
+    <!--出现的投标人-->
+    <select id="documentname" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct document_name from i_zb_line_prj_suppl where mate_name= #{metaName}
+    </select>
+    <!--出现的价格-->
+    <select id="price" parameterType="java.lang.String" resultType="java.util.Map">
+      select distinct price from i_zb_line_prj_suppl where  if_win_bid='1' and mate_name=#{metaName} and price is not null
+    </select>
+    <!--招标人-->
+    <select id="custname" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct t.cust_name
+        from d_zb_prj t
+        inner join d_zb_pkg t1 on t1.prj_code=t.prj_code
+        inner join i_zb_line_prj_suppl t2 on t2.pkg_code=t1.pkg_code
+        where t2.mate_name=#{metaName}
+    </select>
+</mapper>
