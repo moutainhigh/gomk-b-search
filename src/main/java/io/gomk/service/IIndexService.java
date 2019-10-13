@@ -20,4 +20,8 @@ public interface IIndexService {
 	public ResponseData<String> bulkZJCGDoc() throws IOException;
 	public ResponseData<String> createCompletionIndex() throws IOException;
 	public ResponseData<String> BulkCompletionDoc() throws IOException;
+	public ResponseData<String> createZCFGIndex() throws IOException;
+	public ResponseData<String> bulkZCFGDoc() throws IOException;
+	public ResponseData<String> createZBFBIndex() throws IOException;
+	public ResponseData<String> bulkZBFBDoc() throws IOException;
 }

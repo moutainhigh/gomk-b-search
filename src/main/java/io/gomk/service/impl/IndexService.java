@@ -380,5 +380,73 @@ public class IndexService extends EsBaseService implements IIndexService {
 		return ResponseData.success();
 	}
 
+	@Override
+	public ResponseData<String> createZCFGIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(zcfgIndex, mapping);
+	}
+
+	@Override
+	public ResponseData<String> bulkZCFGDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getZCFGMap();
+		bulkDoc(zcfgIndex, sourceList);
+		return ResponseData.success();
+	}
+
+	@Override
+	public ResponseData<String> createZBFBIndex() throws IOException {
+		String mapping = "  {\n" +
+                "    \"_doc\": {\n" +
+                "      \"properties\": {\n" +
+                "        \"title\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"content\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"term_vector\": \"with_positions_offsets\"\n" +
+                "        },\n" +
+                "        \"tag\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        },\n" +
+                "        \"add_date\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }";
+		return createIndex(zbfbIndex, mapping);
+	}
+
+	@Override
+	public ResponseData<String> bulkZBFBDoc() throws IOException {
+		List<Map<String, Object>> sourceList = ImportFile.getZBFBMap();
+		bulkDoc(zbfbIndex, sourceList);
+		return ResponseData.success();
+	}
+
 
 }

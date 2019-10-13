@@ -52,6 +52,10 @@ public class SearchContentController extends SuperController {
 	protected String pbbfIndex;
 	@Value("${elasticsearch.index.zjName}")
 	protected String zjcgIndex;
+	@Value("${elasticsearch.index.zcfgName}")
+	protected String zcfgIndex;
+	@Value("${elasticsearch.index.zbfbName}")
+	protected String zbfbIndex;
 	
 	@Autowired
 	ISearchService searchService;
@@ -210,7 +214,56 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zjcgIndex));
 	}
 	
+	
+	@ApiOperation("政策法规库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="露天煤矿"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/zcfg")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZcfg(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.success();
+		}
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zcfgIndex));
+	}
+	
+	@ApiOperation("政策法规库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zcfg/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zcfgRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zcfgIndex));
+	}
 
+	@ApiOperation("招标范本库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="露天煤矿"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/zbfb")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZbfb(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.success();
+		}
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbfbIndex));
+	}
+	
+	@ApiOperation("招标范本库推荐(右边)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zbfb/recommend")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zbfbRecommend(int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zbfbIndex));
+	}
 	@ApiOperation("文件对比")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),

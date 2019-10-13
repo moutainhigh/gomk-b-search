@@ -15,14 +15,14 @@ import org.apache.poi.hwpf.usermodel.Range;
 public class Word2003 {
 
 	public static void main(String[] args) {
-		String filePath = "/Users/vko/Documents/my-code/DOC/test/1.doc";
+		String filePath = "/Users/vko/Documents/my-code/DOC/test/3.doc";
 		try {
 			System.out.println(read(filePath));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		//System.out.println(str);
 		//String str="China|||||America::::::England&&&&&&&Mexica";
         //System.out.println(str.replaceAll("(.)\\1+","$1"));
 	}

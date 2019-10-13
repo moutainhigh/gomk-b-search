@@ -12,6 +12,8 @@ elasticsearch:
     pbbfName: index_pbbf_test #评标办法
     zjName: index_zaojia_test #造价成果
     tbName: index_toubiao_test #投标文件 
+    zcfgName: index_zcfg_test #政策法规文件 
+    zbfbName: index_zbfb_test #招标范本文件 
     completionName: index_completion_test #搜索补全
   shards: 3
   replicas: 2

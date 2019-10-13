@@ -18,6 +18,10 @@ public class EsBaseService {
 	protected String pbbfIndex;
 	@Value("${elasticsearch.index.zjName}")
 	protected String zjIndex;
+	@Value("${elasticsearch.index.zcfgName}")
+	protected String zcfgIndex;
+	@Value("${elasticsearch.index.zbfbName}")
+	protected String zbfbIndex;
 	@Value("${elasticsearch.index.completionName}")
 	protected String completionIndex;
 	

@@ -135,41 +135,19 @@ public class ImportFile {
 	}
 	
 	public static List<Map<String, Object>> getJSYQMap() throws IOException {
-		List<Map<String, Object>> list = new ArrayList<>();
-		String now = format.format(new Date());
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/JSYQ";
-		List<File> files = new ArrayList<>();
-		FileListUtil.getFiles(directoryPath, 3, files);
-		
-		for (File f : files) {
-			if (f.isFile()) {
-				String fileName = f.getName();
-				System.out.println(fileName);
-				String content = "";
-				if (fileName.endsWith(".doc")) {
-					content = Word2003.read(f.getAbsolutePath());
-				} else if (fileName.endsWith(".docx")) {
-					content = Word2007.read(f.getAbsolutePath());
-				} else if (fileName.endsWith(".pdf")) {
-					content = PDF.read(f.getAbsolutePath());
-				}
-				if (!"".equals(content)) {
-					Map<String, Object> map = new HashMap<>();
-					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-					map.put("title", fileName);
-					map.put("content", content);
-					map.put("tag", "");
-					map.put("add_date", now);
-					list.add(map);
-				}
-			}
-		}
+		List<Map<String, Object>> list = getIndexMap(directoryPath);
 		return list;
 	}
 	public static List<Map<String, Object>> getPBBFMap() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/pbbf";
+		List<Map<String, Object>> list = getIndexMap(directoryPath);
+		return list;
+	}
+	private static List<Map<String, Object>> getIndexMap(String directoryPath) throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
 		String now = format.format(new Date());
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/pbbf";
+		//
 		List<File> files = new ArrayList<>();
 		FileListUtil.getFiles(directoryPath, 3, files);
 		
@@ -248,12 +226,24 @@ public class ImportFile {
         String tempStr;
         while ((tempStr = reader.readLine()) != null) {
         	Map<String, Object> map = new HashMap<>();
+    		map.put("pkg_code", tempStr);
+    		map.put("suppl_document_code", tempStr);
     		map.put("words", tempStr);
     		map.put("add_date", now);
     		list.add(map);
         }
         reader.close();
 		
+		return list;
+	}
+	public static List<Map<String, Object>> getZBFBMap() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
+		List<Map<String, Object>> list = getIndexMap(directoryPath);
+		return list;
+	}
+	public static List<Map<String, Object>> getZCFGMap() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zcfg";
+		List<Map<String, Object>> list = getIndexMap(directoryPath);
 		return list;
 	}
 	

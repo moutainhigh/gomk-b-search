@@ -79,6 +79,34 @@ public class IndexController extends SuperController {
 		return indexService.bulkZGYQDoc();
 	}
 	
+	@ApiOperation("创建索引-政策法规")
+	@PostMapping("/zcfg")
+	public ResponseData<String> createZcfgIndex() throws IOException {
+		
+		return indexService.createZCFGIndex();
+	}
+	
+	@ApiOperation("批量添加政策法规文件")
+	@PostMapping("/zcfg/bulk")
+	public ResponseData<String> bulkZCFG() throws IOException {
+		
+		return indexService.bulkZCFGDoc();
+	}
+	
+	@ApiOperation("创建索引-招标范本")
+	@PostMapping("/zbfb")
+	public ResponseData<String> createZbfbIndex() throws IOException {
+		
+		return indexService.createZBFBIndex();
+	}
+	
+	@ApiOperation("批量添加招标范本文件")
+	@PostMapping("/zbfb/bulk")
+	public ResponseData<String> bulkZbfb() throws IOException {
+		
+		return indexService.bulkZBFBDoc();
+	}
+	
 	@ApiOperation("创建索引-技术要求")
 	@PostMapping("/jsyq")
 	public ResponseData<String> createJSYQIndex() throws IOException {
