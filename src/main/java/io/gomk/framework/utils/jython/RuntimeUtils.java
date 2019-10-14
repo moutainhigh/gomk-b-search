@@ -4,12 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.text.NumberFormat;
 import java.util.Base64;
+
+import org.apache.commons.lang3.StringUtils;
+
+import io.gomk.controller.response.ContrastVO;
 
 public class RuntimeUtils {
 	final static Base64.Encoder encoder = Base64.getEncoder();
-	public static String getContrastResult(String str1, String str2) throws UnsupportedEncodingException {
-
+	public static ContrastVO getContrastResult(String str1, String str2) throws UnsupportedEncodingException {
+		ContrastVO vo = new ContrastVO();
 		StringBuilder sb = new StringBuilder();
 		try {
 			String filePath = System.getProperty("user.dir")+"/src/main/resources/python/testText.py";
@@ -19,10 +24,17 @@ public class RuntimeUtils {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String line = null;
-
+			int i = 0;
 			while ((line = in.readLine()) != null) {
-				sb.append(line);
-
+				if (i == 0 && StringUtils.isNotBlank(line)) {
+					NumberFormat format = NumberFormat.getPercentInstance();
+				    format.setMaximumFractionDigits(2);//设置保留几位小数
+					vo.setSimilarity(format.format(Double.parseDouble(line)));
+				} else {
+					//System.out.println("=====" + line);
+					sb.append(line);
+				}
+				i++;
 			}
 			in.close();
 			proc.waitFor();
@@ -33,6 +45,7 @@ public class RuntimeUtils {
 		}
 		//System.out.println(sb.toString());
 		String encodedText = encoder.encodeToString(sb.toString().getBytes());
-		return encodedText;
+		vo.setContent(encodedText);
+		return vo;
 	}
 }

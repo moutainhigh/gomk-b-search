@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
+import io.gomk.controller.response.ContrastVO;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.enums.TagClassifyScopeEnum;
@@ -268,11 +269,11 @@ public class SearchContentController extends SuperController {
 	@ApiOperation("文件对比")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
-		@ApiImplicitParam(name="id1", value="id1", required=true, paramType="query", dataType="String", defaultValue="10"),
-		@ApiImplicitParam(name="id2", value="id2", required=true, paramType="query", dataType="String", defaultValue="中型项目")
+		@ApiImplicitParam(name="id1", value="id1", required=true, paramType="query", dataType="String", defaultValue="K0y8j20BsIxgh5km1CLR"),
+		@ApiImplicitParam(name="id2", value="id2", required=true, paramType="query", dataType="String", defaultValue="Kky8j20BsIxgh5km1CLR")
 	})
 	@GetMapping("/contrast")
-	public ResponseData<String> contrast(int scope, String id1, String id2) throws Exception {
+	public ResponseData<ContrastVO> contrast(int scope, String id1, String id2) throws Exception {
 		if (StringUtils.isBlank(id1) || StringUtils.isBlank(id2)) {
 			return ResponseData.error("请选择条目!");
 		}

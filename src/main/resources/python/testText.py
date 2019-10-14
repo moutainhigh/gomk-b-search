@@ -26,6 +26,10 @@ def readfile(filename):
     except IOError as error:
         print ('Read file Error:' +str(error))
         sys.exit()
+        
+#判断相似度的方法，用到了difflib库
+def get_equal_rate_1(str1, str2):
+   return difflib.SequenceMatcher(None, str1, str2).quick_ratio()
 
 def diffdo(t1,t2):
     #text1_lines = readfile(textfile1)
@@ -44,7 +48,7 @@ def diffdo(t1,t2):
 #print (d.make_file(text1_lines,text2_lines))
 
     
- 
+    print(get_equal_rate_1(text1_lines, text2_lines))
     
     print d.make_table(text1_lines,text2_lines)
     #return d.make_file(text1_lines,text2_lines)
