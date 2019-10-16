@@ -416,8 +416,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		QueryBuilder queryBuilder = QueryBuilders.matchQuery("words", keyWord);
 		sourceBuilder.query(queryBuilder);
-		sourceBuilder.from(0); 
-        sourceBuilder.size(pageSize > 10 ? 10 : pageSize); 
+		sourceBuilder.from((page-1)*pageSize); 
+        sourceBuilder.size(pageSize); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
         
         RestHighLevelClient client = esClient.getClient();
