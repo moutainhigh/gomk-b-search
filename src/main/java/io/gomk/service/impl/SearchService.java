@@ -30,6 +30,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -39,13 +40,21 @@ import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.framework.utils.tree.TreeDto;
+import io.gomk.framework.utils.tree.TreeUtils;
+import io.gomk.mapper.GTagClassifyMapper;
+import io.gomk.mapper.GTagMapper;
+import io.gomk.model.GTag;
 import io.gomk.service.ISearchService;
 
 @Service
 public class SearchService extends EsBaseService implements ISearchService {
 
 	private Logger logger = LoggerFactory.getLogger(SearchService.class);
-
+	@Autowired
+	GTagMapper tagMapper;
+	@Autowired
+	GTagClassifyMapper tagClassifyMapper;
 	
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> commonSearch(int page, int pageSize, String keyWord, String tag, String indexName) throws Exception {
@@ -459,6 +468,73 @@ public class SearchService extends EsBaseService implements ISearchService {
         client.close();
         PageResult pageResult = new PageResult(sourceBuilder.from(), sourceBuilder.size(), totalHits, result);
         return pageResult;
+	}
+
+	@Override
+	public List<TreeDto> selectTagByKeyword(String keyWord, String indexName) throws IOException {
+		Set<String> tagSet  = new HashSet<>();
+		List<TreeDto> totalList = new ArrayList<>();
+		
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		BoolQueryBuilder query = QueryBuilders.boolQuery();
+    	List<Term> termList = IndexTokenizer.segment(keyWord);
+    	String words = "";
+    	for (Term t : termList) {
+    		words += t.word + " ";
+    	}
+    	MultiMatchQueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(words, "title", "content")
+    			.operator(Operator.AND)
+    			.analyzer(analyzer);
+    	query.must(matchQueryBuilder);
+        sourceBuilder.query(query);
+        sourceBuilder.fetchSource("tag", null);
+        
+        RestHighLevelClient client = esClient.getClient();
+		List<NumberVO> result = new ArrayList<>();
+		 // 1、创建search请求
+        //SearchRequest searchRequest = new SearchRequest();
+        SearchRequest searchRequest = new SearchRequest(indexName); 
+        searchRequest.types("_doc");
+        
+        //将请求体加入到请求中
+        searchRequest.source(sourceBuilder);
+       
+        //3、发送请求        
+        SearchResponse searchResponse = client.search(searchRequest);
+        String fragmentString = "";
+        //处理搜索命中文档结果
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        for (SearchHit hit : searchHits) {
+           if (tagSet.size() == 10) {
+        	   break;
+           }
+	        Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
+	        Object obj = sourceAsMap.get("tag");
+	        if (obj != null && !obj.equals("")) {
+	        	tagSet.addAll(new HashSet<String>((List<String>)sourceAsMap.get("tag")));
+	        }
+        }
+        client.close();
+        		
+        if (tagSet.size() > 0) {
+        	List<GTag> tagList = tagMapper.selectTagByNames(tagSet);
+    		Set<Integer> classifyIdSet  = new HashSet<>();
+    		List<TreeDto> tempList = new ArrayList<>();
+    		for (GTag tag : tagList) {
+    			TreeDto dto = new TreeDto();
+    			dto.setId("T" + tag.getId());
+    			dto.setName(tag.getTagName());
+    			dto.setParentId(tag.getClassifyId() + "");
+    			tempList.add(dto);
+    			classifyIdSet.add(tag.getClassifyId());
+    		}
+    		
+    		List<TreeDto> tagClassifyList = tagClassifyMapper.selectTopByIds(classifyIdSet);
+    		tempList.addAll(tagClassifyList);
+    		totalList = TreeUtils.getTree(tempList);
+        }
+		return totalList;
 	}
 
 

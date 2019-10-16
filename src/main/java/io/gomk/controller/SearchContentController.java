@@ -22,6 +22,7 @@ import io.gomk.controller.response.SearchResultVO;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.jython.RuntimeUtils;
+import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.service.IGCompletionService;
 import io.gomk.service.ISearchService;
 import io.swagger.annotations.Api;
@@ -63,6 +64,20 @@ public class SearchContentController extends SuperController {
 	ISearchService searchService;
 	@Autowired
 	IGCompletionService completionService;
+	
+	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/result/tag")
+	public ResponseData<List<TreeDto>> searchTagByKeyword(int scope, String keyWord) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.success();
+		}
+		String indexName = getIndexname(scope);
+		return ResponseData.success(searchService.selectTagByKeyword(keyWord, indexName));
+	}
 	
 	@ApiOperation("搜索补全")
 	@ApiImplicitParams({
@@ -277,11 +292,32 @@ public class SearchContentController extends SuperController {
 		if (StringUtils.isBlank(id1) || StringUtils.isBlank(id2)) {
 			return ResponseData.error("请选择条目!");
 		}
+		String indexName = getIndexname(scope);
+		GetResponse esResponse1 = searchService.getEsDoc(indexName, id1);
+		GetResponse esResponse2 = searchService.getEsDoc(indexName, id2);
+		if (!esResponse1.isExists() || !esResponse2.isExists()) {
+			return ResponseData.error("id is not found!");
+		}
+		Object obj1 = esResponse1.getSourceAsMap().get("content");
+		Object obj2 = esResponse2.getSourceAsMap().get("content");
+		if (obj1 == null || obj2 == null) {
+			return ResponseData.error("id or scope is error.");
+		}
+		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
+	}
+
+	private String getIndexname(int scope) throws Exception {
 		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
 		String indexName = "";
 		switch (scopes) {
+			case ZBWJ:
+				indexName = zbIndex;
+				break;
 			case ZGYQ:
 				indexName = zgyqIndex;
+				break;
+			case ZJCG:
+				indexName = zjcgIndex;
 				break;
 			case JSYQ:
 				indexName = jsyqIndex;
@@ -298,17 +334,7 @@ public class SearchContentController extends SuperController {
 			default:
 				break;
 		}
-		GetResponse esResponse1 = searchService.getEsDoc(indexName, id1);
-		GetResponse esResponse2 = searchService.getEsDoc(indexName, id2);
-		if (!esResponse1.isExists() || !esResponse2.isExists()) {
-			return ResponseData.error("id is not found!");
-		}
-		Object obj1 = esResponse1.getSourceAsMap().get("content");
-		Object obj2 = esResponse2.getSourceAsMap().get("content");
-		if (obj1 == null || obj2 == null) {
-			return ResponseData.error("id or scope is error.");
-		}
-		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
+		return indexName;
 	}
 	
 //	

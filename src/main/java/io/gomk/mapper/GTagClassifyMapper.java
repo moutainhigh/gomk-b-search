@@ -4,6 +4,7 @@ import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.model.GTagClassify;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Select;
 
@@ -26,5 +27,7 @@ public interface GTagClassifyMapper extends BaseMapper<GTagClassify> {
 	@Select("select tgtc.id as id, tgtc.classify_name as name, tgtc.parent_id as parentId "
 			+ "from t_g_tag_classify tgtc where parent_id=0")
 	List<TreeDto> selectAllClassify();
+	
+	List<TreeDto> selectTopByIds(Set<Integer> classifyIdSet);
 
 }

@@ -4,6 +4,7 @@ import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.model.GTag;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Select;
 
@@ -28,5 +29,7 @@ public interface GTagMapper extends BaseMapper<GTag> {
 	List<TreeDto> selectByScope(Integer scope);
 	@Select("select * from t_g_tag where classify_id = #{id}")
 	List<GTag> getTagBySecondId(Integer id);
+	
+	List<GTag> selectTagByNames(Set<String> tagSet);
 
 }

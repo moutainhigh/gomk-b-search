@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.framework.utils.tree.TreeDto;
 
 
 public interface ISearchService {
@@ -27,6 +28,9 @@ public interface ISearchService {
 
 
 	PageResult<Page<List<NumberVO>>> getBdw(int page, int pageSize, String keyWord) throws IOException;
+
+
+	List<TreeDto> selectTagByKeyword(String keyWord, String indexName) throws IOException;
 
 
 
