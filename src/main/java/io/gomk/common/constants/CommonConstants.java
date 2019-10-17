@@ -13,12 +13,7 @@ public interface CommonConstants {
      */
     String SYSTEM_USER_NAME = "系统管理员";
     
-    Integer ORG_TOP_LEVEL = 1;
-    String ORG_DEFAULT_CODE = "01";
-
-    //班组级别
-    Integer ORG_TEAM_LEVEL = 3;
+    static Integer TAG_CUSTOM_CLASSIFY_ID = 20;
     
-    Integer ORG_CODE_LENTH = 2;
    
 }

@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import io.gomk.common.constants.CommonConstants;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.controller.request.TagClassifyRequest;
 import io.gomk.controller.response.EnumVO;
+import io.gomk.controller.response.TagListResponse;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.tree.TreeDto;
@@ -50,7 +52,7 @@ public class TagsController extends SuperController {
 	@Autowired
 	IGTagClassifyService tagClassifyService;
 	
-	@ApiOperation("批量添加标签")
+	@ApiOperation("批量给文档添加标签")
 	@PostMapping("/doc")
 	public ResponseData<?> add(@RequestBody AddDocTagRequest request) throws Exception {
 		String tagName = request.getTag();
@@ -63,7 +65,7 @@ public class TagsController extends SuperController {
 		return ResponseData.success();
 	}
 	
-	@ApiOperation("标签树--搜索用")
+	@ApiOperation("标签树--前台")
 	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
 	@GetMapping("/tree/{scope}")
 	public ResponseData<List<TreeDto>> tree(@PathVariable("scope") Integer scope) throws Exception {
@@ -72,53 +74,45 @@ public class TagsController extends SuperController {
 		return ResponseData.success(list);
 	}
 	
-	@ApiOperation("标签树--添加标签时用")
-	@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="path", dataType="Integer", defaultValue="1")
-	@GetMapping("/tree/edit/{scope}")
-	public ResponseData<List<TreeDto>> editTree(@PathVariable("scope") Integer scope) throws Exception {
-		TagClassifyScopeEnum.fromValue(scope);
-		List<TreeDto> list = tagService.getEditTreeByScope(scope);
+	@ApiOperation("标签树--后台")
+	@GetMapping("/tree/backstage")
+	public ResponseData<List<TreeDto>> backstageTree() throws Exception {
+		List<TreeDto> list = tagService.getAllTree();
 		return ResponseData.success(list);
 	}
 	
-	@ApiOperation("标签树-根据二级分类查第三级")
-	@ApiImplicitParam(name="classifyId", value="二级分类ID", required=true, paramType="path", dataType="Integer", defaultValue="1")
+	@ApiOperation("标签树-根据二级分类id查标签(后台编辑时忽略edit属性)")
+	@ApiImplicitParam(name="classifyId", value="二级分类ID", required=true, paramType="path", dataType="Integer", defaultValue="21")
 	@GetMapping("/tree/tag/{classifyId}")
-	public ResponseData<List<GTag>> getTag(@PathVariable("classifyId") Integer classifyId) throws Exception {
+	public ResponseData<TagListResponse> getTag(@PathVariable("classifyId") Integer classifyId) throws Exception {
 		List<GTag> list = tagService.getTagBySecondId(classifyId);
-		return ResponseData.success(list);
+		TagListResponse response = new TagListResponse();
+		response.setEdit(false);
+		GTagClassify classify = tagClassifyService.getById(classifyId);
+		if (classify.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_ID)) {
+			response.setEdit(true);
+		}
+		response.setTags(list);
+		return ResponseData.success(response);
 	}
 	
-	@ApiOperation("创建二级分类时，库范围列表")
-	@GetMapping("/scope")
-	public ResponseData<List<EnumVO>> scopeList() throws Exception {
-		List<EnumVO> list = new ArrayList<>();
-		for (TagClassifyScopeEnum t : TagClassifyScopeEnum.values()) {
-			EnumVO vo = new EnumVO();
-			vo.setDesc(t.getDesc());
-			vo.setId(t.getValue());
-			list.add(vo);
-		}
-		return ResponseData.success(list);
-	}
-	
-	@ApiOperation("标签树-添加一级分类")
-	@PostMapping("/tree/first")
-	public ResponseData<?> first(@RequestBody TagClassifyRequest request) throws Exception {
-		GTagClassify entity = new GTagClassify();
-		String name = request.getName();
-		QueryWrapper<GTagClassify> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda()
-    		.eq(GTagClassify::getClassifyName, name);
-		GTagClassify classify = tagClassifyService.getOne(queryWrapper);
-		if (classify != null) {
-			return ResponseData.error("name is exist..");
-		}
-		entity.setClassifyName(name);
-		entity.setParentId(0);
-		tagClassifyService.save(entity);
-		return ResponseData.success();
-	}
+//	@ApiOperation("标签树-添加一级分类")
+//	@PostMapping("/tree/first")
+//	public ResponseData<?> first(@RequestBody TagClassifyRequest request) throws Exception {
+//		GTagClassify entity = new GTagClassify();
+//		String name = request.getName();
+//		QueryWrapper<GTagClassify> queryWrapper = new QueryWrapper<>();
+//		queryWrapper.lambda()
+//    		.eq(GTagClassify::getClassifyName, name);
+//		GTagClassify classify = tagClassifyService.getOne(queryWrapper);
+//		if (classify != null) {
+//			return ResponseData.error("name is exist..");
+//		}
+//		entity.setClassifyName(name);
+//		entity.setParentId(0);
+//		tagClassifyService.save(entity);
+//		return ResponseData.success();
+//	}
 	
 	@ApiOperation("标签树-添加二级分类")
 	@PostMapping("/tree/second")
@@ -140,7 +134,7 @@ public class TagsController extends SuperController {
 		GTagClassify entity = new GTagClassify();
 		entity.setClassifyName(request.getName());
 		entity.setParentId(request.getParentId());
-		tagClassifyService.saveByScope(entity, request.getScopes());
+		tagClassifyService.save(entity);
 		return ResponseData.success();
 	}
 	
@@ -193,9 +187,19 @@ public class TagsController extends SuperController {
 	@ApiImplicitParam(name="id", value="分类ID", required=true, paramType="path", dataType="String", defaultValue="1")
 	@DeleteMapping("/tree/classify/{id}")
 	public ResponseData<?> deleteClassify(@PathVariable("id") String id) throws Exception {
-		
-		if (tagClassifyService.getById(id) == null) {
+		GTagClassify tagClassify = tagClassifyService.getById(id);
+		if (tagClassify == null) {
 			return ResponseData.error("id is not exist.");
+		}
+		if (tagClassify.getParentId().equals(0)) {
+			return ResponseData.error("一级分类不能编辑.");
+		}
+		QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda()
+    		.eq(GTag::getClassifyId, id);
+		int total = tagService.count(queryWrapper);
+		if (total > 0) {
+			return ResponseData.error("分类下含有标签，不能删除");
 		}
 		tagClassifyService.removeById(id);
 		

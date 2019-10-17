@@ -116,29 +116,17 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Override
 	public List<TreeDto> getTreeByScope(Integer scope) {
 		List<TreeDto> totalList = new ArrayList<>();
-		//二级分类
-		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope);
-		totalList.addAll(secondList);
 		//一级分类
+		List<TreeDto> firstList = tagClassifyMapper.selectByScope(scope);
+		totalList.addAll(firstList);
+		//二级分类
 		HashSet<String> ids = new HashSet<>();
-		for (TreeDto dto : secondList) {
-			ids.add(dto.getParentId());
+		for (TreeDto dto : firstList) {
+			ids.add(dto.getId());
 		}
-		List<GTagClassify> classifyList = tagClassifyMapper.selectBatchIds(ids);
-		for (GTagClassify classify : classifyList) {
-			TreeDto dto = new TreeDto();
-			dto.setId(classify.getId() + "");
-			dto.setName(classify.getClassifyName());
-			dto.setParentId(classify.getParentId() + "");
-			totalList.add(dto);
-		}
-		//具体标签
-		List<TreeDto> tagList = tagMapper.selectByScope(scope);
-		totalList.addAll(tagList);
+		List<TreeDto> secondList = tagClassifyMapper.selectClassifyByParentId(ids);
 		
-		HashSet h = new HashSet(totalList);   
-		totalList.clear();   
-		totalList.addAll(h);
+		totalList.addAll(secondList);
 		return TreeUtils.getTree(totalList);
 	}
 
@@ -148,21 +136,12 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	}
 
 	@Override
-	public List<TreeDto> getEditTreeByScope(Integer scope) {
+	public List<TreeDto> getAllTree() {
 		List<TreeDto> totalList = new ArrayList<>();
-		//二级分类
-		List<TreeDto> secondList = tagClassifyMapper.selectByScope(scope);
-		totalList.addAll(secondList);
-		//一级分类
+		
+		//一级and二级分类
 		List<TreeDto> classifyList = tagClassifyMapper.selectAllClassify();
 		totalList.addAll(classifyList);
-		//具体标签
-		List<TreeDto> tagList = tagMapper.selectByScope(scope);
-		totalList.addAll(tagList);
-		
-		HashSet h = new HashSet(totalList);   
-		totalList.clear();   
-		totalList.addAll(h);
 		
 		return TreeUtils.getTree(totalList);
 	}

@@ -21,6 +21,7 @@ public class TreeDto {
 	   * 名称
 	   */
 	  private String name;
+	  
 
 	  private List<TreeDto> childsList = new ArrayList<TreeDto>();
 	

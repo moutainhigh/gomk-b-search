@@ -22,5 +22,14 @@
 			    ${val}
 			</foreach>
     </select>
+    
+     <select id="selectClassifyByParentId" resultType="io.gomk.framework.utils.tree.TreeDto">
+    	select tgtc.id as id, tgtc.classify_name as name, tgtc.parent_id as parentId
+			from t_g_tag_classify tgtc
+    	where tgtc.parent_id in 
+			<foreach collection="collection" open="(" separator="," close=")" item="val">
+			    #{val}
+			</foreach>
+    </select>
 
 </mapper>

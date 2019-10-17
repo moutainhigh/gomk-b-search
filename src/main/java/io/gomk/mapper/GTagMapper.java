@@ -31,5 +31,8 @@ public interface GTagMapper extends BaseMapper<GTag> {
 	List<GTag> getTagBySecondId(Integer id);
 	
 	List<GTag> selectTagByNames(Set<String> tagSet);
+	
+	@Select("select concat('T',tgt.id) as id, tgt.tag_name as name, tgt.classify_id as parentId  from t_g_tag tgt")
+	List<TreeDto> selectAllTag();
 
 }

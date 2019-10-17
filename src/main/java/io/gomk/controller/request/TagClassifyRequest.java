@@ -17,9 +17,6 @@ public class TagClassifyRequest {
 	@NotNull
     private Integer parentId;
 	
-	@ApiModelProperty(value = "范围1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)，哪几个库？只在建二级分类需要传值")
-    private List<Integer> scopes;
-	
 	@ApiModelProperty(value = "描述（只在建标签时需要传值）")
     private String desc;
 }

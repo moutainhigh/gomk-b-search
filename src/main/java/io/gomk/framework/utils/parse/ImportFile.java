@@ -60,7 +60,12 @@ public class ImportFile {
 //		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
 //		System.out.println(p.replace(directoryPath, ""));
 		
-		getCompletionMap();
+		
+		String text = "本招标项目名称为:晋能集团王家岭煤业采煤机采购，项目\n" + 
+				"招标编号为:CEZB190205192，招标人为山西王家岭煤业有限公司，资 金来源采煤机为自筹，招标代理机构为中国神华国际工程有限公司。本项目 已具备招标条件，现对该项目采煤机进行公开招标。";
+				List<String> phraseList = HanLP.extractKeyword(text, 5);
+				System.out.println(phraseList);
+		//getCompletionMap();
 	}
 
 	public static List<Map<String, Object>> getZBMap() throws IOException {

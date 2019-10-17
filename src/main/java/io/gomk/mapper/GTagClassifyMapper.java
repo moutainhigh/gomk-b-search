@@ -3,6 +3,7 @@ package io.gomk.mapper;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.model.GTagClassify;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,10 +25,14 @@ public interface GTagClassifyMapper extends BaseMapper<GTagClassify> {
 			+ "inner join t_g_tag_classify_scope tgtcs  on tgtcs.classify_id=tgtc.id " + 
 			" where tgtcs.scopes=#{scope}")
 	List<TreeDto> selectByScope(Integer scope);
+	
+	List<TreeDto> selectClassifyByParentId(HashSet<String> ids);
+	
 	@Select("select tgtc.id as id, tgtc.classify_name as name, tgtc.parent_id as parentId "
-			+ "from t_g_tag_classify tgtc where parent_id=0")
+			+ "from t_g_tag_classify tgtc ")
 	List<TreeDto> selectAllClassify();
 	
 	List<TreeDto> selectTopByIds(Set<Integer> classifyIdSet);
+
 
 }
