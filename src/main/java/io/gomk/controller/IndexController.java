@@ -52,6 +52,12 @@ public class IndexController extends SuperController {
 		return indexService.BulkCompletionDoc();
 	}
 
+	@ApiOperation("创建索引-招标文件")
+	@PostMapping("/zb")
+	public ResponseData<String> createZBIndex() throws IOException {
+		
+		return indexService.createZBIndex();
+	}
 	@ApiOperation("批量添加招标文件")
 	@PostMapping("/zb/bulk")
 	public ResponseData<String> bulkZB() throws IOException {
