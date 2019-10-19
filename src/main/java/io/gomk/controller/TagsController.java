@@ -1,10 +1,9 @@
 package io.gomk.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,7 @@ import io.gomk.common.constants.CommonConstants;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
 import io.gomk.controller.request.TagClassifyRequest;
-import io.gomk.controller.response.EnumVO;
+import io.gomk.controller.request.TagRequest;
 import io.gomk.controller.response.TagListResponse;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.controller.SuperController;
@@ -51,17 +50,59 @@ public class TagsController extends SuperController {
 	IGTagService tagService;
 	@Autowired
 	IGTagClassifyService tagClassifyService;
+	@Value("${elasticsearch.index.zbName}")
+	protected String zbIndex;
+	@Value("${elasticsearch.index.zgyqName}")
+	protected String zgyqIndex;
+	@Value("${elasticsearch.index.jsyqName}")
+	protected String jsyqIndex;
+	@Value("${elasticsearch.index.pbbfName}")
+	protected String pbbfIndex;
+	@Value("${elasticsearch.index.zjName}")
+	protected String zjcgIndex;
+	@Value("${elasticsearch.index.zcfgName}")
+	protected String zcfgIndex;
+	@Value("${elasticsearch.index.zbfbName}")
+	protected String zbfbIndex;
 	
 	@ApiOperation("批量给文档添加标签")
 	@PostMapping("/doc")
 	public ResponseData<?> add(@RequestBody AddDocTagRequest request) throws Exception {
 		String tagName = request.getTag();
+		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(request.getScope());
+		String indexName = "";
+		switch (scopes) {
+			case ZBWJ:
+				indexName = zbIndex;
+				break;
+			case ZGYQ:
+				indexName = zgyqIndex;
+				break;
+			case ZJCG:
+				indexName = zjcgIndex;
+				break;
+			case JSYQ:
+				indexName = jsyqIndex;
+				break;
+			case PBBF:
+				indexName = pbbfIndex;
+				break;
+			case ZCFG:
+				indexName = zcfgIndex;
+				break;
+			case ZBFB:
+				indexName = zbfbIndex;
+				break;
+			default:
+				break;
+		}
+		
 		// ? 检查数据库中是否存在 tagName
 		int count = tagService.getCountByTagName(tagName);
 		if (count == 0) {
 			return ResponseData.error("tag is not exist.");
 		}
-		tagService.addDocTag(tagName, request.getIds());
+		tagService.addDocTag(indexName, tagName, request.getIds());
 		return ResponseData.success();
 	}
 	
@@ -140,8 +181,8 @@ public class TagsController extends SuperController {
 	
 	@ApiOperation("标签树-添加标签")
 	@PostMapping("/tree/tag")
-	public ResponseData<?> addTag(@RequestBody TagClassifyRequest request) throws Exception {
-		GTagClassify dbEntity = tagClassifyService.getById(request.getParentId());
+	public ResponseData<?> addTag(@RequestBody TagRequest request) throws Exception {
+		GTagClassify dbEntity = tagClassifyService.getById(request.getClassifyId());
 		if (dbEntity == null) {
 			return ResponseData.error("id is not exist.");
 		}
@@ -156,10 +197,10 @@ public class TagsController extends SuperController {
 		}
 		
 		GTag entity = new GTag();
-		entity.setClassifyId(request.getParentId());
+		entity.setClassifyId(request.getClassifyId());
 		entity.setTagName(name);
 		entity.setTagDesc(request.getDesc());
-		tagService.save(entity);
+		tagService.saveTag(entity, request.getKeywords());
 		return ResponseData.success();
 	}
 	

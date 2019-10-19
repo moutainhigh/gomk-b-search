@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -25,9 +27,10 @@ import io.gomk.es6.ESRestClient;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
+import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
 import io.gomk.model.GTag;
-import io.gomk.model.GTagClassify;
+import io.gomk.model.GTagKeyword;
 import io.gomk.service.IGTagService;
 
 /**
@@ -52,16 +55,19 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	GTagMapper tagMapper;
 	
 	@Autowired
+	GTagKeywordMapper tagKeywordMapper;
+	
+	@Autowired
 	GTagClassifyMapper tagClassifyMapper;
 	
 	@Override
-	public void addDocTag(String tagName, List<String> ids) throws IOException {
+	public void addDocTag(String indexName, String tagName, List<String> ids) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
 		for (String id : ids) {
 			
 			Map<String, Object> jsonMap = new HashMap<>();
 			
-			GetRequest getRequest = new GetRequest(zbIndex, "_doc", id);
+			GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 			GetResponse getResponse = client.get(getRequest);
 			Object obj = getResponse.getSourceAsMap().get("tag");
 			if (obj != null) {
@@ -80,7 +86,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 				jsonMap.put("tag", list);
 			}
 			
-	        UpdateRequest request = new UpdateRequest(zbIndex, "_doc", id).doc(jsonMap);
+	        UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
 	        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
 			UpdateResponse updateResponse = client.update(request);
 	        log.info(updateResponse.getId() + ":" +updateResponse.getResult().toString());
@@ -144,6 +150,18 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		totalList.addAll(classifyList);
 		
 		return TreeUtils.getTree(totalList);
+	}
+
+	@Override
+	@Transactional
+	public void saveTag(GTag entity, Set<String> keywords) {
+		tagMapper.insert(entity);
+		for (String keyword : keywords) {
+			GTagKeyword tagKeyword = new GTagKeyword();
+			tagKeyword.setKeyword(keyword);
+			tagKeyword.setTagId(entity.getId());
+			tagKeywordMapper.insert(tagKeyword);
+		}
 	}
 
 }

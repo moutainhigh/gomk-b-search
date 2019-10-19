@@ -6,6 +6,7 @@ import io.gomk.model.GTag;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -19,7 +20,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IGTagService extends IService<GTag> {
 
-	void addDocTag(String tagName, List<String> ids) throws IOException;
+	void addDocTag(String indexName, String tagName, List<String> ids) throws IOException;
 
 	int getCountByTagName(String name);
 
@@ -28,5 +29,7 @@ public interface IGTagService extends IService<GTag> {
 	List<GTag> getTagBySecondId(Integer id);
 
 	List<TreeDto> getAllTree();
+
+	void saveTag(GTag entity, Set<String> keywords);
 
 }
