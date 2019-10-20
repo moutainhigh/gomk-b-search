@@ -1,31 +1,32 @@
-package io.gomk.controller.request;
+package io.gomk.controller.response;
 
-import java.util.Set;
+import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
+import io.gomk.model.GTagFormula;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class TagRequest {
+public class TagDetailVO {
+	
+	@ApiModelProperty(value = "ID")
+	private Integer id;
+
 	@ApiModelProperty(value = "名称")
-	@NotNull
-    private String name;
+    private String tagName;
 	
 	@ApiModelProperty(value = "父ID")
-	@NotNull
 	private Integer classifyId;
 	
 	@ApiModelProperty(value = "规则")
     private Integer rule;
 	
 	@ApiModelProperty(value = "公式集合")
-    private Set<FormulaVO> formulas;
+    private List<GTagFormula> formulas;
 	
 	@ApiModelProperty(value = "关键词集合")
-    private Set<String> keywords;
+    private List<String> keywords;
 	
 	@ApiModelProperty(value = "描述")
-    private String desc;
+    private String tagDesc;
 }

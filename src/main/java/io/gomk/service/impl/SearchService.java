@@ -220,11 +220,6 @@ public class SearchService extends EsBaseService implements ISearchService {
             
             vo.setTitle(sourceAsMap.get("title").toString());
             vo.setAddDate(sourceAsMap.get("add_date").toString());
-            if (indexName.equals(zbIndex)) {
-                vo.setDetail(abstracts == null ? "" : abstracts.toString());
-        	} else {
-        		vo.setDetail(sourceAsMap.get("content").toString());
-        	}
             
             Object obj = sourceAsMap.get("tag");
             HashSet<String> tags = new HashSet<>();

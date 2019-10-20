@@ -78,6 +78,27 @@ public class SearchContentController extends SuperController {
 		String indexName = getIndexname(scope);
 		return ResponseData.success(searchService.selectTagByKeyword(keyWord, indexName));
 	}
+	@ApiOperation("查询搜索列表详细信息")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="id", value="列表id", required=true, paramType="query", dataType="String", defaultValue="xxxx")
+	})
+	@GetMapping("/doc/detail")
+	public ResponseData<String> getDocDetail(Integer scope, String id) throws Exception {
+		if (StringUtils.isBlank(id) || scope == null) {
+			return ResponseData.success();
+		}
+		String indexName = getIndexname(scope);
+		GetResponse esResponse1 = searchService.getEsDoc(indexName, id);
+		if (!esResponse1.isExists()) {
+			return ResponseData.error("id is not found!");
+		}
+		Object obj1 = esResponse1.getSourceAsMap().get("content");
+		if (obj1 == null) {
+			return ResponseData.error("id or scope is error.");
+		}
+		return ResponseData.success(obj1.toString());
+	}
 	
 	@ApiOperation("搜索补全")
 	@ApiImplicitParams({

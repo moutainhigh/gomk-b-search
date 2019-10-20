@@ -2,18 +2,10 @@ package io.gomk.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +13,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import io.gomk.controller.request.FormulaVO;
+import io.gomk.controller.response.TagDetailVO;
+import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.es6.ESRestClient;
+import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
+import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
 import io.gomk.model.GTag;
+import io.gomk.model.GTagFormula;
 import io.gomk.model.GTagKeyword;
 import io.gomk.service.IGTagService;
 
@@ -58,60 +57,17 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	GTagKeywordMapper tagKeywordMapper;
 	
 	@Autowired
+	GTagFormulaMapper tagFormulaMapper;
+	
+	@Autowired
 	GTagClassifyMapper tagClassifyMapper;
 	
+	@Autowired
+	EsUtil esUtil;
+	
 	@Override
-	public void addDocTag(String indexName, String tagName, List<String> ids) throws IOException {
-		RestHighLevelClient client = esClient.getClient();
-		for (String id : ids) {
-			
-			Map<String, Object> jsonMap = new HashMap<>();
-			
-			GetRequest getRequest = new GetRequest(indexName, "_doc", id);
-			GetResponse getResponse = client.get(getRequest);
-			Object obj = getResponse.getSourceAsMap().get("tag");
-			if (obj != null) {
-				HashSet<String> result = new HashSet<>();
-			    if (obj instanceof ArrayList<?>) {
-			        for (Object o : (List<?>) obj) {
-			            result.add(String.class.cast(o));
-			        }
-			    }
-				result.add(tagName);
-				jsonMap.put("tag", result);
-				
-			} else {
-				HashSet<String> list = new HashSet<>();
-				list.add(tagName);
-				jsonMap.put("tag", list);
-			}
-			
-	        UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
-	        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-			UpdateResponse updateResponse = client.update(request);
-	        log.info(updateResponse.getId() + ":" +updateResponse.getResult().toString());
-	      //异步执行
-	        //DeleteResponse  的典型监听器如下所示：
-	        //异步方法不会阻塞并立即返回。
-//	        ActionListener<UpdateResponse > listener = new ActionListener<UpdateResponse >() {
-//	            @Override
-//	            public void onResponse(UpdateResponse  updateResponse) {
-//	                //执行成功时调用。 Response以参数方式提供
-//	            	log.info(updateResponse.getId() + ":" +updateResponse.getResult().toString());
-//	            }
-//
-//	            @Override
-//	            public void onFailure(Exception e) {
-//	                //在失败的情况下调用。 引发的异常以参数方式提供
-//	            	log.info("error:" + e.getMessage());
-//	            }
-//	        };
-//	        //异步执行获取索引请求需要将UpdateRequest  实例和ActionListener实例传递给异步方法：
-//	        client.updateAsync(request, listener);
-//	        
-		}
-		client.close();
-		
+	public void addDocTag(String indexName, String tag, List<String> ids) throws IOException {
+		esUtil.updateTagByIds(indexName, tag, ids, false);
 	}
 
 	@Override
@@ -154,7 +110,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 
 	@Override
 	@Transactional
-	public void saveTag(GTag entity, Set<String> keywords) {
+	public void saveTagForKeyword(GTag entity, Set<String> keywords) {
 		tagMapper.insert(entity);
 		for (String keyword : keywords) {
 			GTagKeyword tagKeyword = new GTagKeyword();
@@ -162,6 +118,56 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			tagKeyword.setTagId(entity.getId());
 			tagKeywordMapper.insert(tagKeyword);
 		}
+	}
+
+	@Override
+	@Transactional
+	public void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet) {
+		tagMapper.insert(entity);
+		for (FormulaVO formula : formulaSet) {
+			GTagFormula bean = new GTagFormula();
+			bean.setFField(formula.getField());
+			bean.setFMark(formula.getMark());
+			bean.setFValue(formula.getValue());
+			bean.setTagId(entity.getId());
+			tagFormulaMapper.insert(bean);
+		}
+	}
+
+	@Override
+	public TagDetailVO getTagDetail(GTag tag) {
+		TagDetailVO vo = new TagDetailVO();
+		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda()
+    		.eq(GTagKeyword::getTagId, tag.getId());
+		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
+		if (keywordList != null && keywordList.size() > 0) {
+			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
+			vo.setClassifyId(tag.getClassifyId());
+			vo.setId(tag.getId());
+			vo.setTagDesc(tag.getTagDesc());
+			vo.setTagName(tag.getTagName());
+			List<String> keywords = new ArrayList<>();
+			for (GTagKeyword keyword : keywordList) {
+				keywords.add(keyword.getKeyword());
+			}
+			vo.setKeywords(keywords);
+		} else {
+			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
+			query.lambda()
+	    		.eq(GTagFormula::getTagId, tag.getId());
+			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
+			if (formulaList != null && formulaList.size() > 0) {
+				vo.setRule(TagRuleTypeEnum.FORMULA.getValue());
+				vo.setClassifyId(tag.getClassifyId());
+				vo.setId(tag.getId());
+				vo.setTagDesc(tag.getTagDesc());
+				vo.setTagName(tag.getTagName());
+				vo.setFormulas(formulaList);
+			} 
+		}
+		
+		return vo;
 	}
 
 }

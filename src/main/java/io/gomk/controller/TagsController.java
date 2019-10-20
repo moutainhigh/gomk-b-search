@@ -1,6 +1,7 @@
 package io.gomk.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +18,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.gomk.common.constants.CommonConstants;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
+import io.gomk.controller.request.FormulaVO;
 import io.gomk.controller.request.TagClassifyRequest;
 import io.gomk.controller.request.TagRequest;
+import io.gomk.controller.response.TagDetailVO;
 import io.gomk.controller.response.TagListResponse;
 import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.model.GTag;
@@ -136,6 +140,17 @@ public class TagsController extends SuperController {
 		response.setTags(list);
 		return ResponseData.success(response);
 	}
+	@ApiOperation("查看标签详细信息")
+	@ApiImplicitParam(name="tagId", value="标签ID", required=true, paramType="path", dataType="Integer", defaultValue="21")
+	@GetMapping("/tree/tag/detail/{tagId}")
+	public ResponseData<TagDetailVO> getTagDetail(@PathVariable("tagId") Integer tagId) throws Exception {
+		GTag tag = tagService.getById(tagId);
+		if (tag == null) {
+			return ResponseData.error("tagId is not exist..");
+		}
+		TagDetailVO tagDetail = tagService.getTagDetail(tag);
+		return ResponseData.success(tagDetail);
+	}
 	
 //	@ApiOperation("标签树-添加一级分类")
 //	@PostMapping("/tree/first")
@@ -200,7 +215,22 @@ public class TagsController extends SuperController {
 		entity.setClassifyId(request.getClassifyId());
 		entity.setTagName(name);
 		entity.setTagDesc(request.getDesc());
-		tagService.saveTag(entity, request.getKeywords());
+		
+		TagRuleTypeEnum ruleEnum = TagRuleTypeEnum.fromValue(request.getRule());
+		if (ruleEnum == TagRuleTypeEnum.KEYWORD) {
+			Set<String> keywordSet = request.getKeywords();
+			if (keywordSet == null || keywordSet.size() == 0) {
+				return ResponseData.error("关键字为空..");
+			}
+			tagService.saveTagForKeyword(entity, keywordSet);
+		} else if (ruleEnum == TagRuleTypeEnum.FORMULA) {
+			Set<FormulaVO> formulaSet = request.getFormulas();
+			if (formulaSet == null || formulaSet.size() == 0) {
+				return ResponseData.error("公式为空..");
+			}
+			tagService.saveTagForFormula(entity, formulaSet);
+		}
+		
 		return ResponseData.success();
 	}
 	

@@ -1,5 +1,7 @@
 package io.gomk.service;
 
+import io.gomk.controller.request.FormulaVO;
+import io.gomk.controller.response.TagDetailVO;
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.model.GTag;
@@ -30,6 +32,10 @@ public interface IGTagService extends IService<GTag> {
 
 	List<TreeDto> getAllTree();
 
-	void saveTag(GTag entity, Set<String> keywords);
+	void saveTagForKeyword(GTag entity, Set<String> keywords);
+
+	void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet);
+
+	TagDetailVO getTagDetail(GTag tag);
 
 }
