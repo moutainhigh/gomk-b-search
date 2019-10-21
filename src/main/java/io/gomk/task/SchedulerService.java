@@ -45,7 +45,7 @@ public class SchedulerService extends EsBaseService{
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
 	
-    @Scheduled(fixedRate = 11115000)
+   // @Scheduled(fixedRate = 11115000)
     public void task1() throws Exception{
         System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
         QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
