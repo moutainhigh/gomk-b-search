@@ -137,16 +137,17 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Override
 	public TagDetailVO getTagDetail(GTag tag) {
 		TagDetailVO vo = new TagDetailVO();
+		vo.setClassifyId(tag.getClassifyId());
+		vo.setId(tag.getId());
+		vo.setTagDesc(tag.getTagDesc());
+		vo.setTagName(tag.getTagName());
+		
 		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
 		queryWrapper.lambda()
     		.eq(GTagKeyword::getTagId, tag.getId());
 		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
 		if (keywordList != null && keywordList.size() > 0) {
 			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
-			vo.setClassifyId(tag.getClassifyId());
-			vo.setId(tag.getId());
-			vo.setTagDesc(tag.getTagDesc());
-			vo.setTagName(tag.getTagName());
 			List<String> keywords = new ArrayList<>();
 			for (GTagKeyword keyword : keywordList) {
 				keywords.add(keyword.getKeyword());
@@ -159,10 +160,6 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
 			if (formulaList != null && formulaList.size() > 0) {
 				vo.setRule(TagRuleTypeEnum.FORMULA.getValue());
-				vo.setClassifyId(tag.getClassifyId());
-				vo.setId(tag.getId());
-				vo.setTagDesc(tag.getTagDesc());
-				vo.setTagName(tag.getTagName());
 				vo.setFormulas(formulaList);
 			} 
 		}

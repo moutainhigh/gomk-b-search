@@ -229,6 +229,8 @@ public class TagsController extends SuperController {
 				return ResponseData.error("公式为空..");
 			}
 			tagService.saveTagForFormula(entity, formulaSet);
+		} else if (dbEntity.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_ID)) {
+			tagService.save(entity);
 		}
 		
 		return ResponseData.success();
