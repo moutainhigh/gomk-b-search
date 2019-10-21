@@ -2,17 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.gomk.mapper.GTagMapper">
 
-    <!-- 通用查询映射结果 -->
+       <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="io.gomk.model.GTag">
         <id column="id" property="id" />
         <result column="classify_id" property="classifyId" />
         <result column="tag_name" property="tagName" />
         <result column="tag_desc" property="tagDesc" />
+        <result column="task_finished" property="taskFinished" />
+        <result column="tag_rule" property="tagRule" />
+        <result column="scopes" property="scopes" />
+        
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, classify_id, tag_name, tag_desc
+        id, classify_id, tag_name, tag_desc, task_finished, tag_rule, scopes
     </sql>
     
     <select id="selectTagByNames" resultMap="BaseResultMap">

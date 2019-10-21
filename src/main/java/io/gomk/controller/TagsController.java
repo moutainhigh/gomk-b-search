@@ -215,6 +215,8 @@ public class TagsController extends SuperController {
 		entity.setClassifyId(request.getClassifyId());
 		entity.setTagName(name);
 		entity.setTagDesc(request.getDesc());
+		entity.setTagRule(request.getRule());
+		entity.setTaskFinished(false);
 		
 		TagRuleTypeEnum ruleEnum = TagRuleTypeEnum.fromValue(request.getRule());
 		if (ruleEnum == TagRuleTypeEnum.KEYWORD) {
@@ -230,6 +232,7 @@ public class TagsController extends SuperController {
 			}
 			tagService.saveTagForFormula(entity, formulaSet);
 		} else if (dbEntity.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_ID)) {
+			entity.setTaskFinished(true);
 			tagService.save(entity);
 		}
 		

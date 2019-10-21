@@ -197,13 +197,13 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      }\n" +
                 "    }\n" +
                 "  }";
-		return createIndex(zjIndex, mapping);
+		return createIndex(zjcgIndex, mapping);
 	}
 
 	@Override
 	public ResponseData<String> bulkZJCGDoc() throws IOException {
 		List<Map<String, Object>> sourceList = ImportFile.getZJCGMap();
-		bulkDoc(zjIndex, sourceList);
+		bulkDoc(zjcgIndex, sourceList);
 		return ResponseData.success();
 	}
 

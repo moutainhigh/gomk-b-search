@@ -17,7 +17,7 @@ public class EsBaseService {
 	@Value("${elasticsearch.index.pbbfName}")
 	protected String pbbfIndex;
 	@Value("${elasticsearch.index.zjName}")
-	protected String zjIndex;
+	protected String zjcgIndex;
 	@Value("${elasticsearch.index.zcfgName}")
 	protected String zcfgIndex;
 	@Value("${elasticsearch.index.zbfbName}")

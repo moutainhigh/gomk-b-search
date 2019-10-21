@@ -35,7 +35,7 @@ public class MysqlGenerator_oneTalbe extends SuperGenerator {
      */
 	 @Test
     public void generator() {
-		String tableName = "t_g_tag_formula";
+		String tableName = "t_g_tag";
         // 代码生成器
         AutoGenerator mpg = getAutoGenerator(tableName);
         mpg.execute();
