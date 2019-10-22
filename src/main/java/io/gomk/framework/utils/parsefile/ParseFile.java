@@ -182,6 +182,11 @@ public class ParseFile {
         return contentByTitles;
     }
 
+    /**
+     * 判断二级标题正则，如果遇到其他版本则需要修改
+     * @param twoTitle 二级标题
+     * @return 是否二级标题
+     */
     private boolean regTwoTitle(String twoTitle) {
         return twoTitle.matches("^([0-9]{1,}[.\\s\\u4e00-\\u9fa5]{6,10}$)$");
 
