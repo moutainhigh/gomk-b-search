@@ -19,7 +19,7 @@ import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.ContrastVO;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
-import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.es6.EsUtil;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.jython.RuntimeUtils;
 import io.gomk.framework.utils.tree.TreeDto;
@@ -61,6 +61,8 @@ public class SearchContentController extends SuperController {
 	protected String zbfbIndex;
 	
 	@Autowired
+	EsUtil esUtil;
+	@Autowired
 	ISearchService searchService;
 	@Autowired
 	IGCompletionService completionService;
@@ -75,7 +77,7 @@ public class SearchContentController extends SuperController {
 		if (StringUtils.isBlank(keyWord)) {
 			return ResponseData.success();
 		}
-		String indexName = getIndexname(scope);
+		String indexName = esUtil.getIndexname(scope);
 		return ResponseData.success(searchService.selectTagByKeyword(keyWord, indexName));
 	}
 	@ApiOperation("查询搜索列表详细信息")
@@ -88,7 +90,7 @@ public class SearchContentController extends SuperController {
 		if (StringUtils.isBlank(id) || scope == null) {
 			return ResponseData.success();
 		}
-		String indexName = getIndexname(scope);
+		String indexName = esUtil.getIndexname(scope);
 		GetResponse esResponse1 = searchService.getEsDoc(indexName, id);
 		if (!esResponse1.isExists()) {
 			return ResponseData.error("id is not found!");
@@ -313,7 +315,7 @@ public class SearchContentController extends SuperController {
 		if (StringUtils.isBlank(id1) || StringUtils.isBlank(id2)) {
 			return ResponseData.error("请选择条目!");
 		}
-		String indexName = getIndexname(scope);
+		String indexName = esUtil.getIndexname(scope);
 		GetResponse esResponse1 = searchService.getEsDoc(indexName, id1);
 		GetResponse esResponse2 = searchService.getEsDoc(indexName, id2);
 		if (!esResponse1.isExists() || !esResponse2.isExists()) {
@@ -325,37 +327,6 @@ public class SearchContentController extends SuperController {
 			return ResponseData.error("id or scope is error.");
 		}
 		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
-	}
-
-	private String getIndexname(int scope) throws Exception {
-		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
-		String indexName = "";
-		switch (scopes) {
-			case ZBWJ:
-				indexName = zbIndex;
-				break;
-			case ZGYQ:
-				indexName = zgyqIndex;
-				break;
-			case ZJCG:
-				indexName = zjcgIndex;
-				break;
-			case JSYQ:
-				indexName = jsyqIndex;
-				break;
-			case PBBF:
-				indexName = pbbfIndex;
-				break;
-			case ZCFG:
-				indexName = zcfgIndex;
-				break;
-			case ZBFB:
-				indexName = zbfbIndex;
-				break;
-			default:
-				break;
-		}
-		return indexName;
 	}
 	
 //	

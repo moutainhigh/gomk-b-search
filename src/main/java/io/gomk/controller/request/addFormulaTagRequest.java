@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class TagRequest {
+public class addFormulaTagRequest {
 	@ApiModelProperty(value = "名称")
 	@NotNull
     private String name;
@@ -17,14 +17,8 @@ public class TagRequest {
 	@NotNull
 	private Integer classifyId;
 	
-	@ApiModelProperty(value = "规则")
-    private Integer rule;
-	
 	@ApiModelProperty(value = "公式集合")
     private Set<FormulaVO> formulas;
-	
-	@ApiModelProperty(value = "关键词集合")
-    private Set<String> keywords;
 	
 	@ApiModelProperty(value = "描述")
     private String desc;

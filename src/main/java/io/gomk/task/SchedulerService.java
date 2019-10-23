@@ -2,26 +2,28 @@ package io.gomk.task;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.enums.DateRangeEnum;
 import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.es6.EsUtil;
+import io.gomk.mapper.GTagClassifyScopeMapper;
 import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
 import io.gomk.model.GTag;
+import io.gomk.model.GTagClassifyScope;
 import io.gomk.model.GTagFormula;
-import io.gomk.service.impl.EsBaseService;
+import io.gomk.model.GTagKeyword;
 
 /**
  * gomk-b-search
@@ -31,7 +33,7 @@ import io.gomk.service.impl.EsBaseService;
  */
 @Component
 @EnableScheduling
-public class SchedulerService extends EsBaseService{
+public class SchedulerService {
 
 	@Autowired
 	EsUtil esUtil;
@@ -41,6 +43,9 @@ public class SchedulerService extends EsBaseService{
 	
 	@Autowired
 	GTagKeywordMapper tagKeywordMapper;
+	
+	@Autowired
+	GTagClassifyScopeMapper tagClassifyScopeMapper;
 	
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
@@ -54,22 +59,73 @@ public class SchedulerService extends EsBaseService{
         List<GTag> tagList = tagMapper.selectList(queryWrapper);
         
         for (GTag tag : tagList) {
-        	String index = getIndexname(Integer.parseInt(tag.getScopes()));
+        	QueryWrapper<GTagClassifyScope> scopeWrapper = new QueryWrapper<>();
+    		scopeWrapper.lambda()
+        		.eq(GTagClassifyScope::getClassifyId, tag.getClassifyId());
+    		List<GTagClassifyScope> scopeList = tagClassifyScopeMapper.selectList(scopeWrapper);
+    		BoolQueryBuilder query = QueryBuilders.boolQuery();
         	if (tag.getTagRule().equals(TagRuleTypeEnum.KEYWORD.getValue())) {
-        		
-        		List<String> keywordList = tagKeywordMapper.selectKeywords(tag.getId());
-        		BoolQueryBuilder query = QueryBuilders.boolQuery();
-        		for (String keyword : keywordList) {
-        			QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", keyword);
-        			query.must(queryBuilder);
+        		QueryWrapper<GTagKeyword> keywordWrapper = new QueryWrapper<>();
+        		keywordWrapper.lambda()
+            		.eq(GTagKeyword::getTagId, tag.getId());
+        		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(keywordWrapper);
+        		for (GTagKeyword keyword : keywordList) {
+        			if (StringUtils.isNotBlank(keyword.getMustAll())) {
+        				String []str = keyword.getMustAll().split(",");
+        				for (String s : str) {
+        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+                			query.must(queryBuilder);
+        				}
+        			}
+        			if (StringUtils.isNotBlank(keyword.getAnyone())) {
+        				String []str = keyword.getAnyone().split(",");
+        				for (String s : str) {
+        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+        					query.should(queryBuilder);
+        				}
+        			}
+        			if (StringUtils.isNotBlank(keyword.getMustNo())) {
+        				String []str = keyword.getMustNo().split(",");
+        				for (String s : str) {
+        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+        					query.mustNot(queryBuilder);
+        				}
+        			}
+        			if (StringUtils.isNotBlank(keyword.getMustFull())) {
+        				QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", keyword);
+            			query.must(queryBuilder);
+        			}
+        			
+        			if (keyword.getDateRange() != null && keyword.getDateRange() != 0) {
+        				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publish_date");
+        				switch (DateRangeEnum.fromValue(keyword.getDateRange())) {
+						case BEFORE_THREE_MONTH:
+							rangeQueryBuilder.gte("now-3M/M");
+							break;
+						case BEFORE_HALF_YEAR:
+							rangeQueryBuilder.gte("now-6M/M");
+							break;
+						case BEFORE_ONE_YEAR:
+							rangeQueryBuilder.gte("now-1y/y");
+							break;
+						case BEFORE_THREE_YEAR:
+							rangeQueryBuilder.gte("now-3y/y");
+							break;
+						case AFTER_THREE_YEAR:
+							rangeQueryBuilder.lt("now-3y/y");
+							break;
+
+						default:
+							break;
+						}
+            			query.must(rangeQueryBuilder);
+        			}
+        			
         		}
-        		List<String> ids = esUtil.getIDsByKeyword(index, query);
-        		System.out.println("ids size:" + ids.size());
-        		esUtil.updateTagByIds(index, tag.getTagName(), ids, true);
         		
         	} else if (tag.getTagRule().equals(TagRuleTypeEnum.FORMULA.getValue())) {
         		List<GTagFormula> tagFormulas = tagFormulaMapper.selectByTagId(tag.getId());
-        		BoolQueryBuilder query = QueryBuilders.boolQuery();
+        		
         		for (GTagFormula formula : tagFormulas) {
         			String mark = formula.getFMark();
         			String value = formula.getFValue();
@@ -91,9 +147,13 @@ public class SchedulerService extends EsBaseService{
         				query.must(rangeQueryBuilder);
         			}
         		}
-        		List<String> ids = esUtil.getIDsByKeyword(index, query);
-        		//esUtil.updateTagByIds(index, tag.getTagName(), ids, true);
         	}
+        	for (GTagClassifyScope classifyScope : scopeList) {
+    			String index = esUtil.getIndexname(classifyScope.getScopes());
+    			List<String> ids = esUtil.getIDsByKeyword(index, query);
+        		System.out.println("ids size:" + ids.size());
+        		esUtil.updateTagByIds(index, tag.getTagName(), ids, true);
+    		}
         }
         
     }
@@ -125,34 +185,4 @@ public class SchedulerService extends EsBaseService{
 //        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用initialDelay  {}"+(System.currentTimeMillis()/1000));
 //    }
     
-    private String getIndexname(Integer scope) throws Exception {
-		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
-		String indexName = "";
-		switch (scopes) {
-			case ZBWJ:
-				indexName = zbIndex;
-				break;
-			case ZGYQ:
-				indexName = zgyqIndex;
-				break;
-			case ZJCG:
-				indexName = zjcgIndex;
-				break;
-			case JSYQ:
-				indexName = jsyqIndex;
-				break;
-			case PBBF:
-				indexName = pbbfIndex;
-				break;
-			case ZCFG:
-				indexName = zcfgIndex;
-				break;
-			case ZBFB:
-				indexName = zbfbIndex;
-				break;
-			default:
-				break;
-		}
-		return indexName;
-	}
 }

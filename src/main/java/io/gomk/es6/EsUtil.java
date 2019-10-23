@@ -31,13 +31,33 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import io.gomk.enums.TagClassifyScopeEnum;
 
 @Component
 public class EsUtil {
 	Logger log = LoggerFactory.getLogger(EsUtil.class);
 	@Autowired
 	protected ESRestClient esClient;
+	
+	@Value("${elasticsearch.index.zbName}")
+	protected String zbIndex;
+	@Value("${elasticsearch.index.zgyqName}")
+	protected String zgyqIndex;
+	@Value("${elasticsearch.index.jsyqName}")
+	protected String jsyqIndex;
+	@Value("${elasticsearch.index.pbbfName}")
+	protected String pbbfIndex;
+	@Value("${elasticsearch.index.zjName}")
+	protected String zjcgIndex;
+	@Value("${elasticsearch.index.zcfgName}")
+	protected String zcfgIndex;
+	@Value("${elasticsearch.index.zbfbName}")
+	protected String zbfbIndex;
+	@Value("${elasticsearch.index.completionName}")
+	protected String completionIndex;
 
 	/*
 	 * 条件更新
@@ -87,7 +107,7 @@ public class EsUtil {
 				};
 				// 异步执行获取索引请求需要将UpdateRequest 实例和ActionListener实例传递给异步方法：
 				client.updateAsync(request, listener);
-				//client.close();
+				
 			}
 		}
 		
@@ -138,6 +158,38 @@ public class EsUtil {
 		client.close();
 
 		return result;
+	}
+	
+
+	public String getIndexname(int scope) throws Exception {
+		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
+		String indexName = "";
+		switch (scopes) {
+			case ZBWJ:
+				indexName = zbIndex;
+				break;
+			case ZGYQ:
+				indexName = zgyqIndex;
+				break;
+			case ZJCG:
+				indexName = zjcgIndex;
+				break;
+			case JSYQ:
+				indexName = jsyqIndex;
+				break;
+			case PBBF:
+				indexName = pbbfIndex;
+				break;
+			case ZCFG:
+				indexName = zcfgIndex;
+				break;
+			case ZBFB:
+				indexName = zbfbIndex;
+				break;
+			default:
+				break;
+		}
+		return indexName;
 	}
 
 }

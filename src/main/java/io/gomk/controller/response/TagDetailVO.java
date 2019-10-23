@@ -3,6 +3,7 @@ package io.gomk.controller.response;
 import java.util.List;
 
 import io.gomk.model.GTagFormula;
+import io.gomk.model.GTagKeyword;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -24,8 +25,8 @@ public class TagDetailVO {
 	@ApiModelProperty(value = "公式集合")
     private List<GTagFormula> formulas;
 	
-	@ApiModelProperty(value = "关键词集合")
-    private List<String> keywords;
+	@ApiModelProperty(value = "关键词规则")
+    private List<GTagKeyword> keywords;
 	
 	@ApiModelProperty(value = "描述")
     private String tagDesc;

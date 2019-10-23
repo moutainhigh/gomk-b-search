@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import io.gomk.enums.TagClassifyScopeEnum;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +15,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author Robinxiao
- * @since 2019-10-02
+ * @since 2019-10-23
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -25,10 +24,11 @@ import lombok.experimental.Accessors;
 @ApiModel(value="GTagClassifyScope对象", description="")
 public class GTagClassifyScope implements Serializable {
 
-private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     private Integer classifyId;
 
-    private TagClassifyScopeEnum scopes;
+    private Integer scopes;
+
 
 }

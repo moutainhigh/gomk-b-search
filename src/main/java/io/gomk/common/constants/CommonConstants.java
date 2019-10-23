@@ -13,7 +13,8 @@ public interface CommonConstants {
      */
     String SYSTEM_USER_NAME = "系统管理员";
     
-    static Integer TAG_CUSTOM_CLASSIFY_ID = 20;
+    static Integer TAG_CUSTOM_CLASSIFY_FIRST_ID = 1;
+    static Integer TAG_CUSTOM_CLASSIFY_SECOND_ID = 2;
     
    
 }

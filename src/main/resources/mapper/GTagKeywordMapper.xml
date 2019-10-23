@@ -5,12 +5,16 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="io.gomk.model.GTagKeyword">
         <result column="tag_id" property="tagId" />
-        <result column="keyword" property="keyword" />
+        <result column="must_all" property="mustAll" />
+        <result column="must_full" property="mustFull" />
+        <result column="anyone" property="anyone" />
+        <result column="must_no" property="mustNo" />
+        <result column="date_range" property="dateRange" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        tag_id, keyword
+        tag_id, must_all, must_full, anyone, must_no, date_range
     </sql>
 
 </mapper>

@@ -7,11 +7,13 @@
         <id column="id" property="id" />
         <result column="classify_name" property="classifyName" />
         <result column="parent_id" property="parentId" />
+        <result column="classify_desc" property="classifyDesc" />
+        
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, classify_name, parent_id
+        id, classify_name, parent_id,classifyDesc
     </sql>
     
     <select id="selectTopByIds" resultType="io.gomk.framework.utils.tree.TreeDto">

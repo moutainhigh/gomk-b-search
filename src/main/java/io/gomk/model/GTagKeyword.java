@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author Robinxiao
- * @since 2019-10-19
+ * @since 2019-10-23
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -27,7 +27,16 @@ public class GTagKeyword implements Serializable {
 
     private Integer tagId;
 
-    private String keyword;
+    private String mustAll;
+
+    private String mustFull;
+
+    private String anyone;
+
+    private String mustNo;
+
+    @ApiModelProperty(value = "时间范围")
+    private Integer dateRange;
 
 
 }

@@ -37,12 +37,10 @@ public class GTag implements Serializable {
     @ApiModelProperty(value = "描述")
     private String tagDesc;
 
-    @ApiModelProperty(value = "定时任务是否完成")
+    @ApiModelProperty(value = "定时任务是否完成/是否可以编辑、删除")
     private Boolean taskFinished;
 
     private Integer tagRule;
-    
-    private String scopes;
 
 
 }

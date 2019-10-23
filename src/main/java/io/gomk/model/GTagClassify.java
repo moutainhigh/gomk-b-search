@@ -31,6 +31,8 @@ private static final long serialVersionUID=1L;
     private String classifyName;
 
     private Integer parentId;
+    
+    private String classifyDesc;
 
 
 }

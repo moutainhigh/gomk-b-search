@@ -1,6 +1,5 @@
 package io.gomk.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import io.gomk.common.constants.CommonConstants;
 import io.gomk.controller.request.FormulaVO;
 import io.gomk.controller.response.TagDetailVO;
 import io.gomk.enums.TagRuleTypeEnum;
@@ -24,6 +24,7 @@ import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
+import io.gomk.mapper.GTagClassifyScopeMapper;
 import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
@@ -54,6 +55,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	GTagMapper tagMapper;
 	
 	@Autowired
+	GTagClassifyScopeMapper tagClassifyScopeMapper;
+	
+	@Autowired
 	GTagKeywordMapper tagKeywordMapper;
 	
 	@Autowired
@@ -66,8 +70,19 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	EsUtil esUtil;
 	
 	@Override
-	public void addDocTag(String indexName, String tag, List<String> ids) throws IOException {
-		esUtil.updateTagByIds(indexName, tag, ids, false);
+	@Transactional
+	public void addDocTag(int scope, String tagName, List<String> ids) throws Exception {
+		// ? 检查数据库中是否存在 tagName
+		int count = tagMapper.getCountByTagName(tagName);
+		if (count == 0) {
+			GTag tag = new GTag();
+			tag.setClassifyId(CommonConstants.TAG_CUSTOM_CLASSIFY_SECOND_ID);
+			tag.setTagName(tagName);
+			tag.setTagRule(TagRuleTypeEnum.CUSTOM.getValue());
+			tag.setTaskFinished(true);
+			tagMapper.insert(tag);
+		}
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false);
 	}
 
 	@Override
@@ -110,19 +125,15 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 
 	@Override
 	@Transactional
-	public void saveTagForKeyword(GTag entity, Set<String> keywords) {
+	public void saveTagForKeyword (GTag entity, GTagKeyword keywords) throws Exception {
 		tagMapper.insert(entity);
-		for (String keyword : keywords) {
-			GTagKeyword tagKeyword = new GTagKeyword();
-			tagKeyword.setKeyword(keyword);
-			tagKeyword.setTagId(entity.getId());
-			tagKeywordMapper.insert(tagKeyword);
-		}
+		keywords.setTagId(entity.getId());
+		tagKeywordMapper.insert(keywords);
 	}
 
 	@Override
 	@Transactional
-	public void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet) {
+	public void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet) throws Exception {
 		tagMapper.insert(entity);
 		for (FormulaVO formula : formulaSet) {
 			GTagFormula bean = new GTagFormula();
@@ -149,11 +160,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
 		if (keywordList != null && keywordList.size() > 0) {
 			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
-			List<String> keywords = new ArrayList<>();
-			for (GTagKeyword keyword : keywordList) {
-				keywords.add(keyword.getKeyword());
-			}
-			vo.setKeywords(keywords);
+			vo.setKeywords(keywordList);
 		} else {
 			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
 			query.lambda()

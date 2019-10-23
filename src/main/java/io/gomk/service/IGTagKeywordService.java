@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author Robinxiao
- * @since 2019-10-19
+ * @since 2019-10-23
  */
 public interface IGTagKeywordService extends IService<GTagKeyword> {
 

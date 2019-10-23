@@ -1,5 +1,6 @@
 package io.gomk.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 
 public enum TagClassifyScopeEnum implements IEnum<Integer> {
@@ -15,6 +16,7 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
         this.value = value;
         this.desc = desc;
     }
+	@EnumValue
     private int value;
     private String desc;
 	@Override
@@ -24,13 +26,13 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
 	public String getDesc() {
 		return this.desc;
 	}
-	public static TagClassifyScopeEnum fromValue(Integer value) throws Exception {
+	public static TagClassifyScopeEnum fromValue(Integer value) throws UnknownEnumException {
 		for (TagClassifyScopeEnum tEnum : TagClassifyScopeEnum.values()) {
             if (tEnum.getValue() == value) {
                 return tEnum;
             }
         }
-        throw new Exception("Error: Invalid Enum type value: " + value);
+        throw new UnknownEnumException("Error: Invalid scope Enum type value: " + value);
 	}
 
 }

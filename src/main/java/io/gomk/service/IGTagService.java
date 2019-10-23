@@ -1,16 +1,15 @@
 package io.gomk.service;
 
-import io.gomk.controller.request.FormulaVO;
-import io.gomk.controller.response.TagDetailVO;
-import io.gomk.enums.TagClassifyScopeEnum;
-import io.gomk.framework.utils.tree.TreeDto;
-import io.gomk.model.GTag;
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import io.gomk.controller.request.FormulaVO;
+import io.gomk.controller.response.TagDetailVO;
+import io.gomk.framework.utils.tree.TreeDto;
+import io.gomk.model.GTag;
+import io.gomk.model.GTagKeyword;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IGTagService extends IService<GTag> {
 
-	void addDocTag(String indexName, String tagName, List<String> ids) throws IOException;
+	void addDocTag(int scope, String tagName, List<String> ids) throws Exception;
 
 	int getCountByTagName(String name);
 
@@ -32,9 +31,9 @@ public interface IGTagService extends IService<GTag> {
 
 	List<TreeDto> getAllTree();
 
-	void saveTagForKeyword(GTag entity, Set<String> keywords);
+	void saveTagForKeyword(GTag entity, GTagKeyword tagKeyword) throws Exception;
 
-	void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet);
+	void saveTagForFormula(GTag entity, Set<FormulaVO> formulaSet) throws Exception;
 
 	TagDetailVO getTagDetail(GTag tag);
 

@@ -3,6 +3,7 @@ package io.gomk.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.es6.ESRestClient;
 
 public class EsBaseService {
@@ -31,4 +32,5 @@ public class EsBaseService {
 	protected Integer replicas;
 	@Value("${elasticsearch.analyzer}")
 	protected String analyzer;
+	
 }

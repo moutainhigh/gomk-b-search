@@ -1,6 +1,6 @@
 package io.gomk.controller.request;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,10 +13,13 @@ public class TagClassifyRequest {
 	@NotNull
     private String name;
 	
-	@ApiModelProperty(value = "父ID，顶级为0")
+	@ApiModelProperty(value = "父ID")
 	@NotNull
     private Integer parentId;
 	
-	@ApiModelProperty(value = "描述（只在建标签时需要传值）")
+	@ApiModelProperty(value = "描述")
     private String desc;
+	
+	@ApiModelProperty(value = "库范围集合(建一级时不传)")
+    private Set<Integer> scopes;
 }
