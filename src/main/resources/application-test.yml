@@ -51,7 +51,7 @@ spring:
 
 
 swagger:
-   host: http://39.105.18.142/mb/search
+   host: 39.105.18.142/mb/search
    
 hdfs.path: hdfs://localhost:9000
 hdfs.username: root
