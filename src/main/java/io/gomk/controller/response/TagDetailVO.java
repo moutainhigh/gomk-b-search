@@ -30,4 +30,7 @@ public class TagDetailVO {
 	
 	@ApiModelProperty(value = "描述")
     private String tagDesc;
+	
+	@ApiModelProperty(value = "是否能修改删除")
+	private boolean update;
 }

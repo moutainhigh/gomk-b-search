@@ -153,6 +153,10 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		vo.setTagDesc(tag.getTagDesc());
 		vo.setTagName(tag.getTagName());
 		vo.setRule(tag.getTagRule());
+		vo.setUpdate(true);
+		if (tag.getTaskFinished()) {
+			vo.setUpdate(false);
+		}
 		
 		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
 		queryWrapper.lambda()
