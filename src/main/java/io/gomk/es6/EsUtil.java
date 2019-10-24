@@ -1,7 +1,12 @@
 package io.gomk.es6;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,39 +14,49 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.framework.utils.parse.PDF;
+import io.gomk.framework.utils.parse.Word2003;
+import io.gomk.framework.utils.parse.Word2007;
+import io.gomk.framework.utils.parsefile.ParseFile;
+import io.gomk.mapper.DB2ESMapper;
+import io.gomk.task.DBInfoBean;
+import io.gomk.task.ESInfoBean;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class EsUtil {
-	Logger log = LoggerFactory.getLogger(EsUtil.class);
 	@Autowired
 	protected ESRestClient esClient;
-	
+	@Autowired
+	private ParseFile parseFileUtil;
+	@Autowired
+	DB2ESMapper db2esMapper;
+
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
@@ -58,6 +73,9 @@ public class EsUtil {
 	protected String zbfbIndex;
 	@Value("${elasticsearch.index.completionName}")
 	protected String completionIndex;
+
+	private final static String STORE_HBASE = "HBASE";
+	private final static String STORE_HDFS = "HFS";
 
 	/*
 	 * 条件更新
@@ -107,16 +125,16 @@ public class EsUtil {
 				};
 				// 异步执行获取索引请求需要将UpdateRequest 实例和ActionListener实例传递给异步方法：
 				client.updateAsync(request, listener);
-				
+
 			}
 		}
-		
+
 	}
 
 	public List<String> getIDsByKeyword(String indexName, BoolQueryBuilder query) throws IOException {
 		List<String> result = new ArrayList<>();
 		RestHighLevelClient client = esClient.getClient();
-		
+
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		sourceBuilder.query(query);
 		sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
@@ -153,43 +171,200 @@ public class EsUtil {
 //					log.info("fragmentString1:" + t.toString());
 //				}
 //			}
-			//log.info(hit.getSourceAsMap().get("title").toString());
+			// log.info(hit.getSourceAsMap().get("title").toString());
 		}
 		client.close();
 
 		return result;
 	}
-	
 
 	public String getIndexname(int scope) throws Exception {
 		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(scope);
 		String indexName = "";
 		switch (scopes) {
-			case ZBWJ:
-				indexName = zbIndex;
-				break;
-			case ZGYQ:
-				indexName = zgyqIndex;
-				break;
-			case ZJCG:
-				indexName = zjcgIndex;
-				break;
-			case JSYQ:
-				indexName = jsyqIndex;
-				break;
-			case PBBF:
-				indexName = pbbfIndex;
-				break;
-			case ZCFG:
-				indexName = zcfgIndex;
-				break;
-			case ZBFB:
-				indexName = zbfbIndex;
-				break;
-			default:
-				break;
+		case ZBWJ:
+			indexName = zbIndex;
+			break;
+		case ZGYQ:
+			indexName = zgyqIndex;
+			break;
+		case ZJCG:
+			indexName = zjcgIndex;
+			break;
+		case JSYQ:
+			indexName = jsyqIndex;
+			break;
+		case PBBF:
+			indexName = pbbfIndex;
+			break;
+		case ZCFG:
+			indexName = zcfgIndex;
+			break;
+		case ZBFB:
+			indexName = zbfbIndex;
+			break;
+		default:
+			break;
 		}
 		return indexName;
 	}
+
+	/**
+	 * 下截文件--抽取内容--存储es索引
+	 */
+	public void parseAndSaveEs() {
+		int size = 10;
+		while(true) {
+			//查询结构化数据
+			List<DBInfoBean> list = db2esMapper.selectInfo(size);
+			if (list.size() == 0) break;
+			// 1. 下载文件 分页查询未处理的纪录
+			list.forEach(bean -> {
+				switch (bean.getFileType()) {
+				case "zb":
+					disposeZB(bean);
+					break;
+				case "tb":
+					disposeTB(bean);
+					break;
+				case "zj":
+					disposeZJ(bean);
+					break;
+				default:
+					break;
+				}
+			});
+		}
+		
+	}
+
+	/**
+	 * 处理招标文件
+	 * 
+	 * @param bean
+	 */
+	private void disposeZB(DBInfoBean bean) {
+		String storeUrl = bean.getStoreUrl();
+		String storeType = bean.getStoreType();
+		String extensionName = bean.getExt();
+		if (storeType.equals(STORE_HBASE)) {
+
+		} else if (storeType.equals(STORE_HDFS)) {
+
+		}
+		File tempFile = new File("/Users/vko/Documents/my-code/DOC/zb/神华准能物资供应中心2018年第二批设备采购招标文件.doc");
+		InputStream in;
+		try {
+			in = new FileInputStream(tempFile);
+		
+			ESInfoBean esBean = new ESInfoBean();
+			BeanUtils.copyProperties(bean, esBean);
+			esBean.setAddDate(new Date());
+			//全文
+			String content = getContent(in, extensionName);
+			//招标范围
+			String zbfw = parseFileUtil.parseTenderScope(in, extensionName);
+			//资格要求
+			List<String> zgyqList = parseFileUtil.parseTenderQualification(in, extensionName);
+			//评标办法
+			String pbbf = parseFileUtil.parseTenderMethod(in, extensionName);
+			//技术要求
+			String jsyq = parseFileUtil.parseTechnicalRequirement(in, extensionName);
+			
+			log.info("zbfw====" + zbfw);
+			log.info("zgyqList=======" + zgyqList.toString());
+			log.info("pbbf=====" + pbbf);
+			log.info("jsyq=====" + jsyq);
+			
+			esBean.setZbfw(zbfw);
+			//========存招标文件库=======
+			if (StringUtils.isNotBlank(content)) {
+				esBean.setContent(content);
+				saveES(zbIndex, esBean);
+			}
+		
+	/**		
+			//==========存索引-资格要求及按条存数据库=======
+			if (zgyqList != null && zgyqList.size() > 0) {
+				esBean.setContent(zgyqList.toString());
+				saveES(zgyqIndex, esBean);
+//========	??????????存数据库
+			}
+			//=====存索引-评标办法===========
+			if (StringUtils.isNotBlank(pbbf)) {
+				esBean.setContent(pbbf);
+				saveES(pbbfIndex, esBean);
+			}
+			//=======存索引-技术要求=========
+			if (StringUtils.isNotBlank(jsyq)) {
+				esBean.setContent(jsyq);
+				saveES(jsyqIndex, esBean);
+			}
+			
+			**/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 * 处理投标文件
+	 * 
+	 * @param bean
+	 */
+	private void disposeTB(DBInfoBean bean) {
+
+	}
+
+	/**
+	 * 处理造价文件
+	 * 
+	 * @param bean
+	 */
+	private void disposeZJ(DBInfoBean bean) {
+
+	}
+	
+
+	private String getContent(InputStream in, String extensionName) throws IOException {
+		String content = "";
+		if (extensionName.endsWith("doc")) {
+			content = Word2003.read(in);
+		} else if (extensionName.endsWith("docx")) {
+			content = Word2007.read(in);
+		} else if (extensionName.endsWith("pdf")) {
+			content = PDF.read(in);
+		}
+		return content;
+	}
+
+	private void saveES(String index, ESInfoBean esBean) throws IOException {
+		RestHighLevelClient client = esClient.getClient();
+
+		BulkRequest request = new BulkRequest();
+		request.setRefreshPolicy("wait_for");
+		request.waitForActiveShards(2);
+		request.add(new IndexRequest(index, "_doc").source(esBean, XContentType.JSON));
+		// 同步请求
+		client.bulk(request);
+		client.close();
+	}
+
+	public static void main(String[] args) {
+		File tempFile = new File("/Users/vko/Documents/my-code/DOC/zb/神华准能物资供应中心2018年第二批设备采购招标文件.doc");
+		InputStream in;
+		try {
+			in = new FileInputStream(tempFile);
+			String extensionName = "doc";
+			Map map = new ParseFile().parseText(in, extensionName);
+			log.info("========" + map);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 
 }

@@ -1,9 +1,12 @@
 package io.gomk.framework.utils.parse;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 public class PDF {
@@ -18,13 +21,10 @@ public class PDF {
 	public static String read(String filePath) {
 
 		// 这个构造函数从InputStream中加载Word文档。
-		PDDocument helloDocument = null;
 		String str = "";
 		try {
-			helloDocument = PDDocument.load(new File(filePath));
-			PDFTextStripper textStripper = new PDFTextStripper();
-			str = textStripper.getText(helloDocument);
-			helloDocument.close();
+			FileInputStream fis = new FileInputStream(filePath);
+			str = read(fis);
 		} catch (IOException e) {
 			//e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -32,5 +32,12 @@ public class PDF {
 		}
 		
 		return str.trim();
+	}
+	public static String read(InputStream in) throws InvalidPasswordException, IOException {
+		PDDocument helloDocument = PDDocument.load(in);
+		PDFTextStripper textStripper = new PDFTextStripper();
+		String str = textStripper.getText(helloDocument);
+		helloDocument.close();
+		return str;
 	}
 }

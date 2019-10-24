@@ -8,12 +8,10 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.gomk.common.rs.response.ResponseData;
@@ -23,34 +21,110 @@ import io.gomk.service.IIndexService;
 @Service
 public class IndexService extends EsBaseService implements IIndexService {
 	
+	public String mapping = "  {\n" +
+            "    \"_doc\": {\n" +
+            "      \"properties\": {\n" +
+            "        \"title\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"term_vector\": \"with_positions_offsets\"\n" +
+            "        },\n" +
+            "        \"content\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"term_vector\": \"with_positions_offsets\"\n" +
+            "        },\n" +
+            "        \"zbfw\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"term_vector\": \"with_positions_offsets\"\n" +
+            "        },\n" +
+            "        \"tag\": {\n" +
+            "          \"type\": \"text\",\n" +
+            "          \"analyzer\": \"hanlp\"\n" +
+            "        },\n" +
+            "        \"pkgCode\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"pkgName\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjCode\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjName\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjType\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjNature\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjIndustry\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"prjCust\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"winAmount\": {\n" +
+            "          \"type\": \"double\"\n" +
+            "        },\n" +
+            "        \"noticeDate\": {\n" +
+            "          \"type\": \"date\",\n" +
+            "          \"ignore_malformed\": true,\n" +
+            "          \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\"\n" +
+            "        },\n" +
+            "        \"zbType\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"directoryTree\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"currentPath\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"addDate\": {\n" +
+            "          \"type\": \"date\",\n" +
+            "          \"ignore_malformed\": true,\n" +
+            "          \"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis\"\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }";
+	
+	
 	@Override
 	public ResponseData<String> createZBIndex() throws IOException {
-		String mapping = "  {\n" +
-	            "    \"_doc\": {\n" +
-	            "      \"properties\": {\n" +
-	            "        \"title\": {\n" +
-	            "          \"type\": \"text\",\n" +
-	            "          \"analyzer\": \"hanlp\",\n" +
-	            "          \"term_vector\": \"with_positions_offsets\"\n" +
-	            "        },\n" +
-	            "        \"content\": {\n" +
-	            "          \"type\": \"text\",\n" +
-	            "          \"analyzer\": \"hanlp\",\n" +
-	            "          \"term_vector\": \"with_positions_offsets\"\n" +
-	            "        },\n" +
-	            "        \"tag\": {\n" +
-	            "          \"type\": \"text\",\n" +
-	            "          \"analyzer\": \"hanlp\"\n" +
-	            "        },\n" +
-	            "        \"abstract\": {\n" +
-	            "          \"type\": \"keyword\"\n" +
-	            "        },\n" +
-	            "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-	            "      }\n" +
-	            "    }\n" +
-	            "  }";
+//		String mapping = "  {\n" +
+//	            "    \"_doc\": {\n" +
+//	            "      \"properties\": {\n" +
+//	            "        \"title\": {\n" +
+//	            "          \"type\": \"text\",\n" +
+//	            "          \"analyzer\": \"hanlp\",\n" +
+//	            "          \"term_vector\": \"with_positions_offsets\"\n" +
+//	            "        },\n" +
+//	            "        \"content\": {\n" +
+//	            "          \"type\": \"text\",\n" +
+//	            "          \"analyzer\": \"hanlp\",\n" +
+//	            "          \"term_vector\": \"with_positions_offsets\"\n" +
+//	            "        },\n" +
+//	            "        \"tag\": {\n" +
+//	            "          \"type\": \"text\",\n" +
+//	            "          \"analyzer\": \"hanlp\"\n" +
+//	            "        },\n" +
+//	            "        \"abstract\": {\n" +
+//	            "          \"type\": \"keyword\"\n" +
+//	            "        },\n" +
+//	            "        \"abstract\": {\n" +
+//	            "          \"type\": \"keyword\"\n" +
+//	            "        },\n" +
+//	            "        \"add_date\": {\n" +
+//                "          \"type\": \"keyword\"\n" +
+//                "        }\n" +
+//	            "      }\n" +
+//	            "    }\n" +
+//	            "  }";
 		return createIndex(zbIndex, mapping);
 	}
 	

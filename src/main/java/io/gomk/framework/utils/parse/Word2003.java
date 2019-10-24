@@ -1,11 +1,8 @@
 package io.gomk.framework.utils.parse;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,10 +43,8 @@ public class Word2003 {
 //			fis.close();
 //			InputStream is = new ByteArrayInputStream(sbf.toString().getBytes());
 //			HWPFDocument doc = new HWPFDocument(is);
-			HWPFDocument doc = new HWPFDocument(fis);
-			String content = getContent(doc);
-			doc.close();
-			return content;
+			
+			return read(fis);
 		} catch (Exception e) {
 			System.out.println("error:" + e.getMessage());
 		} 
@@ -83,5 +78,11 @@ public class Word2003 {
 			return str;
 		}
 		return null;
+	}
+	public static String read(InputStream in) throws IOException {
+		HWPFDocument doc = new HWPFDocument(in);
+		String content = getContent(doc);
+		doc.close();
+		return content;
 	}
 }
