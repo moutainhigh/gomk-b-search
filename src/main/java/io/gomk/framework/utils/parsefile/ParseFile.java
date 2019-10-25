@@ -62,7 +62,8 @@ public class ParseFile {
 
     /**
      * 获取投标资格List
-     * @param in 文件流
+     *
+     * @param in            文件流
      * @param extensionName 扩展名
      * @return list
      */
@@ -92,7 +93,8 @@ public class ParseFile {
 
     /**
      * 获取招标范围
-     * @param in 文件流
+     *
+     * @param in            文件流
      * @param extensionName 扩展名
      * @return string
      */
@@ -115,7 +117,8 @@ public class ParseFile {
 
     /**
      * 获取技术要求
-     * @param in 文件流
+     *
+     * @param in            文件流
      * @param extensionName 扩展名
      * @return string
      */
@@ -138,7 +141,8 @@ public class ParseFile {
 
     /**
      * 获取评标办法
-     * @param in 文件流
+     *
+     * @param in            文件流
      * @param extensionName 扩展名
      * @return string
      */
@@ -190,7 +194,7 @@ public class ParseFile {
         StringBuilder sb = new StringBuilder();
         String t1 = "技术要求";
         if (firstTitle.contains(t1)) {
-            sb.append(entry.getValue());
+            sb.append(result.get("3")).append(entry.getValue());
             result.put("3", sb);
         } else if (entry.getValue().contains(t1)) {
             sb.append(result.get("3")).append(entry.getValue());
@@ -232,6 +236,8 @@ public class ParseFile {
                 String style = Optional.ofNullable(paras.get(i).getStyle()).orElse("-1000");
                 paragraph[i] = paras.get(i).getText();
                 styles[i] = style;
+
+//                System.out.println("第"+i+"段====>"+paragraph[i]);
             }
             generateByWord(result, contentByTitles, paragraph, styles);
         } catch (Exception e) {
@@ -268,6 +274,7 @@ public class ParseFile {
             if (!"".equalsIgnoreCase(p)) {
                 for (String s : ONE_TITLE) {
                     if (p.startsWith(s)) {
+//                        System.out.println("-->"+s);
                         fIndexList.add(i);
                     }
                 }
@@ -280,7 +287,7 @@ public class ParseFile {
         int i = 0;
 
         while (i < fIndexListSize - 1 && i < totalParagraph) {
-            int oneStart = fIndexList.get(i) + 1;
+            int oneStart = fIndexList.get(i);
             i++;
             int oneEnd = fIndexList.get(i);
 
@@ -289,18 +296,23 @@ public class ParseFile {
             boolean hasStyles = styles.length > 0;
             for (int o = oneStart; o < oneEnd; o++) {
 
-                String oneC = paragraph[o].trim();
+                String oneC = paragraph[o].trim().replaceAll(" ", "");
 
-                if (oneC.contains("总体要求")) {
-                    log.info("");
-                }
                 if (!"".equals(oneC)) {
                     if (regTwoTitle(oneC)) {
-                        System.out.println(oneC);
                         tIndexList.add(o);
                     }
                     if (hasStyles && "aa".equalsIgnoreCase(styles[o])) {
-                        System.out.println(oneC);
+                        tIndexList.add(o);
+                    }
+                }
+            }
+
+            if (tIndexList.isEmpty()) {
+                for (int o = oneStart; o < oneEnd; o++) {
+                    String oneC = paragraph[o].trim();
+                    if (!"".equals(oneC) && oneC.length() > 2) {
+//                        System.out.println("==>"+oneC);
                         tIndexList.add(o);
                     }
                 }
@@ -317,6 +329,7 @@ public class ParseFile {
                 for (int t = twoStart; t < twoEnd; t++) {
                     String twoC = paragraph[t].trim();
                     if (!"".equals(twoC)) {
+//                        System.out.println("-->"+twoC);
                         twoSb.append(twoC).append("\r");
                     }
                 }
@@ -344,42 +357,39 @@ public class ParseFile {
      * @param args
      */
     public static void main(String[] args) {
-        File file = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
-        try (InputStream in = new FileInputStream(file)) {
-//            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
-            List<String> s = new ParseFile().parseTenderQualification(in, DOC);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTenderScope(in, DOC);
-            log.info("{}", a);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTechnicalRequirement(in, DOC);
-            log.info("{}", a);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTenderMethod(in, DOC);
-            log.info("{}", a);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        log.info("");
-//        File file = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
+        File file = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
+//        File file = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
 //        try (InputStream in = new FileInputStream(file)) {
-//            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOCX);
-//            log.info("{}", map);
+////            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
+//            List<String> s = new ParseFile().parseTenderQualification(in, DOC);
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+//        try (InputStream in = new FileInputStream(file)) {
+//            String a = new ParseFile().parseTenderScope(in, DOC);
+//            log.info("{}", a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        try (InputStream in = new FileInputStream(file)) {
+            String a = new ParseFile().parseTechnicalRequirement(in, DOCX);
+            log.info("{}", a);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        try (InputStream in = new FileInputStream(file)) {
+//            String a = new ParseFile().parseTenderMethod(in, DOC);
+//            log.info("{}", a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        log.info("");
+        try (InputStream in = new FileInputStream(file)) {
+            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOCX);
+            log.info("{}", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-
 }
-
 
