@@ -10,6 +10,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -50,6 +51,11 @@ public class SchedulerService {
 	
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
+	
+	//@Scheduled(fixedRate = 111150300)
+	public void insertEsTask() {
+		esUtil.parseAndSaveEs();
+	}
 	
    // @Scheduled(fixedRate = 11115000)
     public void task1() throws Exception{

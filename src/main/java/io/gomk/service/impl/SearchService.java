@@ -40,6 +40,7 @@ import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.es6.ESClientFactory;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
@@ -124,7 +125,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 
 	
 	private PageResult<Page<List<SearchResultVO>>> execSearch(String indexName, SearchSourceBuilder sourceBuilder) throws IOException{
-		RestHighLevelClient client = esClient.getClient();
+		RestHighLevelClient client = ESClientFactory.getClient();
 		List<SearchResultVO> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
@@ -208,7 +209,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
-            Object abstracts = sourceAsMap.get("abstract");
+           // Object abstracts = sourceAsMap.get("abstract");
             //从map中取字段值
             /*
             String documentTitle = (String) sourceAsMap.get("title"); 
@@ -219,7 +220,9 @@ public class SearchService extends EsBaseService implements ISearchService {
          //   logger.info(sourceAsString);
             
             vo.setTitle(sourceAsMap.get("title").toString());
-            vo.setAddDate(sourceAsMap.get("add_date").toString());
+            vo.setAddDate(sourceAsMap.get("addDate").toString());
+            Object zbfw = sourceAsMap.get("zbfw");
+            vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString() );
             
             Object obj = sourceAsMap.get("tag");
             HashSet<String> tags = new HashSet<>();
@@ -250,28 +253,17 @@ public class SearchService extends EsBaseService implements ISearchService {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setContent(replaceRN(fragmentString));
             } else {
-            	if (indexName.equals(zbIndex)) {
-                    vo.setContent(abstracts == null ? "" : abstracts.toString());
-            	} else {
-            		Object zbfw = sourceAsMap.get("zbfw");
             		String text = "";
             		if (zbfw != null) {
             			text = zbfw.toString();
             			text = replaceRN(text);
             		}
             		vo.setContent(text);
-            	}
             }
             
             if (indexName.equals(zgyqIndex)) {
-            	Object zgyq = sourceAsMap.get("zgyq");
-            	Object zbfw = sourceAsMap.get("zbfw");
-            	vo.setZgyqInfo(zgyq == null ? "" : zgyq.toString());
-            	vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString());
+            	vo.setZgyqInfo(vo.getContent());
         	} 
-            
-            
-            
             result.add(vo);
         }
         
@@ -310,7 +302,7 @@ public class SearchService extends EsBaseService implements ISearchService {
         client.searchAsync(searchRequest, listener); 
         */
   
-        client.close();
+        
         PageResult pageResult = new PageResult(sourceBuilder.from(), sourceBuilder.size(), totalHits, result);
 		return pageResult;
 	}
@@ -332,7 +324,7 @@ public class SearchService extends EsBaseService implements ISearchService {
         sourceBuilder.size(size > 10 ? 10 : size); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
         
-        RestHighLevelClient client = esClient.getClient();
+        RestHighLevelClient client = ESClientFactory.getClient();
 		List<String> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
@@ -393,16 +385,16 @@ public class SearchService extends EsBaseService implements ISearchService {
 //            }
         
         }
-        client.close();
+        
         return result;
 	}
 
 	@Override
 	public GetResponse getEsDoc(String indexName, String id) throws IOException {
-		RestHighLevelClient client = esClient.getClient();
+		RestHighLevelClient client = ESClientFactory.getClient();
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
-		client.close();
+		
 		return getResponse;
 	}
 
@@ -415,7 +407,7 @@ public class SearchService extends EsBaseService implements ISearchService {
         sourceBuilder.size(pageSize); 
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS)); 
         
-        RestHighLevelClient client = esClient.getClient();
+        RestHighLevelClient client = ESClientFactory.getClient();
 		List<NumberVO> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
@@ -460,7 +452,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             vo.setSupplDocumentCode(new HashSet<String>((List<String>)sourceAsMap.get("suppl_document_code")));
             result.add(vo);
         }
-        client.close();
+        
         PageResult pageResult = new PageResult(sourceBuilder.from(), sourceBuilder.size(), totalHits, result);
         return pageResult;
 	}
@@ -484,7 +476,7 @@ public class SearchService extends EsBaseService implements ISearchService {
         sourceBuilder.query(query);
         sourceBuilder.fetchSource("tag", null);
         
-        RestHighLevelClient client = esClient.getClient();
+        RestHighLevelClient client = ESClientFactory.getClient();
 		List<NumberVO> result = new ArrayList<>();
 		 // 1、创建search请求
         //SearchRequest searchRequest = new SearchRequest();
@@ -510,7 +502,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 	        	tagSet.addAll(new HashSet<String>((List<String>)sourceAsMap.get("tag")));
 	        }
         }
-        client.close();
+        
         		
         if (tagSet.size() > 0) {
         	List<GTag> tagList = tagMapper.selectTagByNames(tagSet);

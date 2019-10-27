@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class ESInfoBean {
+	//业务表ID
+	private String uuid;
 	//标题
 	private String title;
 	//内容

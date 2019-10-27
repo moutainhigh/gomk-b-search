@@ -1,5 +1,7 @@
 package io.gomk.es6;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest;
@@ -37,10 +39,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
+
 import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.framework.utils.FileListUtil;
 import io.gomk.framework.utils.parse.PDF;
 import io.gomk.framework.utils.parse.Word2003;
 import io.gomk.framework.utils.parse.Word2007;
+import io.gomk.framework.utils.parse.ZipUtil;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
 import io.gomk.task.DBInfoBean;
@@ -105,7 +111,6 @@ public class EsUtil {
 			request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
 			if (!async) {
 				UpdateResponse updateResponse = client.update(request);
-				client.close();
 			} else {
 				// 异步执行
 				// DeleteResponse 的典型监听器如下所示：
@@ -173,7 +178,6 @@ public class EsUtil {
 //			}
 			// log.info(hit.getSourceAsMap().get("title").toString());
 		}
-		client.close();
 
 		return result;
 	}
@@ -217,6 +221,7 @@ public class EsUtil {
 		while(true) {
 			//查询结构化数据
 			List<DBInfoBean> list = db2esMapper.selectInfo(size);
+			log.info("===size====" + list.size());
 			if (list.size() == 0) break;
 			// 1. 下载文件 分页查询未处理的纪录
 			list.forEach(bean -> {
@@ -233,6 +238,7 @@ public class EsUtil {
 				default:
 					break;
 				}
+				db2esMapper.insertFileSign(bean.getUuid());
 			});
 		}
 		
@@ -256,27 +262,35 @@ public class EsUtil {
 		InputStream in;
 		try {
 			in = new FileInputStream(tempFile);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			byte[] buffer = new byte[1024];  
+			int len;  
+			while ((len = in.read(buffer)) > -1 ) {  
+			    baos.write(buffer, 0, len);  
+			}  
+			baos.flush(); 
 		
 			ESInfoBean esBean = new ESInfoBean();
 			BeanUtils.copyProperties(bean, esBean);
 			esBean.setAddDate(new Date());
 			//全文
-			String content = getContent(in, extensionName);
-			//招标范围
-			String zbfw = parseFileUtil.parseTenderScope(in, extensionName);
-			//资格要求
-			List<String> zgyqList = parseFileUtil.parseTenderQualification(in, extensionName);
-			//评标办法
-			String pbbf = parseFileUtil.parseTenderMethod(in, extensionName);
-			//技术要求
-			String jsyq = parseFileUtil.parseTechnicalRequirement(in, extensionName);
+			String content = getContent(new ByteArrayInputStream(baos.toByteArray()), extensionName);
 			
-			log.info("zbfw====" + zbfw);
-			log.info("zgyqList=======" + zgyqList.toString());
-			log.info("pbbf=====" + pbbf);
-			log.info("jsyq=====" + jsyq);
+//			//招标范围
+//			String zbfw = parseFileUtil.parseTenderScope(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+//			//资格要求
+//			List<String> zgyqList = parseFileUtil.parseTenderQualification(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+//			//评标办法
+//			String pbbf = parseFileUtil.parseTenderMethod(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+//			//技术要求
+//			String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+//			
+//			log.info("zbfw====" + zbfw);
+//			log.info("zgyqList=======" + zgyqList.toString());
+//			log.info("pbbf=====" + pbbf);
+//			log.info("jsyq=====" + jsyq);
 			
-			esBean.setZbfw(zbfw);
+			//esBean.setZbfw(zbfw);
 			//========存招标文件库=======
 			if (StringUtils.isNotBlank(content)) {
 				esBean.setContent(content);
@@ -323,7 +337,51 @@ public class EsUtil {
 	 * @param bean
 	 */
 	private void disposeZJ(DBInfoBean bean) {
-
+		if (bean.getExt().equals("zip")) {
+			String path = "/Users/vko/Documents/my-code/temp/1.zip";
+			String targetDir = "/Users/vko/Documents/my-code/temp/2";
+			try {
+				ZipUtil.unZipFiles(path, targetDir);
+			
+				List<File> files = new ArrayList<>();
+				StringBuffer sb = new StringBuffer();
+				FileListUtil.findDir(targetDir, 3, files, sb);
+				
+				for (File f : files) {
+					if (f.isFile()) {
+						String fileName = f.getName();
+						String content = "";
+						if (fileName.endsWith(".doc")) {
+							content = Word2003.read(f.getAbsolutePath());
+						} else if (fileName.endsWith(".docx")) {
+							content = Word2007.read(f.getAbsolutePath());
+						} else if (fileName.endsWith(".pdf")) {
+							content = PDF.read(f.getAbsolutePath());
+						}
+						if (!"".equals(content)) {
+							ESInfoBean esBean = new ESInfoBean();
+							BeanUtils.copyProperties(bean, esBean);
+							esBean.setAddDate(new Date());
+							fileName = fileName.substring(0, fileName.lastIndexOf("."));
+							esBean.setTitle(fileName);
+							esBean.setContent(content);
+							esBean.setDirectoryTree(sb.toString());
+							saveES(zjcgIndex, esBean);
+						}
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try {
+					ZipUtil.delDir(targetDir);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 
@@ -340,15 +398,13 @@ public class EsUtil {
 	}
 
 	private void saveES(String index, ESInfoBean esBean) throws IOException {
-		RestHighLevelClient client = esClient.getClient();
+		RestHighLevelClient client = ESClientFactory.getClient();
 
-		BulkRequest request = new BulkRequest();
-		request.setRefreshPolicy("wait_for");
-		request.waitForActiveShards(2);
-		request.add(new IndexRequest(index, "_doc").source(esBean, XContentType.JSON));
+		IndexRequest request = new IndexRequest(index, "_doc");
+		request.source(JSON.toJSONString(esBean), XContentType.JSON);
 		// 同步请求
-		client.bulk(request);
-		client.close();
+		IndexResponse response = client.index(request);
+		log.info(response.getResult().toString());
 	}
 
 	public static void main(String[] args) {

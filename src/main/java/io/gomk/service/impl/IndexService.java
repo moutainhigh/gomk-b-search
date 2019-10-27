@@ -15,6 +15,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.stereotype.Service;
 
 import io.gomk.common.rs.response.ResponseData;
+import io.gomk.es6.ESClientFactory;
 import io.gomk.framework.utils.parse.ImportFile;
 import io.gomk.service.IIndexService;
 
@@ -24,6 +25,9 @@ public class IndexService extends EsBaseService implements IIndexService {
 	public String mapping = "  {\n" +
             "    \"_doc\": {\n" +
             "      \"properties\": {\n" +
+            "        \"uuid\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
             "        \"title\": {\n" +
             "          \"type\": \"text\",\n" +
             "          \"analyzer\": \"hanlp\",\n" +
@@ -137,7 +141,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> deleteIndex(String zbIndex) {
-//		RestHighLevelClient client = esClient.getClient();
+//		RestHighLevelClient client = ESClientFactory.getClient();
 //		DeleteRequest request = new DeleteRequest(zbIndex, "_doc", "1");
 //		
 //		client.delete(deleteRequest, headers)
@@ -317,7 +321,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 		// 5、 发送请求
 		// 5.1 同步方式发送请求
-		RestHighLevelClient client = esClient.getClient();
+		RestHighLevelClient client = ESClientFactory.getClient();
 		
 		GetIndexRequest request1 = new GetIndexRequest();
 		request1.indices(indexName);
@@ -355,12 +359,12 @@ public class IndexService extends EsBaseService implements IIndexService {
 
         client.indices().createAsync(request, listener);
         */
-        client.close();
+        
 		return ResponseData.success();
 	}
 
 	private void bulkDoc(String index,  List<Map<String, Object>> sourceList) throws IOException {
-	  RestHighLevelClient client = esClient.getClient();
+	  RestHighLevelClient client = ESClientFactory.getClient();
 
 	  BulkRequest request = new BulkRequest(); 
 	  request.setRefreshPolicy("wait_for");  
@@ -426,7 +430,7 @@ public class IndexService extends EsBaseService implements IIndexService {
         };
         client.bulkAsync(request, listener);
         */
-        client.close();
+        
 	}
 
 	@Override

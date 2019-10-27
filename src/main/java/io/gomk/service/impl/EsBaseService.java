@@ -7,8 +7,6 @@ import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.es6.ESRestClient;
 
 public class EsBaseService {
-	@Autowired
-	protected ESRestClient esClient;
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
