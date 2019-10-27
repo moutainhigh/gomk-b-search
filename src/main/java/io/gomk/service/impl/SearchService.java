@@ -220,7 +220,8 @@ public class SearchService extends EsBaseService implements ISearchService {
          //   logger.info(sourceAsString);
             
             vo.setTitle(sourceAsMap.get("title").toString());
-            vo.setAddDate(sourceAsMap.get("addDate").toString());
+            Object addDate = sourceAsMap.get("addDate");
+            vo.setAddDate(addDate == null ? sourceAsMap.get("add_date").toString() : addDate.toString());
             Object zbfw = sourceAsMap.get("zbfw");
             vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString() );
             
