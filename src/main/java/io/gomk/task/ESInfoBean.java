@@ -33,6 +33,8 @@ public class ESInfoBean {
 	private String prjCust;
 	//中标金额
 	private BigDecimal winAmount;
+	//委托金额
+	private BigDecimal entrustAmt;
 	//公告（发标）时间 
 	private Date noticeDate;
 	//招标方式

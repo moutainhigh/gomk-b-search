@@ -74,6 +74,9 @@ public class IndexService extends EsBaseService implements IIndexService {
             "        \"winAmount\": {\n" +
             "          \"type\": \"double\"\n" +
             "        },\n" +
+            "        \"entrustAmt\": {\n" +
+            "          \"type\": \"double\"\n" +
+            "        },\n" +
             "        \"noticeDate\": {\n" +
             "          \"type\": \"date\",\n" +
             "          \"ignore_malformed\": true,\n" +

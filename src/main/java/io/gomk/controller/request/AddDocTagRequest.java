@@ -10,10 +10,6 @@ import lombok.Data;
 @Data
 public class AddDocTagRequest {
 	
-	@ApiModelProperty(value = "库范围")
-	@NotNull
-    private int scope;
-	
 	@ApiModelProperty(value = "tag名称")
 	@NotNull
     private String tag;

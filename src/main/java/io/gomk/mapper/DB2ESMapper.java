@@ -23,7 +23,8 @@ public interface DB2ESMapper {
 	@Select("SELECT " + 
 			"	a.uuid, a.syscode as fileType," + 
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName," + 
-			"	c.PRJ_NAME,c.PRJ_CODE,c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType,c.ANNOUNC_DATE as noticeDate," + 
+			"	c.PRJ_NAME,c.PRJ_CODE,c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType,"
+			+ " c.ANNOUNC_DATE as noticeDate,c.entrust_amt" + 
 			"	d.INDUSTRY_NAME as prjIndustry,d.PRJ_TYPE,d.PRJ_NATURE,d.CUST_NAME as prjCust" + 
 			" FROM biz_z_dfile a " + 
 			"	inner join biz_z_efile_completed b on a.uuid=b.puuid" + 

@@ -344,7 +344,7 @@ public class ParseFile {
      * @param args
      */
     public static void main(String[] args) {
-        File file = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
+        File file = new File("/Users/vko/Documents/my-code/DOC/zb/神华府谷电厂二期扩建工程项目2X660Mw主机设备招标采购.doc");
         try (InputStream in = new FileInputStream(file)) {
 //            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
             List<String> s = new ParseFile().parseTenderQualification(in, DOC);
