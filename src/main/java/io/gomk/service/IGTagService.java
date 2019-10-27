@@ -37,4 +37,6 @@ public interface IGTagService extends IService<GTag> {
 
 	TagDetailVO getTagDetail(GTag tag);
 
+	List<String> getCompletion(int size, String keyWord);
+
 }

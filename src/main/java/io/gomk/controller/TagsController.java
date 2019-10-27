@@ -43,6 +43,7 @@ import io.gomk.service.IGTagClassifyService;
 import io.gomk.service.IGTagService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -81,6 +82,18 @@ public class TagsController extends SuperController {
 	protected String zcfgIndex;
 	@Value("${elasticsearch.index.zbfbName}")
 	protected String zbfbIndex;
+	
+	@ApiOperation("自定义标签补全")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="name", value="名称", required=false, paramType="query", dataType="String", defaultValue="设备")
+	})
+	@GetMapping("/custom/completion")
+	public ResponseData<List<String>> getTagCompletion(int size, String name) throws Exception {
+		size = size > 10 ? 10 : size;
+		//return ResponseData.success(completionService.getConmpletion(size, keyWord));
+		return ResponseData.success(tagService.getCompletion(size, name));
+	}
 	
 	@ApiOperation("批量给文档添加标签")
 	@PostMapping("/doc")

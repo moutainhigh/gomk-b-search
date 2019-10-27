@@ -6,6 +6,7 @@ import io.gomk.model.GTag;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -34,5 +35,8 @@ public interface GTagMapper extends BaseMapper<GTag> {
 	
 	@Select("select concat('T',tgt.id) as id, tgt.tag_name as name, tgt.classify_id as parentId  from t_g_tag tgt")
 	List<TreeDto> selectAllTag();
+	
+	@Select("select tag_name from t_g_tag where classify_id =21 and tag_name like '%${name}%' limit #{size}")
+	List<String> getCompletion(@Param("size")int size, @Param("name")String name);
 
 }

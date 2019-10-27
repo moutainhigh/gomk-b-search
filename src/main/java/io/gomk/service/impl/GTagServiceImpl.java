@@ -179,4 +179,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		return vo;
 	}
 
+	@Override
+	public List<String> getCompletion(int size, String name) {
+		return tagMapper.getCompletion(size, name);
+	}
+
 }
