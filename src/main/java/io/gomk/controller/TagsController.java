@@ -217,6 +217,10 @@ public class TagsController extends SuperController {
 		if (dbEntity == null) {
 			return ResponseData.error("id is not exist.");
 		}
+		GTagClassify parentEntity = tagClassifyService.getById(dbEntity.getParentId());
+		if (parentEntity != null) {
+			dbEntity.setParentClassifyName(parentEntity.getClassifyName());
+		}
 		List<Integer> scopes = classifyScopeService.selectScopeByClassifyId(id);
 		response.setClassify(dbEntity);
 		response.setScopes(scopes);

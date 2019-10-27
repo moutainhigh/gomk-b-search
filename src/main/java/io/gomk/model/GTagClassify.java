@@ -1,5 +1,6 @@
 package io.gomk.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -33,6 +34,9 @@ private static final long serialVersionUID=1L;
     private Integer parentId;
     
     private String classifyDesc;
+    
+    @TableField(exist=false)
+    private String parentClassifyName;
 
 
 }
