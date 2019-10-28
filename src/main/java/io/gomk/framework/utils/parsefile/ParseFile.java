@@ -1,13 +1,17 @@
 package io.gomk.framework.utils.parsefile;
 
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
+import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
+import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +28,6 @@ import java.util.Optional;
  * @date 2019-10-21
  */
 @Slf4j
-@Component
 public class ParseFile {
 
 
@@ -47,9 +50,12 @@ public class ParseFile {
             linkedHashMap = parseDoc(in, result);
         } else if (DOCX.equalsIgnoreCase(extensionName)) {
             linkedHashMap = parseDocx(in, result);
+        } else if (PDF.equalsIgnoreCase(extensionName)) {
+            linkedHashMap = parsePdf(in, result);
         }
 
-        linkedHashMap.forEach((k, v) -> {
+        linkedHashMap.forEach((key, v) -> {
+            String k = key.replaceAll(" ", "");
             for (Map.Entry<Integer, String> entry : v.entrySet()) {
                 findTenderQualification(result, k, entry);
                 findTenderScope(result, k, entry);
@@ -58,6 +64,310 @@ public class ParseFile {
             }
         });
         return result;
+    }
+
+
+    private void findTenderQualification(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
+        StringBuilder sb = new StringBuilder();
+        String t1 = "投标资格";
+        String t2 = "投标人资格";
+        if (firstTitle.contains(t1) || firstTitle.contains(t2)) {
+            sb.append(entry.getValue());
+            result.put("1", sb);
+        } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
+            sb.append(result.get("1")).append(entry.getValue());
+            result.get("1").append(sb);
+        }
+    }
+
+    private void findTenderScope(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
+        StringBuilder sb = new StringBuilder();
+        String t1 = "招标范围";
+        String t2 = "招标内容";
+        String value = entry.getValue();
+        String[] vs = value.split("&nbsp;");
+        if (firstTitle.contains(t1) || firstTitle.contains(t2)) {
+            sb.append(value.replaceAll("&nbsp;", ""));
+            result.put("2", sb);
+        } else if (vs.length > 1 && (vs[0].contains(t1) || vs[0].contains(t2))) {
+            sb.append(result.get("2")).append(value.replaceAll("&nbsp;", ""));
+            result.get("2").append(sb);
+        }
+    }
+
+    private void findTechnicalRequirement(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
+        StringBuilder sb = new StringBuilder();
+        String t1 = "技术要求";
+        String value = entry.getValue();
+        String[] vs = value.split("&nbsp;");
+        if (firstTitle.contains(t1)) {
+            sb.append(result.get("3")).append(value.replaceAll("&nbsp;", ""));
+            result.put("3", sb);
+        } else if (vs.length > 1 && vs[0].contains(t1)) {
+            sb.append(result.get("3")).append(value.replaceAll("&nbsp;", ""));
+            result.get("3").append(sb);
+        }
+
+    }
+
+    private void findTenderMethod(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
+        StringBuilder sb = new StringBuilder();
+        String t1 = "评标办法";
+        String t2 = "评标程序及方法";
+        String value = entry.getValue();
+        String[] vs = value.split("&nbsp;");
+        if (firstTitle.contains(t1) || firstTitle.contains(t2)) {
+            sb.append(result.get("4")).append(value.replaceAll("&nbsp;", ""));
+            result.put("4", sb);
+        }
+        if (vs.length > 1 && (vs[0].contains(t1) || vs[0].contains(t2))) {
+            sb.append(result.get("4")).append(value.replaceAll("&nbsp;", ""));
+            result.get("4").append(sb);
+        }
+    }
+
+
+    private Map<String, StringBuilder> init() {
+        Map<String, StringBuilder> map = new LinkedHashMap<>(5);
+        map.put("1", new StringBuilder());
+        map.put("2", new StringBuilder());
+        map.put("3", new StringBuilder());
+        map.put("4", new StringBuilder());
+        return map;
+    }
+
+    private Map<String, LinkedHashMap<Integer, String>> parsePdf(InputStream in, Map<String, StringBuilder> result) {
+        Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
+        List<String> paras = getPdfFullContent(in);
+        String[] paragraph = new String[paras.size()];
+        String[] styles = new String[paras.size()];
+        for (int i = 0; i < paras.size(); i++) {
+            paragraph[i] = paras.get(i);
+        }
+        generateByWord(result, contentByTitles, paragraph, styles);
+        return contentByTitles;
+    }
+
+    private Map<String, LinkedHashMap<Integer, String>> parseDocx(InputStream in, Map<String, StringBuilder> result) {
+        Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
+        try (XWPFDocument doc = new XWPFDocument(in)) {
+            List<XWPFParagraph> paras = doc.getParagraphs();
+            String[] paragraph = new String[paras.size()];
+            String[] styles = new String[paras.size()];
+            for (int i = 0; i < paras.size(); i++) {
+                String style = Optional.ofNullable(paras.get(i).getStyle()).orElse("-1000");
+                paragraph[i] = paras.get(i).getText();
+                styles[i] = style;
+//                System.out.println("第"+i+"段====>"+paragraph[i]);
+            }
+            generateByWord(result, contentByTitles, paragraph, styles);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return contentByTitles;
+    }
+
+    /**
+     * 解析doc文件内容
+     *
+     * @return map
+     */
+    private Map<String, LinkedHashMap<Integer, String>> parseDoc(InputStream in, Map<String, StringBuilder> result) {
+        Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
+        try {
+            WordExtractor wordExtractor = new WordExtractor(in);
+            String[] paragraph = wordExtractor.getParagraphText();
+
+            generateByWord(result, contentByTitles, paragraph, new String[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return contentByTitles;
+    }
+
+
+    private List<String> getPdfFullContent(InputStream in) {
+        List<String> list = new ArrayList<>();
+        PdfReader reader = null;
+        try {
+            reader = new PdfReader(in);
+            PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+            // 获得页数
+            int num = reader.getNumberOfPages();
+            TextExtractionStrategy strategy;
+            for (int i = 1; i <= num; i++) {
+                strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
+                String text = strategy.getResultantText().trim();
+                String[] ts = text.split("\n");
+                for (int j = 0; j < ts.length; j++) {
+                    if (!"".equalsIgnoreCase(ts[j])) {
+                        list.add(ts[j]);
+                    }
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        return list;
+    }
+
+
+    private void generateByWord(Map<String, StringBuilder> result, Map<String, LinkedHashMap<Integer, String>> contentByTitles, String[] paragraph, String[] styles) {
+        List<String> l = Arrays.asList(paragraph);
+        log.info("{}", l);
+        int totalParagraph = paragraph.length;
+        List<Integer> fIndexList = new ArrayList<>();
+        for (int i = 0; i < totalParagraph; i++) {
+            String p = paragraph[i].trim();
+            if (!"".equalsIgnoreCase(p)) {
+                for (String s : ONE_TITLE) {
+                    if (p.startsWith(s) && !p.contains("....")) {
+                        System.out.println("-->" + s);
+                        fIndexList.add(i);
+                    }
+                }
+            }
+        }
+        //增加最后一段
+        fIndexList.add(totalParagraph);
+
+        int fIndexListSize = fIndexList.size();
+        int i = 0;
+
+        while (i < fIndexListSize - 1 && i < totalParagraph) {
+            int oneStart = fIndexList.get(i);
+            i++;
+            int oneEnd = fIndexList.get(i);
+
+            LinkedHashMap<Integer, String> twoContent = new LinkedHashMap<>(50);
+            List<Integer> tIndexList = new ArrayList<>();
+            boolean hasStyles = styles.length > 0;
+            for (int o = oneStart; o < oneEnd; o++) {
+
+                String oneC = paragraph[o].trim().replaceAll(" ", "");
+//                System.out.println("段落="+o+"==>"+oneC);
+
+//                if (oneC.contains("招标范围")) {
+//                    log.info("");
+//                }
+                if (!"".equals(oneC)) {
+                    if (matchTwoTitle(oneC)) {
+//                        System.out.println("第"+o+"段"+oneC);
+                        tIndexList.add(o);
+                    }
+                    if (hasStyles && "aa".equalsIgnoreCase(styles[o])) {
+                        tIndexList.add(o);
+                    }
+                }
+            }
+
+//            if (tIndexList.isEmpty()) {
+//                for (int o = oneStart; o < oneEnd; o++) {
+//                    String oneC = paragraph[o].trim();
+//                    if (!"".equals(oneC) && oneC.length() > 2) {
+////                        System.out.println("段落="+o+"==>"+oneC);
+//                        tIndexList.add(o);
+//                    }
+//                }
+//            }
+
+            int tIndexListSize = tIndexList.size();
+            int j = 0;
+            while (j < tIndexListSize - 1 && j < totalParagraph) {
+                int twoStart = tIndexList.get(j);
+                j++;
+                int twoEnd = tIndexList.get(j);
+
+                StringBuilder twoSb = new StringBuilder();
+                for (int t = twoStart; t < twoEnd; t++) {
+                    String twoC = paragraph[t].trim();
+                    if (!"".equals(twoC)) {
+//                        System.out.println("-->"+twoC);
+                        twoSb.append(twoC);
+                        if (t == twoStart) {
+                            twoSb.append("&nbsp;");
+                        }
+                        twoSb.append("\r");
+                    }
+                }
+                twoContent.putIfAbsent(j, twoSb.toString());
+            }
+
+            contentByTitles.putIfAbsent(paragraph[fIndexList.get(i - 1)], twoContent);
+        }
+    }
+
+    /**
+     * 判断二级标题正则，如果遇到其他版本则需要修改
+     *
+     * @param twoTitle 二级标题
+     * @return 是否二级标题
+     */
+    private boolean matchTwoTitle(String twoTitle) {
+        return twoTitle.matches("^([0-9]{1,}[.\\s\\u4e00-\\u9fa5]{4,10}$)$");
+
+    }
+
+    /**
+     * 调用示例
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+//        File file = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
+        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
+//        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
+//        File file2 = new File("/Users/baibing6/Desktop/CEZB190103487.pdf");
+        try (InputStream in1 = new FileInputStream(file1);
+             InputStream in2 = new FileInputStream(file1);
+             InputStream in3 = new FileInputStream(file1);
+             InputStream in4 = new FileInputStream(file1);
+        ) {
+//            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
+            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
+            String a0 = new ParseFile().parseTenderScope(in2, DOC);
+            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
+            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
+            log.info("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        try (InputStream in = new FileInputStream(file)) {
+//            String a = new ParseFile().parseTenderScope(in, DOC);
+//            log.info("{}", a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try (InputStream in = new FileInputStream(file)) {
+//            String a = new ParseFile().parseTechnicalRequirement(in, DOCX);
+//            log.info("{}", a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try (InputStream in = new FileInputStream(file)) {
+//            String a = new ParseFile().parseTenderMethod(in, DOC);
+//            log.info("{}", a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        log.info("");
+//        try (InputStream in = new FileInputStream(file)) {
+//            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOCX);
+//            log.info("{}", map);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        try (InputStream in = new FileInputStream(file2)) {
+//            Map<String, StringBuilder> map = new ParseFile().parseText(in, PDF);
+//            log.info("{}", map);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**
@@ -78,15 +388,36 @@ public class ParseFile {
         String t1 = "投标资格";
         String t2 = "投标人资格";
         StringBuilder sb = new StringBuilder();
-        linkedHashMap.forEach((k, v) -> {
+
+        boolean breakEntry = false;
+        for (Map.Entry<String, LinkedHashMap<Integer, String>> oneEntry : linkedHashMap.entrySet()) {
+            String k = oneEntry.getKey();
+            LinkedHashMap<Integer, String> v = oneEntry.getValue();
             for (Map.Entry<Integer, String> entry : v.entrySet()) {
                 if (k.contains(t1) || k.contains(t2)) {
                     sb.append(entry.getValue());
                 } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
                     sb.append(entry.getValue());
+                    breakEntry = true;
+                    break;
                 }
             }
-        });
+            if (breakEntry) {
+                break;
+            }
+
+        }
+
+//        linkedHashMap.forEach((k, v) -> {
+//            for (Map.Entry<Integer, String> entry : v.entrySet()) {
+//                if (k.contains(t1) || k.contains(t2)) {
+//                    sb.append(entry.getValue());
+//                } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
+//                    sb.append(entry.getValue());
+//                    break;
+//                }
+//            }
+//        });
 
         return Arrays.asList(sb.toString().split("\r"));
     }
@@ -161,235 +492,6 @@ public class ParseFile {
             }
         });
         return result.get("4").toString();
-    }
-
-    private void findTenderQualification(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
-        StringBuilder sb = new StringBuilder();
-        String t1 = "投标资格";
-        String t2 = "投标人资格";
-        if (firstTitle.contains(t1) || firstTitle.contains(t2)) {
-            sb.append(entry.getValue());
-            result.put("1", sb);
-        } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
-            sb.append(result.get("1")).append(entry.getValue());
-            result.get("1").append(sb);
-        }
-    }
-
-    private void findTenderScope(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
-        StringBuilder sb = new StringBuilder();
-        String t1 = "招标范围";
-        String t2 = "招标内容";
-
-        if (firstTitle.contains(t1) || firstTitle.contains(t2)) {
-            sb.append(entry.getValue());
-            result.put("2", sb);
-        } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
-            sb.append(result.get("2")).append(entry.getValue());
-            result.get("2").append(sb);
-        }
-    }
-
-    private void findTechnicalRequirement(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
-        StringBuilder sb = new StringBuilder();
-        String t1 = "技术要求";
-        if (firstTitle.contains(t1)) {
-            sb.append(result.get("3")).append(entry.getValue());
-            result.put("3", sb);
-        } else if (entry.getValue().contains(t1)) {
-            sb.append(result.get("3")).append(entry.getValue());
-            result.get("3").append(sb);
-        }
-
-    }
-
-    private void findTenderMethod(Map<String, StringBuilder> result, String firstTitle, Map.Entry<Integer, String> entry) {
-        StringBuilder sb = new StringBuilder();
-        String t1 = "评标办法";
-        if (firstTitle.contains(t1)) {
-            sb.append(entry.getValue());
-            result.put("4", sb);
-        }
-        if (entry.getValue().contains(t1)) {
-            sb.append(result.get("4")).append(entry.getValue());
-            result.get("4").append(sb);
-        }
-    }
-
-
-    private Map<String, StringBuilder> init() {
-        Map<String, StringBuilder> map = new LinkedHashMap<>(5);
-        map.put("1", new StringBuilder());
-        map.put("2", new StringBuilder());
-        map.put("3", new StringBuilder());
-        map.put("4", new StringBuilder());
-        return map;
-    }
-
-    private Map<String, LinkedHashMap<Integer, String>> parseDocx(InputStream in, Map<String, StringBuilder> result) {
-        Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
-        try (XWPFDocument doc = new XWPFDocument(in)) {
-            List<XWPFParagraph> paras = doc.getParagraphs();
-            String[] paragraph = new String[paras.size()];
-            String[] styles = new String[paras.size()];
-            for (int i = 0; i < paras.size(); i++) {
-                String style = Optional.ofNullable(paras.get(i).getStyle()).orElse("-1000");
-                paragraph[i] = paras.get(i).getText();
-                styles[i] = style;
-
-//                System.out.println("第"+i+"段====>"+paragraph[i]);
-            }
-            generateByWord(result, contentByTitles, paragraph, styles);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return contentByTitles;
-    }
-
-    /**
-     * 解析doc文件内容
-     *
-     * @return map
-     */
-    private Map<String, LinkedHashMap<Integer, String>> parseDoc(InputStream in, Map<String, StringBuilder> result) {
-        Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
-        try {
-            WordExtractor wordExtractor = new WordExtractor(in);
-            String[] paragraph = wordExtractor.getParagraphText();
-
-            generateByWord(result, contentByTitles, paragraph, new String[0]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return contentByTitles;
-    }
-
-    private void generateByWord(Map<String, StringBuilder> result, Map<String, LinkedHashMap<Integer, String>> contentByTitles, String[] paragraph, String[] styles) {
-        List<String> l = Arrays.asList(paragraph);
-        log.info("{}", l);
-        int totalParagraph = paragraph.length;
-        List<Integer> fIndexList = new ArrayList<>();
-        for (int i = 0; i < totalParagraph; i++) {
-            String p = paragraph[i].trim();
-            if (!"".equalsIgnoreCase(p)) {
-                for (String s : ONE_TITLE) {
-                    if (p.startsWith(s)) {
-//                        System.out.println("-->"+s);
-                        fIndexList.add(i);
-                    }
-                }
-            }
-        }
-        //增加最后一段
-        fIndexList.add(totalParagraph);
-
-        int fIndexListSize = fIndexList.size();
-        int i = 0;
-
-        while (i < fIndexListSize - 1 && i < totalParagraph) {
-            int oneStart = fIndexList.get(i);
-            i++;
-            int oneEnd = fIndexList.get(i);
-
-            LinkedHashMap<Integer, String> twoContent = new LinkedHashMap<>(50);
-            List<Integer> tIndexList = new ArrayList<>();
-            boolean hasStyles = styles.length > 0;
-            for (int o = oneStart; o < oneEnd; o++) {
-
-                String oneC = paragraph[o].trim().replaceAll(" ", "");
-
-                if (!"".equals(oneC)) {
-                    if (regTwoTitle(oneC)) {
-                        tIndexList.add(o);
-                    }
-                    if (hasStyles && "aa".equalsIgnoreCase(styles[o])) {
-                        tIndexList.add(o);
-                    }
-                }
-            }
-
-            if (tIndexList.isEmpty()) {
-                for (int o = oneStart; o < oneEnd; o++) {
-                    String oneC = paragraph[o].trim();
-                    if (!"".equals(oneC) && oneC.length() > 2) {
-//                        System.out.println("==>"+oneC);
-                        tIndexList.add(o);
-                    }
-                }
-            }
-
-            int tIndexListSize = tIndexList.size();
-            int j = 0;
-            while (j < tIndexListSize - 1 && j < totalParagraph) {
-                int twoStart = tIndexList.get(j);
-                j++;
-                int twoEnd = tIndexList.get(j);
-
-                StringBuilder twoSb = new StringBuilder();
-                for (int t = twoStart; t < twoEnd; t++) {
-                    String twoC = paragraph[t].trim();
-                    if (!"".equals(twoC)) {
-//                        System.out.println("-->"+twoC);
-                        twoSb.append(twoC).append("\r");
-                    }
-                }
-                twoContent.putIfAbsent(j, twoSb.toString());
-            }
-
-            contentByTitles.putIfAbsent(paragraph[fIndexList.get(i - 1)], twoContent);
-        }
-    }
-
-    /**
-     * 判断二级标题正则，如果遇到其他版本则需要修改
-     *
-     * @param twoTitle 二级标题
-     * @return 是否二级标题
-     */
-    private boolean regTwoTitle(String twoTitle) {
-        return twoTitle.matches("^([0-9]{1,}[.\\s\\u4e00-\\u9fa5]{6,10}$)$");
-
-    }
-
-    /**
-     * 调用示例
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        File file = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
-//        File file = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
-//        try (InputStream in = new FileInputStream(file)) {
-////            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
-//            List<String> s = new ParseFile().parseTenderQualification(in, DOC);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try (InputStream in = new FileInputStream(file)) {
-//            String a = new ParseFile().parseTenderScope(in, DOC);
-//            log.info("{}", a);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-        try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTechnicalRequirement(in, DOCX);
-            log.info("{}", a);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//        try (InputStream in = new FileInputStream(file)) {
-//            String a = new ParseFile().parseTenderMethod(in, DOC);
-//            log.info("{}", a);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        log.info("");
-        try (InputStream in = new FileInputStream(file)) {
-            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOCX);
-            log.info("{}", map);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 
