@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.utils.FileListUtil;
@@ -49,6 +50,10 @@ import io.gomk.framework.utils.parse.Word2007;
 import io.gomk.framework.utils.parse.ZipUtil;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
+import io.gomk.model.GTagFormula;
+import io.gomk.model.GZgyq;
+import io.gomk.service.DB2ESService;
+import io.gomk.service.IGZgyqService;
 import io.gomk.task.DBInfoBean;
 import io.gomk.task.ESInfoBean;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +67,11 @@ public class EsUtil {
 	private ParseFile parseFileUtil;
 	@Autowired
 	DB2ESMapper db2esMapper;
+	@Autowired
+	DB2ESService db2esService;
+	@Autowired
+	IGZgyqService zgyqService;
+	
 
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
@@ -220,9 +230,10 @@ public class EsUtil {
 		int size = 10;
 		while(true) {
 			//查询结构化数据
-			List<DBInfoBean> list = db2esMapper.selectInfo(size);
+			List<String> ids = db2esMapper.selectIDS(size);
+			List<DBInfoBean> list = db2esService.getDBInfo(ids);
 			log.info("===size====" + list.size());
-			if (list.size() == 0) break;
+			if (list.size() >= 0) break;
 			// 1. 下载文件 分页查询未处理的纪录
 			list.forEach(bean -> {
 				switch (bean.getFileType()) {
@@ -276,15 +287,15 @@ public class EsUtil {
 			//全文
 			String content = getContent(new ByteArrayInputStream(baos.toByteArray()), extensionName);
 			
-//			//招标范围
-//			String zbfw = parseFileUtil.parseTenderScope(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-//			//资格要求
-//			List<String> zgyqList = parseFileUtil.parseTenderQualification(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-//			//评标办法
-//			String pbbf = parseFileUtil.parseTenderMethod(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-//			//技术要求
-//			String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-//			
+			//招标范围
+			String zbfw = parseFileUtil.parseTenderScope(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+			//资格要求
+			List<String> zgyqList = parseFileUtil.parseTenderQualification(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+			//评标办法
+			String pbbf = parseFileUtil.parseTenderMethod(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+			//技术要求
+			String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+			
 //			log.info("zbfw====" + zbfw);
 //			log.info("zgyqList=======" + zgyqList.toString());
 //			log.info("pbbf=====" + pbbf);
@@ -297,11 +308,27 @@ public class EsUtil {
 				saveES(zbIndex, esBean);
 			}
 		
-	/**		
+		
 			//==========存索引-资格要求及按条存数据库=======
 			if (zgyqList != null && zgyqList.size() > 0) {
 				esBean.setContent(zgyqList.toString());
 				saveES(zgyqIndex, esBean);
+				zgyqList.forEach(str ->{
+					QueryWrapper<GZgyq> query = new QueryWrapper<>();
+					query.lambda()
+			    		.eq(GZgyq::getContent, str);
+					GZgyq zgyqItem = zgyqService.getOne(query);
+					if (zgyqItem != null) {
+						zgyqItem.setAmount(zgyqItem.getAmount() + 1);
+						zgyqService.updateById(zgyqItem);
+					} else {
+						zgyqItem = new GZgyq();
+						zgyqItem.setAmount(0);
+						zgyqItem.setContent(str);
+						zgyqService.save(zgyqItem);
+					}
+				});
+				
 //========	??????????存数据库
 			}
 			//=====存索引-评标办法===========
@@ -315,7 +342,7 @@ public class EsUtil {
 				saveES(jsyqIndex, esBean);
 			}
 			
-			**/
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

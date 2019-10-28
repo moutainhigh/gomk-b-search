@@ -2,6 +2,7 @@ package io.gomk.framework.hbase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -27,8 +28,17 @@ public class HBaseService {
     private Logger log = LoggerFactory.getLogger(HBaseService.class);
     private Admin admin = null;
     private Connection connection = null;
+    
+    static Configuration conf=null;
+    static {
+        conf= HBaseConfiguration.create();
+        //conf.set("hbase.zookeeper.quorum","58.119.224.26");
+        conf.set("hbase.zookeeper.quorum","10.212.169.157");
+        conf.set("hbase.zookeeper.property.clientPort","2181");
+        conf.set("log4j.logger.org.apache.hadoop.hbase","WARN");
+    }
 
-    public HBaseService(Configuration conf) {
+    public HBaseService() {
         try {
             connection = ConnectionFactory.createConnection(conf);
             admin = connection.getAdmin();

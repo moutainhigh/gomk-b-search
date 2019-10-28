@@ -29,6 +29,11 @@
 	</parent>
 
 	<dependencies>
+	<!--jdbc -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
 		<!-- https://mvnrepository.com/artifact/org.python/jython -->
 		<dependency>
 			<groupId>org.python</groupId>

@@ -19,7 +19,7 @@ public interface DB2ESMapper {
 //	inner join d_zb_prj d on d.prj_code=c.prj_code
 //limit 0, 10
 
-
+	
 	@Select("SELECT " + 
 			"	a.uuid, a.syscode as fileType," + 
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName," + 
@@ -37,5 +37,8 @@ public interface DB2ESMapper {
 	
 	@Insert("insert into biz_z_dfile_sign values(#{uuid})")
 	public void insertFileSign(String uuid);
+	
+	@Select("select a.uuid from biz_z_dfile a where a.uuid not in (select uuid from biz_z_dfile_sign) limit 0, #{size}")
+	List<String> selectIDS(int size);
 	
 }

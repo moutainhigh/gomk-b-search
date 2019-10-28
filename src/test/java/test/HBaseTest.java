@@ -20,21 +20,21 @@ public class HBaseTest {
 	
 	Logger logger = LoggerFactory.getLogger(getClass());
 	
-	@Autowired
-	HBaseService hbaseService; 
-	
-	static Configuration conf=null;
-    static {
-        conf= HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum","58.119.224.26");
-        conf.set("hbase.zookeeper.property.clientPort","2181");
-        conf.set("log4j.logger.org.apache.hadoop.hbase","WARN");
-    }
+	//@Autowired
+	//HBaseService service; 
+//	
+//	static Configuration conf=null;
+//    static {
+//        conf= HBaseConfiguration.create();
+//        conf.set("hbase.zookeeper.quorum","58.119.224.26");
+//        conf.set("hbase.zookeeper.property.clientPort","2181");
+//        conf.set("log4j.logger.org.apache.hadoop.hbase","WARN");
+//    }
 
 	@Test
 	public void testUpload() throws IOException {
 		//System.setProperty("hadoop.home.dir", "hadoop");
-		HBaseService service = new HBaseService(conf);
+		HBaseService service = new HBaseService();
 		
 		String filePath = "/Users/vko/Documents/my-code/DOC/分布式体系在保险行业的试点分享.pdf";
 		String tableName = "table2";
@@ -51,6 +51,7 @@ public class HBaseTest {
 		//logger.info(m.toString());
 		//logger.info("========" + service.getRowData(tableName, rowKey).get(columnName));
 		String tmp = service.getRowData(tableName, rowKey).get(columnName);
+		down(tmp);
 		
 	}
 	
@@ -70,7 +71,7 @@ public class HBaseTest {
 	public void down(String text) throws IOException{
 		BASE64Decoder be = new BASE64Decoder();
 		byte []c = 	be.decodeBuffer(text);
-		FileOutputStream out = new FileOutputStream(new File("/Users/vko/Documents/my-code/DOC/t222.pdf"));
+		FileOutputStream out = new FileOutputStream(new File("/Users/vko/Documents/my-code/temp/t2.pdf"));
 		out.write(c);
 		out.close();
 	}

@@ -1,17 +1,25 @@
 server:
-  port: 8001
+  port: 10010
   
 elasticsearch:
-  ip: 39.105.192.98:29200
+  #ip: 39.105.192.98:29200
+  ip: 10.212.169.154:9200,10.212.169.162:9200,10.212.169.157:9200
   #elasticsearch.ip=192.168.85.133:9200,192.168.85.133:9400,192.168.85.135:9200,192.168.85.135:9400
   index:
-    zbName: index_zhaobiao
-    tbName: index_toubiao
-    zjName: index_zaojia
+    zbName: zg_zhaobiao #招标文件
+    zgyqName: zg_zgyq #资格要求
+    jsyqName: zg_jsyq #技术要求
+    pbbfName: zg_pbbf #评标办法
+    zjName: zg_zaojia #造价成果
+    tbName: zg_toubiao #投标文件 
+    zcfgName: zg_zcfg #政策法规文件 
+    zbfbName: zg_zbfb #招标范本文件 
+    completionName: zg_completion #搜索补全
   shards: 3
   replicas: 2
   analyzer: hanlp
   
+    
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml
   global-config:
@@ -34,13 +42,21 @@ spring:
       initial-size: 5
       driver-class-name: com.mysql.cj.jdbc.Driver
       max-wait: 10
-      url: jdbc:mysql://39.105.192.98:33306/m_tenant_dev?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+      url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
       username: root
       password: Abcd1234!
-
+    url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+    username: root
+    password: Abcd1234!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#  data:
+#    hbase:
+#      quorum: xxx
+#      rootDir: xxx
+#      nodeParent: xxx
 
 swagger:
    host: 
    
-
-   
+hdfs.path: hdfs://localhost:9000
+hdfs.username: root

@@ -28,7 +28,10 @@ public class HDFSTest {
 	static Configuration conf=null;
     static {
     	conf = new Configuration();
-    	conf.set("fs.default.name", "hdfs://58.119.224.26:8020");
+    	conf.set("fs.default.name", "hdfs://10.212.169.167:8020/");
+    	//conf.set("fs.default.name", "hdfs://58.119.224.26:8020");
+    	
+    	
     }
 
 	@Test

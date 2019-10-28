@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
-public class ParseFile {
+public class ParseFile2 {
 
 
     private final static String DOC = "doc";
@@ -260,7 +260,7 @@ public class ParseFile {
 
     private void generateByWord(Map<String, StringBuilder> result, Map<String, LinkedHashMap<Integer, String>> contentByTitles, String[] paragraph, String[] styles) {
         List<String> l = Arrays.asList(paragraph);
-        log.info("{}", l);
+        //log.info("{}", l);
         int totalParagraph = paragraph.length;
         List<Integer> fIndexList = new ArrayList<>();
         for (int i = 0; i < totalParagraph; i++) {
@@ -296,11 +296,11 @@ public class ParseFile {
                 }
                 if (!"".equals(oneC)) {
                     if (regTwoTitle(oneC)) {
-                        System.out.println(oneC);
+                       // System.out.println(oneC);
                         tIndexList.add(o);
                     }
                     if (hasStyles && "aa".equalsIgnoreCase(styles[o])) {
-                        System.out.println(oneC);
+                     //   System.out.println(oneC);
                         tIndexList.add(o);
                     }
                 }
@@ -344,27 +344,28 @@ public class ParseFile {
      * @param args
      */
     public static void main(String[] args) {
-        File file = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
+        File file = new File("/Users/vko/Documents/my-code/temp/神华府谷电厂二期扩建工程项目2X660Mw主机设备招标采购.doc");
         try (InputStream in = new FileInputStream(file)) {
 //            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
-            List<String> s = new ParseFile().parseTenderQualification(in, DOC);
+            List<String> s = new ParseFile2().parseTenderQualification(in, DOC);
+            log.info("parse zgyq finish.");
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTenderScope(in, DOC);
+            String a = new ParseFile2().parseTenderScope(in, DOC);
             log.info("{}", a);
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTechnicalRequirement(in, DOC);
+            String a = new ParseFile2().parseTechnicalRequirement(in, DOC);
             log.info("{}", a);
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (InputStream in = new FileInputStream(file)) {
-            String a = new ParseFile().parseTenderMethod(in, DOC);
+            String a = new ParseFile2().parseTenderMethod(in, DOC);
             log.info("{}", a);
         } catch (Exception e) {
             e.printStackTrace();

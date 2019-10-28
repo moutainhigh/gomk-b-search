@@ -171,7 +171,7 @@ public class SuperGenerator {
                 .setDriverName("com.mysql.cj.jdbc.Driver")
                 .setUsername("matryoshka")
                 .setPassword("Abcd1234!")
-                .setUrl("jdbc:mysql://39.105.192.98:33306/bidata?characterEncoding=utf8");
+                .setUrl("jdbc:mysql://39.105.192.98:33306/t_g_parse_info?characterEncoding=utf8");
     }
 
     /**
