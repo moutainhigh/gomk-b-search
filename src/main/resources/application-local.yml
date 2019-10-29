@@ -42,10 +42,10 @@ spring:
       initial-size: 5
       driver-class-name: com.mysql.cj.jdbc.Driver
       max-wait: 10
-      url: jdbc:mysql://39.105.12.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+      url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
       username: root
       password: Abcd1234!
-    url: jdbc:mysql://39.105.12.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+    url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
     username: root
     password: Abcd1234!
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -54,7 +54,10 @@ spring:
 #      quorum: xxx
 #      rootDir: xxx
 #      nodeParent: xxx
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
 swagger:
    host: 
    
