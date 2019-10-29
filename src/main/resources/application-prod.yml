@@ -17,7 +17,7 @@ elasticsearch:
     completionName: zg_completion #搜索补全
   shards: 3
   replicas: 2
-  analyzer: hanlp
+  analyzer: ik_smart
   
     
 mybatis-plus:
@@ -42,9 +42,9 @@ spring:
       initial-size: 5
       driver-class-name: com.mysql.cj.jdbc.Driver
       max-wait: 10
-      url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
-      username: root
-      password: Abcd1234!
+      url: jdbc:mysql://10.212.169.142:3306/analysis?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+      username: zg
+      password: ZGmysql123!
     url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
     username: root
     password: Abcd1234!
