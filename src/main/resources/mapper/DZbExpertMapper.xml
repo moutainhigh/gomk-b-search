@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.DZbExpertMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.DZbExpert">
+        <result column="DATE_TIME" property="dateTime" />
+        <result column="EXPERT_CODE" property="expertCode" />
+        <result column="EXPERT_NAME" property="expertName" />
+        <result column="SEX" property="sex" />
+        <result column="COMM_ADDRESS" property="commAddress" />
+        <result column="EXPERT_INDUST" property="expertIndust" />
+        <result column="IF_FROZEN" property="ifFrozen" />
+        <result column="BIRTH_DATE" property="birthDate" />
+        <result column="STORAGE_IN_TIME" property="storageInTime" />
+        <result column="STORAGE_OUT_TIME" property="storageOutTime" />
+        <result column="FROZEN_TIME" property="frozenTime" />
+        <result column="CUR_STATE" property="curState" />
+        <result column="SUPPL_DOCUMENT_TYPE" property="supplDocumentType" />
+        <result column="SUPPL_DOCUMENT_CODE" property="supplDocumentCode" />
+        <result column="IF_GROUP_IN" property="ifGroupIn" />
+        <result column="DISTRICT" property="district" />
+        <result column="IF_RETIRE" property="ifRetire" />
+        <result column="HEALTH" property="health" />
+        <result column="TECH_TTL" property="techTtl" />
+        <result column="TECH_TTL_DATE" property="techTtlDate" />
+        <result column="POST" property="post" />
+        <result column="CONTACT_NUM" property="contactNum" />
+        <result column="OFFICE_NUM" property="officeNum" />
+        <result column="FAX" property="fax" />
+        <result column="EMAIL" property="email" />
+        <result column="ADDRESS" property="address" />
+        <result column="WORK_DATE" property="workDate" />
+        <result column="REFEREE" property="referee" />
+        <result column="SOURCE_TYPE" property="sourceType" />
+        <result column="COMPANY" property="company" />
+        <result column="WORK_PLACE" property="workPlace" />
+        <result column="BANK" property="bank" />
+        <result column="BANK_NUM" property="bankNum" />
+        <result column="RESUME" property="resume" />
+        <result column="PROF_QULIF_CERT" property="profQulifCert" />
+        <result column="PROF_QULIF_CERT_DATE" property="profQulifCertDate" />
+        <result column="POSTAL_CODE" property="postalCode" />
+        <result column="NATION" property="nation" />
+        <result column="EXPECT_LVL" property="expectLvl" />
+        <result column="HIGH_EDU" property="highEdu" />
+        <result column="POLITC" property="politc" />
+        <result column="AREA" property="area" />
+        <result column="EXPERT_NUM" property="expertNum" />
+        <result column="GRADU_UNIVST" property="graduUnivst" />
+        <result column="MAJOR" property="major" />
+        <result column="IF_EMEGY" property="ifEmegy" />
+        <result column="LEAVE_TYPE" property="leaveType" />
+        <result column="IF_LONG_FROZEN" property="ifLongFrozen" />
+        <result column="LEAVE_BEGIN_TIME" property="leaveBeginTime" />
+        <result column="LEAVE_END_TIME" property="leaveEndTime" />
+        <result column="IS_ICE_OUT" property="isIceOut" />
+    </resultMap>
+
+</mapper>

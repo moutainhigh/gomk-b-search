@@ -98,4 +98,34 @@
         inner join i_zb_line_prj_suppl t2 on t2.pkg_code=t1.pkg_code
         where t2.mate_name=#{metaName}
     </select>
+    <select id="biddingProject" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+        distinct
+         t.prj_code,t.prj_name,t1.pkg_code,t1.pkg_name,t2.document_code,
+         t.cust_name,t.tendering_content,
+        t.prj_type,
+        t.industry_name,
+        t.prj_nature,
+        t.pm_name
+        FROM d_zb_prj t
+        left join d_zb_pkg t1 on t1.prj_code=t.prj_code
+        left join f_zb_sel_bid_detail t2 on t2.pkg_code=t1.pkg_code
+        where t.prj_name like  concat('%', #{prjName}, '%')
+    </select>
+    <select id="costProject"  parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct
+        t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
+        t.consultation_method,t.entrust_time
+         from d_prj_manufactur_cost t
+        left join d_cust t1 on t1.cust_document_code = t.document_code
+        where t.prj_name like concat('%', #{prjName}, '%')
+    </select>
+    <select id="biddingPerson"  parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t.cust_name,t.cust_short_name,t.addr_and_tel,t.provinces,t.provinces_code,t.city,t.city_code,t.county,
+        t.cust_document_code,t.cust_blk,t.group_unit,t.group_unit_code,t.ext_unit,t.ext_unit_code,
+        t.pid,t.p_cust_name
+        from d_cust t
+        where t.cust_name like concat('%', #{custName}, '%')
+    </select>
 </mapper>
