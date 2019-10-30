@@ -482,6 +482,7 @@ public class EsUtil {
 					esBean.setTitle(fileName);
 					esBean.setContent(content);
 					esBean.setAddDate(new Date());
+					
 					saveES(zbIndex, esBean);
 				
 					//招标范围
@@ -499,10 +500,11 @@ public class EsUtil {
 //					log.info("jsyq=====" + jsyq);
 					
 //					
+					esBean.setZbfw(zbfw);
 					//==========存索引-资格要求及按条存数据库=======
 					if (zgyqList != null && zgyqList.size() > 0) {
 						
-						esBean.setZbfw(zbfw);
+						
 						esBean.setContent(zgyqList.toString());
 						saveES(zgyqIndex, esBean);
 						zgyqList.forEach(str ->{
