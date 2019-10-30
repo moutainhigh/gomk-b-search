@@ -37,9 +37,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
+import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.controller.response.ZgyqDetailVO;
 import io.gomk.es6.ESClientFactory;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
@@ -236,8 +238,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 		        }
 		    }
             vo.setTags(tags);
-           // Object fileUrl = sourceAsMap.get("directoryTree");
-           // vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
+            Object directoryTree = sourceAsMap.get("directoryTree");
+            vo.setDirectoryTree(directoryTree == null ? "" : directoryTree.toString());
             //取高亮结果
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();
             HighlightField highlight1 = highlightFields.get("title");
@@ -534,6 +536,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 		return zgyqService.selectTopInfo(keyword, size);
 		
 	}
+
+
 
 
 

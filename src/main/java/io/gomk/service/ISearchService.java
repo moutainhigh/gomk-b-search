@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.controller.response.ZgyqDetailVO;
 import io.gomk.framework.utils.tree.TreeDto;
 
 
@@ -34,6 +35,8 @@ public interface ISearchService {
 
 
 	List<String> searchWeightRecommend(int size, String keyword, String zgyqIndex);
+
+
 
 
 
