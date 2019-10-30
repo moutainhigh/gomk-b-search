@@ -194,9 +194,6 @@ public class SearchContentController extends SuperController {
 	}
 	
 	@ApiOperation("资格要求-列表详情")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="docId", value="列表ID", required=false, paramType="query", dataType="String", defaultValue="xxx")
-	})
 	@GetMapping("/zgyq/item/detail/{docId}")
 	public ResponseData<ZgyqDetailVO> zgyqItemDetail(@PathVariable("docId") String docId) throws Exception {
 		ZgyqDetailVO vo  = new ZgyqDetailVO();
@@ -210,8 +207,8 @@ public class SearchContentController extends SuperController {
 		}
 		Object zgyq = esResponse1.getSourceAsMap().get("content");
 		if (zgyq != null) {
-			String str[] = zgyq.toString().split(";");
-			vo.setZgyqs(Arrays.asList(str));
+			String str = StringUtils.strip(zgyq.toString(),"[]");
+			vo.setZgyqs(Arrays.asList(str.split("；")));
 		}
 		return ResponseData.success(vo);
 	}

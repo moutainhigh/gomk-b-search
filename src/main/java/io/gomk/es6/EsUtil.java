@@ -502,21 +502,24 @@ public class EsUtil {
 					//==========存索引-资格要求及按条存数据库=======
 					if (zgyqList != null && zgyqList.size() > 0) {
 						
+						esBean.setZbfw(zbfw);
 						esBean.setContent(zgyqList.toString());
 						saveES(zgyqIndex, esBean);
 						zgyqList.forEach(str ->{
-							QueryWrapper<GZgyq> query = new QueryWrapper<>();
-							query.lambda()
-					    		.eq(GZgyq::getContent, str);
-							GZgyq zgyqItem = zgyqService.getOne(query);
-							if (zgyqItem != null) {
-								zgyqItem.setAmount(zgyqItem.getAmount() + 1);
-								zgyqService.updateById(zgyqItem);
-							} else {
-								zgyqItem = new GZgyq();
-								zgyqItem.setAmount(0);
-								zgyqItem.setContent(str);
-								zgyqService.save(zgyqItem);
+							if (StringUtils.isNotBlank(str)) {
+								QueryWrapper<GZgyq> query = new QueryWrapper<>();
+								query.lambda()
+								.eq(GZgyq::getContent, str);
+								GZgyq zgyqItem = zgyqService.getOne(query);
+								if (zgyqItem != null) {
+									zgyqItem.setAmount(zgyqItem.getAmount() + 1);
+									zgyqService.updateById(zgyqItem);
+								} else {
+									zgyqItem = new GZgyq();
+									zgyqItem.setAmount(0);
+									zgyqItem.setContent(str);
+									zgyqService.save(zgyqItem);
+								}
 							}
 						});
 						
