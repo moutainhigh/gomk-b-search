@@ -1,5 +1,6 @@
 package io.gomk.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +21,7 @@ import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.ContrastVO;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
+import io.gomk.controller.response.ZgyqDetailVO;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.jython.RuntimeUtils;
@@ -192,13 +195,25 @@ public class SearchContentController extends SuperController {
 	
 	@ApiOperation("资格要求-列表详情")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyword", value="关键字", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+		@ApiImplicitParam(name="docId", value="列表ID", required=false, paramType="query", dataType="String", defaultValue="xxx")
 	})
-	@GetMapping("/zgyq/item/detail")
-	public ResponseData<List<String>> zgyqItemDetail(int size, String keyword) throws Exception {
-		size = size > 20 ? 20 : size;
-		return ResponseData.success(searchService.searchWeightRecommend(size, keyword, zgyqIndex));
+	@GetMapping("/zgyq/item/detail/{docId}")
+	public ResponseData<ZgyqDetailVO> zgyqItemDetail(@PathVariable("docId") String docId) throws Exception {
+		ZgyqDetailVO vo  = new ZgyqDetailVO();
+		GetResponse esResponse1 = searchService.getEsDoc(zgyqIndex, docId);
+		if (!esResponse1.isExists()) {
+			return ResponseData.error("id is not found!");
+		}
+		Object zbfw = esResponse1.getSourceAsMap().get("zbfw");
+		if (zbfw != null) {
+			vo.setZbfw(zbfw.toString());
+		}
+		Object zgyq = esResponse1.getSourceAsMap().get("content");
+		if (zgyq != null) {
+			String str[] = zgyq.toString().split(";");
+			vo.setZgyqs(Arrays.asList(str));
+		}
+		return ResponseData.success(vo);
 	}
 	
 	@ApiOperation("技术要求库")

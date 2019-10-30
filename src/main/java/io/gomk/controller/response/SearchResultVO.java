@@ -23,5 +23,6 @@ public class SearchResultVO {
 	@ApiModelProperty(value = "标签")
 	private HashSet<String> tags;
 	
-	
+	@ApiModelProperty(value = "压缩文件目录结构")
+	private String directoryTree ;
 }
