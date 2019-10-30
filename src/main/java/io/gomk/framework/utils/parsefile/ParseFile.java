@@ -28,7 +28,6 @@ import java.util.Optional;
  * @version 1.0
  * @date 2019-10-21
  */
-@Component
 @Slf4j
 @Component
 public class ParseFile {
