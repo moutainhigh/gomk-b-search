@@ -328,13 +328,13 @@ public class ParseFile {
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
 //        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
-        File file1 = new File("/Users/baibing6/Desktop/CEZB190103487.pdf");
+        File file1 = new File("/Users/baibing6/Desktop/CEZB190205192.pdf");
         try (InputStream in1 = new FileInputStream(file1);
              InputStream in2 = new FileInputStream(file1);
              InputStream in3 = new FileInputStream(file1);
              InputStream in4 = new FileInputStream(file1);
         ) {
-//            Map<String, StringBuilder> map = new ParseFile().parseText(in, DOC);
+//            Map<String, StringBuilder> map = new ParseFile().parseText(in1, DOC);
 //            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
 //            String a0 = new ParseFile().parseTenderScope(in2, DOC);
 //            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
@@ -382,18 +382,6 @@ public class ParseFile {
             }
 
         }
-
-//        linkedHashMap.forEach((k, v) -> {
-//            for (Map.Entry<Integer, String> entry : v.entrySet()) {
-//                if (k.contains(t1) || k.contains(t2)) {
-//                    sb.append(entry.getValue());
-//                } else if (entry.getValue().contains(t1) || entry.getValue().contains(t2)) {
-//                    sb.append(entry.getValue());
-//                    break;
-//                }
-//            }
-//        });
-
         return Arrays.asList(sb.toString().split("\r"));
     }
 
