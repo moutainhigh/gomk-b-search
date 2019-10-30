@@ -19,7 +19,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2019-10-28
  */
 public interface GZgyqMapper extends BaseMapper<GZgyq> {
-	@Select("select content from t_g_zgyq where like '%${keyword}%' order by amount desc limit #{size}")
+	@Select("select content from t_g_zgyq where content like '%${keyword}%' order by amount desc limit #{size}")
 	List<String> selectTopInfo(@Param("keyword")String keyword, @Param("size")int size);
 
 }

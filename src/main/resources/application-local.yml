@@ -15,8 +15,8 @@ elasticsearch:
     zcfgName: index_zcfg_test #政策法规文件 
     zbfbName: index_zbfb_test #招标范本文件 
     completionName: index_completion_test #搜索补全
-  shards: 3
-  replicas: 2
+  shards: 2
+  replicas: 1
   analyzer: hanlp
   
     

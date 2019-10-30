@@ -45,6 +45,8 @@ public class ESInfoBean {
 	private String currentPath;
 	//添加日期
 	private Date addDate;
+	//权重
+	private String weight;
 	
 	
 	
