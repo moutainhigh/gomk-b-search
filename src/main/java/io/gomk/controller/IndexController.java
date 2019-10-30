@@ -42,11 +42,11 @@ public class IndexController extends SuperController {
 	@Value("${elasticsearch.index.zjName}")
 	protected String zjIndex;
 	
-	@ApiOperation("加本地招标文件")
+	@ApiOperation("加本地招标文件--招标库、资格要求、技术要求、评标办法")
 	@PostMapping("/localFile/zb")
 	public ResponseData<?> addLocalDoc() throws IOException {
-		String path="/soft/doc/";
-		//String path="/Users/vko/Documents/my-code/testDOC/";
+		//String path="/soft/doc/";
+		String path="/Users/vko/Documents/my-code/testDOC/";
 		try {
 			esUtil.parseLocalFileSaveEs(path);
 		} catch (IOException e) {
@@ -76,12 +76,12 @@ public class IndexController extends SuperController {
 		
 		return indexService.createZBIndex();
 	}
-	@ApiOperation("批量添加招标文件")
-	@PostMapping("/zb/bulk")
-	public ResponseData<String> bulkZB() throws IOException {
-		
-		return indexService.bulkZBDoc();
-	}
+//	@ApiOperation("批量添加招标文件")
+//	@PostMapping("/zb/bulk")
+//	public ResponseData<String> bulkZB() throws IOException {
+//		
+//		return indexService.bulkZBDoc();
+//	}
 	
 //	@ApiOperation("删除索引-招标文件")
 //	@DeleteMapping("/zb")
@@ -96,12 +96,12 @@ public class IndexController extends SuperController {
 		return indexService.createZGYQIndex();
 	}
 	
-	@ApiOperation("批量添加资格要求文件")
-	@PostMapping("/zgyq/bulk")
-	public ResponseData<String> bulkZGYQ() throws IOException {
-		
-		return indexService.bulkZGYQDoc();
-	}
+//	@ApiOperation("批量添加资格要求文件")
+//	@PostMapping("/zgyq/bulk")
+//	public ResponseData<String> bulkZGYQ() throws IOException {
+//		
+//		return indexService.bulkZGYQDoc();
+//	}
 	
 	@ApiOperation("创建索引-政策法规")
 	@PostMapping("/zcfg")
@@ -138,12 +138,12 @@ public class IndexController extends SuperController {
 		return indexService.createJSYQIndex();
 	}
 	
-	@ApiOperation("批量添加技术要求文件")
-	@PostMapping("/jsyq/bulk")
-	public ResponseData<String> bulkJSYQ() throws IOException {
-		
-		return indexService.bulkJSYQDoc();
-	}
+//	@ApiOperation("批量添加技术要求文件")
+//	@PostMapping("/jsyq/bulk")
+//	public ResponseData<String> bulkJSYQ() throws IOException {
+//		
+//		return indexService.bulkJSYQDoc();
+//	}
 	
 	@ApiOperation("创建索引-评标办法")
 	@PostMapping("/pbbf")
@@ -152,12 +152,12 @@ public class IndexController extends SuperController {
 		return indexService.createPBBFIndex();
 	}
 	
-	@ApiOperation("批量添加评标办法文件")
-	@PostMapping("/pbbf/bulk")
-	public ResponseData<String> bulkPBBF() throws IOException {
-		
-		return indexService.bulkPBBFDoc();
-	}
+//	@ApiOperation("批量添加评标办法文件")
+//	@PostMapping("/pbbf/bulk")
+//	public ResponseData<String> bulkPBBF() throws IOException {
+//		
+//		return indexService.bulkPBBFDoc();
+//	}
 	
 	@ApiOperation("创建索引-造价成果库")
 	@PostMapping("/zjcg")

@@ -1,14 +1,12 @@
 package io.gomk.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import io.gomk.enums.TagClassifyScopeEnum;
-import io.gomk.es6.ESRestClient;
 
 public class EsBaseService {
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
+	@Value("${elasticsearch.index.tbName}")
+	protected String tbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.jsyqName}")

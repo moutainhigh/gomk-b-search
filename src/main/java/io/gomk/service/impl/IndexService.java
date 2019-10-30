@@ -85,6 +85,9 @@ public class IndexService extends EsBaseService implements IIndexService {
             "        \"zbType\": {\n" +
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
+            "        \"weight\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
             "        \"directoryTree\": {\n" +
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
@@ -103,36 +106,9 @@ public class IndexService extends EsBaseService implements IIndexService {
 	
 	@Override
 	public ResponseData<String> createZBIndex() throws IOException {
-//		String mapping = "  {\n" +
-//	            "    \"_doc\": {\n" +
-//	            "      \"properties\": {\n" +
-//	            "        \"title\": {\n" +
-//	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"ik_max_word\",\n" +
-//	            "          \"term_vector\": \"with_positions_offsets\"\n" +
-//	            "        },\n" +
-//	            "        \"content\": {\n" +
-//	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"ik_max_word\",\n" +
-//	            "          \"term_vector\": \"with_positions_offsets\"\n" +
-//	            "        },\n" +
-//	            "        \"tag\": {\n" +
-//	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"ik_max_word\"\n" +
-//	            "        },\n" +
-//	            "        \"abstract\": {\n" +
-//	            "          \"type\": \"keyword\"\n" +
-//	            "        },\n" +
-//	            "        \"abstract\": {\n" +
-//	            "          \"type\": \"keyword\"\n" +
-//	            "        },\n" +
-//	            "        \"add_date\": {\n" +
-//                "          \"type\": \"keyword\"\n" +
-//                "        }\n" +
-//	            "      }\n" +
-//	            "    }\n" +
-//	            "  }";
-		return createIndex(zbIndex, mapping);
+		createIndex(zbIndex, mapping);
+		createIndex(tbIndex, mapping);
+		return ResponseData.success();
 	}
 	
 	@Override
@@ -152,133 +128,10 @@ public class IndexService extends EsBaseService implements IIndexService {
 	}
 	
 	@Override
-	public ResponseData<String> createZGYQIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"zbfw\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"zgyq\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(zgyqIndex, mapping);
-	}
-
-	@Override
 	public ResponseData<String> bulkZGYQDoc() throws IOException {
 		List<Map<String, Object>> sourceList = ImportFile.getZGYQMap();
 		bulkDoc(zgyqIndex, sourceList);
 		return ResponseData.success();
-	}
-
-	@Override
-	public ResponseData<String> createPBBFIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(pbbfIndex, mapping);
-	}
-
-	@Override
-	public ResponseData<String> createJSYQIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(jsyqIndex, mapping);
-	}
-
-	@Override
-	public ResponseData<String> createZJIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"search_analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"search_analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"file_url\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(zjcgIndex, mapping);
 	}
 
 	@Override
@@ -337,8 +190,8 @@ public class IndexService extends EsBaseService implements IIndexService {
         boolean acknowledged = createIndexResponse.isAcknowledged();
         boolean shardsAcknowledged = createIndexResponse
                 .isShardsAcknowledged();
-        System.out.println("acknowledged = " + acknowledged);
-        System.out.println("shardsAcknowledged = " + shardsAcknowledged);
+        System.out.println(indexName+ "==acknowledged = " + acknowledged);
+        System.out.println(indexName+"==shardsAcknowledged = " + shardsAcknowledged);
 
         // 5.1 异步方式发送请求
         /*ActionListener<CreateIndexResponse> listener = new ActionListener<CreateIndexResponse>() {
@@ -468,71 +321,55 @@ public class IndexService extends EsBaseService implements IIndexService {
 	}
 
 	@Override
-	public ResponseData<String> createZCFGIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(zcfgIndex, mapping);
-	}
-
-	@Override
 	public ResponseData<String> bulkZCFGDoc() throws IOException {
 		List<Map<String, Object>> sourceList = ImportFile.getZCFGMap();
 		bulkDoc(zcfgIndex, sourceList);
 		return ResponseData.success();
 	}
 
-	@Override
-	public ResponseData<String> createZBFBIndex() throws IOException {
-		String mapping = "  {\n" +
-                "    \"_doc\": {\n" +
-                "      \"properties\": {\n" +
-                "        \"title\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"content\": {\n" +
-                "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"ik_max_word\",\n" +
-                "          \"term_vector\": \"with_positions_offsets\"\n" +
-                "        },\n" +
-                "        \"tag\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        },\n" +
-                "        \"add_date\": {\n" +
-                "          \"type\": \"keyword\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }";
-		return createIndex(zbfbIndex, mapping);
-	}
-
+	
 	@Override
 	public ResponseData<String> bulkZBFBDoc() throws IOException {
 		List<Map<String, Object>> sourceList = ImportFile.getZBFBMap();
 		bulkDoc(zbfbIndex, sourceList);
 		return ResponseData.success();
+	}
+
+	@Override
+	public ResponseData<String> createZGYQIndex() throws IOException {
+		createIndex(zgyqIndex, mapping);
+		return null;
+	}
+
+	@Override
+	public ResponseData<String> createPBBFIndex() throws IOException {
+		createIndex(pbbfIndex, mapping);
+		return null;
+	}
+
+	@Override
+	public ResponseData<String> createJSYQIndex() throws IOException {
+		createIndex(jsyqIndex, mapping);
+		return null;
+	}
+
+	@Override
+	public ResponseData<String> createZJIndex() throws IOException {
+
+		createIndex(zjcgIndex, mapping);
+		return null;
+	}
+
+	@Override
+	public ResponseData<String> createZCFGIndex() throws IOException {
+		createIndex(zcfgIndex, mapping);
+		return null;
+	}
+
+	@Override
+	public ResponseData<String> createZBFBIndex() throws IOException {
+		createIndex(zbfbIndex, mapping);
+		return null;
 	}
 
 
