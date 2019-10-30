@@ -30,6 +30,7 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
+@Component
 public class ParseFile {
 
 

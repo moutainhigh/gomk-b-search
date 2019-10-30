@@ -1,7 +1,10 @@
 package io.gomk.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.model.entity.DZbPkg;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,4 +49,10 @@ public interface DZbPkgMapper extends BaseMapper<DZbPkg> {
     List<Map<String,String>> price(String metaName);
 
     List<Map<String,String>> custname(String metaName);
+
+    IPage<Map<String,String>> biddingProject(Page<Map<String,String>> param,@Param("prjName") String prjName);
+
+    IPage<Map<String,String>> costProject(Page<Map<String,String>> param,@Param("prjName")String prjName);
+
+    IPage<Map<String,String>> biddingPerson(Page<Map<String,String>> param,@Param("custName")String custName);
 }

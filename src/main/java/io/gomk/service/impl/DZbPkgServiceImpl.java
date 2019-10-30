@@ -1,5 +1,8 @@
 package io.gomk.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.gomk.common.utils.PageResult;
 import io.gomk.model.entity.DZbPkg;
 import io.gomk.mapper.DZbPkgMapper;
 import io.gomk.service.DZbPkgService;
@@ -212,5 +215,20 @@ public class DZbPkgServiceImpl extends ServiceImpl<DZbPkgMapper, DZbPkg> impleme
         chart.put("links",linkdata);
         chart.put("categories",categories);
         return chart;
+    }
+
+    @Override
+    public IPage<Map<String, String>> biddingProject(Page<Map<String, String>> param,String prjName) {
+        return dZbPkgMapper.biddingProject(param,prjName);
+    }
+
+    @Override
+    public IPage<Map<String, String>> costProject(Page<Map<String, String>> param,String prjName) {
+        return dZbPkgMapper.costProject(param,prjName);
+    }
+
+    @Override
+    public IPage<Map<String, String>> biddingPerson(Page<Map<String, String>> param,String custName) {
+        return dZbPkgMapper.biddingPerson(param,custName);
     }
 }
