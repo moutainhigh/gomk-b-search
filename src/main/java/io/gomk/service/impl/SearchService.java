@@ -46,6 +46,7 @@ import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
 import io.gomk.mapper.GTagMapper;
 import io.gomk.model.GTag;
+import io.gomk.service.IGZgyqService;
 import io.gomk.service.ISearchService;
 
 @Service
@@ -56,6 +57,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 	GTagMapper tagMapper;
 	@Autowired
 	GTagClassifyMapper tagClassifyMapper;
+	@Autowired
+	IGZgyqService zgyqService;
 	
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> commonSearch(int page, int pageSize, String keyWord, String tag, String indexName) throws Exception {
@@ -222,8 +225,8 @@ public class SearchService extends EsBaseService implements ISearchService {
             vo.setTitle(sourceAsMap.get("title").toString());
             Object addDate = sourceAsMap.get("addDate");
             vo.setAddDate(addDate == null ? sourceAsMap.get("add_date").toString() : addDate.toString());
-            Object zbfw = sourceAsMap.get("zbfw");
-            vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString() );
+            //Object zbfw = sourceAsMap.get("zbfw");
+            //vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString() );
             
             Object obj = sourceAsMap.get("tag");
             HashSet<String> tags = new HashSet<>();
@@ -233,8 +236,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 		        }
 		    }
             vo.setTags(tags);
-            Object fileUrl = sourceAsMap.get("directoryTree");
-            vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
+           // Object fileUrl = sourceAsMap.get("directoryTree");
+           // vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
             //取高亮结果
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();
             HighlightField highlight1 = highlightFields.get("title");
@@ -255,16 +258,16 @@ public class SearchService extends EsBaseService implements ISearchService {
             	vo.setContent(replaceRN(fragmentString));
             } else {
             		String text = "";
-            		if (zbfw != null) {
-            			text = zbfw.toString();
-            			text = replaceRN(text);
-            		}
+//            		if (zbfw != null) {
+//            			text = zbfw.toString();
+//            			text = replaceRN(text);
+//            		}
             		vo.setContent(text);
             }
             
-            if (indexName.equals(zgyqIndex)) {
-            	vo.setZgyqInfo(vo.getContent());
-        	} 
+//            if (indexName.equals(zgyqIndex)) {
+//            	vo.setZgyqInfo(vo.getContent());
+//        	} 
             result.add(vo);
         }
         
@@ -523,6 +526,13 @@ public class SearchService extends EsBaseService implements ISearchService {
     		totalList = TreeUtils.getTree(tempList);
         }
 		return totalList;
+	}
+
+	@Override
+	public List<String> searchWeightRecommend(int size, String keyword, String zgyqIndex) {
+		
+		return zgyqService.selectTopInfo(keyword, size);
+		
 	}
 
 

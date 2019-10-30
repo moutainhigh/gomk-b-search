@@ -17,8 +17,10 @@ public class RuntimeUtils {
 		ContrastVO vo = new ContrastVO();
 		StringBuilder sb = new StringBuilder();
 		try {
-			String filePath = System.getProperty("user.dir")+"/src/main/resources/python/t1.py";
+			String filePath = System.getProperty("user.dir")+"/src/main/resources/python/testText.py";
 			// String filePath = "/root/python/difflib/diffString.py";
+			str1 = "222";
+			str2 = "3333";
 			String[] args1 = new String[] { "python", filePath, str1, str2 };
 			Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 
