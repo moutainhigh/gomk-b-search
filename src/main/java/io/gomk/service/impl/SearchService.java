@@ -233,7 +233,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 		        }
 		    }
             vo.setTags(tags);
-            Object fileUrl = sourceAsMap.get("file_url");
+            Object fileUrl = sourceAsMap.get("directoryTree");
             vo.setFileUrl(fileUrl == null ? "" : fileUrl.toString());
             //取高亮结果
             Map<String, HighlightField> highlightFields = hit.getHighlightFields();

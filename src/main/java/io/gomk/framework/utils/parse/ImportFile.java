@@ -176,7 +176,7 @@ public class ImportFile {
 					map.put("title", fileName);
 					map.put("content", content);
 					map.put("tag", "");
-					map.put("add_date", now);
+					map.put("addDate", now);
 					list.add(map);
 				}
 			}
@@ -187,10 +187,12 @@ public class ImportFile {
 	public static List<Map<String, Object>> getZJCGMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
 		String now = format.format(new Date());
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
+		//String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
+		String directoryPath = "/soft/doc/zj";
 		List<File> files = new ArrayList<>();
-		FileListUtil.getFiles(directoryPath, 3, files);
-
+		//FileListUtil.getFiles(directoryPath, 3, files);
+		StringBuffer sb = new StringBuffer();
+		FileListUtil.findDir(directoryPath, 3, files, sb);
 		for (File f : files) {
 			if (f.isFile()) {
 				String fileName = f.getName();
@@ -214,9 +216,9 @@ public class ImportFile {
 					map.put("title", fileName);
 					map.put("content", content);
 					map.put("tag", "");
-					String fileUrl = filePath.replace(directoryPath, "");
-					map.put("file_url", fileUrl);
-					map.put("add_date", now);
+					//String fileUrl = filePath.replace(directoryPath, "");
+					map.put("directoryTree", sb.toString());
+					map.put("addDate", now);
 					list.add(map);
 				}
 			}
@@ -226,7 +228,8 @@ public class ImportFile {
 
 	public static List<Map<String, Object>> getCompletionMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
-		String filePath = "/Users/vko/Documents/my-code/DOC/bdw/t_g_completion.xls";
+		//String filePath = "/Users/vko/Documents/my-code/DOC/bdw/t_g_completion.xls";
+		String filePath = "/soft/t_g_completion.xls";
 		String now = format.format(new Date());
 		Map<String, NumberVO> tmp = new HashMap<>();
 		Map<Integer, Map<Integer, Object>> content;
@@ -270,13 +273,14 @@ public class ImportFile {
 	}
 
 	public static List<Map<String, Object>> getZBFBMap() throws IOException {
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
+		//String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
+		String directoryPath = "/soft/doc/zbfb";
 		List<Map<String, Object>> list = getIndexMap(directoryPath);
 		return list;
 	}
 
 	public static List<Map<String, Object>> getZCFGMap() throws IOException {
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zcfg";
+		String directoryPath = "/soft/doc/zcfg";
 		List<Map<String, Object>> list = getIndexMap(directoryPath);
 		return list;
 	}

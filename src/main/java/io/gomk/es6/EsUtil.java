@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hankcs.hanlp.HanLP;
 
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.utils.FileListUtil;
@@ -435,19 +436,105 @@ public class EsUtil {
 	}
 
 	public static void main(String[] args) {
-		File tempFile = new File("/Users/vko/Documents/my-code/DOC/zb/神华准能物资供应中心2018年第二批设备采购招标文件.doc");
-		InputStream in;
-		try {
-			in = new FileInputStream(tempFile);
-			String extensionName = "doc";
-			Map map = new ParseFile().parseText(in, extensionName);
-			log.info("========" + map);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		File tempFile = new File("/Users/vko/Documents/my-code/DOC/zb/神华准能物资供应中心2018年第二批设备采购招标文件.doc");
+//		InputStream in;
+//		try {
+//			in = new FileInputStream(tempFile);
+//			String extensionName = "doc";
+//			Map map = new ParseFile().parseText(in, extensionName);
+//			log.info("========" + map);
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		String fileName = "心2018年第二批设备采购招标文件.doc";
+		log.info("==="+fileName.substring(fileName.lastIndexOf(".")+1, fileName.length()));
 	}
-	
-	
 
+	public void parseLocalFileSaveEs(String directoryPath) throws IOException {
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		for (File f : files) {
+			if (f.isFile()) {
+				InputStream in = new FileInputStream(f);
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+				byte[] buffer = new byte[1024];  
+				int len;  
+				while ((len = in.read(buffer)) > -1 ) {  
+				    baos.write(buffer, 0, len);  
+				}  
+				baos.flush(); 
+				
+				String fileName = f.getName();
+				System.out.println(fileName);
+				String content = "";
+				if (fileName.endsWith(".doc")) {
+					content = Word2003.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".docx")) {
+					content = Word2007.read(f.getAbsolutePath());
+				} else if (fileName.endsWith(".pdf")) {
+					content = PDF.read(f.getAbsolutePath());
+				}
+				ESInfoBean esBean = new ESInfoBean();
+				if (StringUtils.isNotBlank(content)) {
+					String extensionName = fileName.substring(fileName.lastIndexOf(".")+1, fileName.length());
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+					esBean.setTitle(fileName);
+					esBean.setContent(content);
+					esBean.setAddDate(new Date());
+					saveES(zbIndex, esBean);
+				
+					//招标范围
+					String zbfw = parseFileUtil.parseTenderScope(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+					//资格要求
+					List<String> zgyqList = parseFileUtil.parseTenderQualification(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+					//评标办法
+					String pbbf = parseFileUtil.parseTenderMethod(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+					//技术要求
+					String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
+					
+					//log.info("zbfw====" + zbfw);
+//					log.info("zgyqList=======" + zgyqList.toString());
+//					log.info("pbbf=====" + pbbf);
+//					log.info("jsyq=====" + jsyq);
+					
+//					
+					//==========存索引-资格要求及按条存数据库=======
+					if (zgyqList != null && zgyqList.size() > 0) {
+						
+						esBean.setContent(zgyqList.toString());
+						saveES(zgyqIndex, esBean);
+						zgyqList.forEach(str ->{
+							QueryWrapper<GZgyq> query = new QueryWrapper<>();
+							query.lambda()
+					    		.eq(GZgyq::getContent, str);
+							GZgyq zgyqItem = zgyqService.getOne(query);
+							if (zgyqItem != null) {
+								zgyqItem.setAmount(zgyqItem.getAmount() + 1);
+								zgyqService.updateById(zgyqItem);
+							} else {
+								zgyqItem = new GZgyq();
+								zgyqItem.setAmount(0);
+								zgyqItem.setContent(str);
+								zgyqService.save(zgyqItem);
+							}
+						});
+						
+					}
+					//=====存索引-评标办法===========
+					if (StringUtils.isNotBlank(pbbf)) {
+						esBean.setContent(pbbf);
+						saveES(pbbfIndex, esBean);
+					}
+					//=======存索引-技术要求=========
+					if (StringUtils.isNotBlank(jsyq)) {
+						esBean.setContent(jsyq);
+						saveES(jsyqIndex, esBean);
+					}
+				}
+				
+			}
+		}
+		
+	}
 }
