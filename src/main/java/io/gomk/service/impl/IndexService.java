@@ -30,22 +30,22 @@ public class IndexService extends EsBaseService implements IIndexService {
             "        },\n" +
             "        \"title\": {\n" +
             "          \"type\": \"text\",\n" +
-            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"analyzer\": \"ik_max_word\",\n" +
             "          \"term_vector\": \"with_positions_offsets\"\n" +
             "        },\n" +
             "        \"content\": {\n" +
             "          \"type\": \"text\",\n" +
-            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"analyzer\": \"ik_max_word\",\n" +
             "          \"term_vector\": \"with_positions_offsets\"\n" +
             "        },\n" +
             "        \"zbfw\": {\n" +
             "          \"type\": \"text\",\n" +
-            "          \"analyzer\": \"hanlp\",\n" +
+            "          \"analyzer\": \"ik_max_word\",\n" +
             "          \"term_vector\": \"with_positions_offsets\"\n" +
             "        },\n" +
             "        \"tag\": {\n" +
             "          \"type\": \"text\",\n" +
-            "          \"analyzer\": \"hanlp\"\n" +
+            "          \"analyzer\": \"ik_max_word\"\n" +
             "        },\n" +
             "        \"pkgCode\": {\n" +
             "          \"type\": \"keyword\"\n" +
@@ -108,17 +108,17 @@ public class IndexService extends EsBaseService implements IIndexService {
 //	            "      \"properties\": {\n" +
 //	            "        \"title\": {\n" +
 //	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"hanlp\",\n" +
+//	            "          \"analyzer\": \"ik_max_word\",\n" +
 //	            "          \"term_vector\": \"with_positions_offsets\"\n" +
 //	            "        },\n" +
 //	            "        \"content\": {\n" +
 //	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"hanlp\",\n" +
+//	            "          \"analyzer\": \"ik_max_word\",\n" +
 //	            "          \"term_vector\": \"with_positions_offsets\"\n" +
 //	            "        },\n" +
 //	            "        \"tag\": {\n" +
 //	            "          \"type\": \"text\",\n" +
-//	            "          \"analyzer\": \"hanlp\"\n" +
+//	            "          \"analyzer\": \"ik_max_word\"\n" +
 //	            "        },\n" +
 //	            "        \"abstract\": {\n" +
 //	            "          \"type\": \"keyword\"\n" +
@@ -158,22 +158,22 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"zbfw\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"zgyq\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +
@@ -202,12 +202,12 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +
@@ -229,12 +229,12 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +
@@ -256,14 +256,14 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
-                "          \"search_analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
+                "          \"search_analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
-                "          \"search_analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
+                "          \"search_analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +
@@ -443,7 +443,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 	            "      \"properties\": {\n" +
 	            "        \"words\": {\n" +
 	            "          \"type\": \"text\",\n" +
-	            "          \"analyzer\": \"hanlp\"" +
+	            "          \"analyzer\": \"ik_max_word\"" +
 	            "        },\n" +
 	            "        \"pkg_code\": {\n" +
 	            "          \"type\": \"keyword\"\n" +
@@ -474,12 +474,12 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +
@@ -508,12 +508,12 @@ public class IndexService extends EsBaseService implements IIndexService {
                 "      \"properties\": {\n" +
                 "        \"title\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"content\": {\n" +
                 "          \"type\": \"text\",\n" +
-                "          \"analyzer\": \"hanlp\",\n" +
+                "          \"analyzer\": \"ik_max_word\",\n" +
                 "          \"term_vector\": \"with_positions_offsets\"\n" +
                 "        },\n" +
                 "        \"tag\": {\n" +

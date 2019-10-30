@@ -169,14 +169,25 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zgyqIndex));
 	}
 	
-	@ApiOperation("资格要求库推荐(右边)")
+	@ApiOperation("资格要求库推荐(按标签)")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
 		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
 	})
-	@GetMapping("/zgyq/recommend")
+	@GetMapping("/zgyq/recommend/tag")
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zgyqRecommend(int size, String tag) throws Exception {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zgyqIndex));
+	}
+	
+	@ApiOperation("资格要求库推荐(按权重)")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyword", value="关键字", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zgyq/recommend/weight")
+	public ResponseData<List<String>> zgyqRecommend2(int size, String keyword) throws Exception {
+		size = size > 20 ? 20 : size;
+		return ResponseData.success(searchService.searchWeightRecommend(size, keyword, zgyqIndex));
 	}
 	
 	@ApiOperation("技术要求库")

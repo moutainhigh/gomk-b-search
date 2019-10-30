@@ -1,5 +1,6 @@
 package io.gomk.task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,17 @@ public class SchedulerService {
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
 	
+	//@Scheduled(fixedRate = 111150300)
+	public void insertEsFromLocalTask() {
+		String path="d:/doc/";
+		//String path="/Users/vko/Documents/my-code/testDOC/";
+		try {
+			esUtil.parseLocalFileSaveEs(path);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	//@Scheduled(fixedRate = 111150300)
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs();

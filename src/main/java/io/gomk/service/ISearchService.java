@@ -33,5 +33,8 @@ public interface ISearchService {
 	List<TreeDto> selectTagByKeyword(String keyWord, String indexName) throws IOException;
 
 
+	List<String> searchWeightRecommend(int size, String keyword, String zgyqIndex);
+
+
 
 }
