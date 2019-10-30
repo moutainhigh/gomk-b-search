@@ -190,6 +190,17 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.searchWeightRecommend(size, keyword, zgyqIndex));
 	}
 	
+	@ApiOperation("资格要求-列表详情")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyword", value="关键字", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/zgyq/item/detail")
+	public ResponseData<List<String>> zgyqItemDetail(int size, String keyword) throws Exception {
+		size = size > 20 ? 20 : size;
+		return ResponseData.success(searchService.searchWeightRecommend(size, keyword, zgyqIndex));
+	}
+	
 	@ApiOperation("技术要求库")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
