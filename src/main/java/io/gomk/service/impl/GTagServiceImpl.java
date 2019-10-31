@@ -83,6 +83,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			tagMapper.insert(tag);
 		}
 		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false);
+		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids);
 	}
 
 	@Override

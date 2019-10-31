@@ -14,7 +14,6 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
@@ -29,6 +28,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +39,11 @@ import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
-import io.gomk.common.rs.response.ResponseData;
 import io.gomk.common.utils.PageResult;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.controller.response.SearchResultVO;
-import io.gomk.controller.response.ZgyqDetailVO;
 import io.gomk.es6.ESClientFactory;
+import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.tree.TreeDto;
 import io.gomk.framework.utils.tree.TreeUtils;
 import io.gomk.mapper.GTagClassifyMapper;
@@ -63,6 +62,8 @@ public class SearchService extends EsBaseService implements ISearchService {
 	GTagClassifyMapper tagClassifyMapper;
 	@Autowired
 	IGZgyqService zgyqService;
+	@Autowired
+	EsUtil esUtil;
 	
 	@Override
 	public PageResult<Page<List<SearchResultVO>>> commonSearch(int page, int pageSize, String keyWord, String tag, String indexName) throws Exception {
@@ -156,6 +157,10 @@ public class SearchService extends EsBaseService implements ISearchService {
         highlightBuilder.requireFieldMatch(false);
         sourceBuilder.highlighter(highlightBuilder);
         
+        //sort 
+      
+        sourceBuilder.sort("weight", SortOrder.DESC);
+        
        /* HighlightBuilder highlightBuilder = new HighlightBuilder().field("*").requireFieldMatch(false);
         highlightBuilder.preTags("<span style=\"color:red\">");
         highlightBuilder.postTags("</span>");
@@ -188,14 +193,14 @@ public class SearchService extends EsBaseService implements ISearchService {
         Boolean terminatedEarly = searchResponse.isTerminatedEarly();
         boolean timedOut = searchResponse.isTimedOut();
         
-        //分片搜索情况
+   /*     //分片搜索情况
         int totalShards = searchResponse.getTotalShards();
         int successfulShards = searchResponse.getSuccessfulShards();
         int failedShards = searchResponse.getFailedShards();
         for (ShardSearchFailure failure : searchResponse.getShardFailures()) {
             // failures should be handled here
         }
-        
+        */
         String fragmentString = "";
         //处理搜索命中文档结果
         SearchHits hits = searchResponse.getHits();
@@ -388,9 +393,11 @@ public class SearchService extends EsBaseService implements ISearchService {
 	@Override
 	public GetResponse getEsDoc(String indexName, String id) throws IOException {
 		RestHighLevelClient client = ESClientFactory.getClient();
+		//search one 
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
-		
+		//update weight
+		esUtil.updateWeightById(indexName, id);
 		return getResponse;
 	}
 
