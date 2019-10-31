@@ -547,18 +547,20 @@ public class EsUtil {
 		RestHighLevelClient client = esClient.getClient();
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
-		Object obj = getResponse.getSourceAsMap().get("weight");
-		int weight = 1;
-		if (obj != null) {
-			weight = Integer.parseInt(obj.toString()) + 1;
+		if (getResponse.isExists()) {
+			Object obj = getResponse.getSourceAsMap().get("weight");
+			int weight = 1;
+			if (obj != null) {
+				weight = Integer.parseInt(obj.toString()) + 1;
+			}
+
+			Map<String, Object> jsonMap = new HashMap<>();
+			jsonMap.put("weight", weight);
+
+			UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
+			request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+			client.update(request);
 		}
-
-		Map<String, Object> jsonMap = new HashMap<>();
-		jsonMap.put("weight", weight);
-
-		UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
-		request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-		client.update(request);
 	}
 
 	public void updateWeightByIds(String indexname, List<String> ids) throws IOException {
