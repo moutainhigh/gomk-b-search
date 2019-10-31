@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.hankcs.hanlp.HanLP;
 
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.utils.FileListUtil;
@@ -51,9 +49,8 @@ import io.gomk.framework.utils.parse.Word2007;
 import io.gomk.framework.utils.parse.ZipUtil;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
-import io.gomk.model.GTagFormula;
+import io.gomk.mapper.MasterDBMapper;
 import io.gomk.model.GZgyq;
-import io.gomk.service.DB2ESService;
 import io.gomk.service.IGZgyqService;
 import io.gomk.task.DBInfoBean;
 import io.gomk.task.ESInfoBean;
@@ -69,7 +66,7 @@ public class EsUtil {
 	@Autowired
 	DB2ESMapper db2esMapper;
 	@Autowired
-	DB2ESService db2esService;
+	MasterDBMapper masterDBMapper;
 	@Autowired
 	IGZgyqService zgyqService;
 	
@@ -232,7 +229,7 @@ public class EsUtil {
 		while(true) {
 			//查询结构化数据
 			List<String> ids = db2esMapper.selectIDS(size);
-			List<DBInfoBean> list = db2esService.getDBInfo(ids);
+			List<DBInfoBean> list = masterDBMapper.getDBInfo(ids);
 			log.info("===size====" + list.size());
 			if (list.size() >= 0) break;
 			// 1. 下载文件 分页查询未处理的纪录
@@ -547,18 +544,20 @@ public class EsUtil {
 		RestHighLevelClient client = esClient.getClient();
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
-		Object obj = getResponse.getSourceAsMap().get("weight");
-		int weight = 1;
-		if (obj != null) {
-			weight = Integer.parseInt(obj.toString()) + 1;
+		if (getResponse.isExists()) {
+			Object obj = getResponse.getSourceAsMap().get("weight");
+			int weight = 1;
+			if (obj != null) {
+				weight = Integer.parseInt(obj.toString()) + 1;
+			}
+
+			Map<String, Object> jsonMap = new HashMap<>();
+			jsonMap.put("weight", weight);
+
+			UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
+			request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+			client.update(request);
 		}
-
-		Map<String, Object> jsonMap = new HashMap<>();
-		jsonMap.put("weight", weight);
-
-		UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
-		request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-		client.update(request);
 	}
 
 	public void updateWeightByIds(String indexname, List<String> ids) throws IOException {

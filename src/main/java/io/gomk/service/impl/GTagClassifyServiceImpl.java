@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import io.gomk.enums.TagClassifyScopeEnum;
@@ -25,6 +26,7 @@ import io.gomk.service.IGTagClassifyService;
  * @since 2019-10-23
  */
 @Service
+@DS("oneself")
 public class GTagClassifyServiceImpl extends ServiceImpl<GTagClassifyMapper, GTagClassify> implements IGTagClassifyService {
 
 	@Autowired

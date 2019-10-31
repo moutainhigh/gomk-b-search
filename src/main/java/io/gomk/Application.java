@@ -21,11 +21,11 @@ public class Application {
 
 	}
 	
-	@Bean
-	@ConfigurationProperties("spring.datasource.druid")
-	public DataSource dataSource() {
-		return DruidDataSourceBuilder.create().build();
-	}
+//	@Bean
+//	@ConfigurationProperties("spring.datasource.druid")
+//	public DataSource dataSource() {
+//		return DruidDataSourceBuilder.create().build();
+//	}
 	@Bean
     public PaginationInterceptor paginationInterceptor() {
         PaginationInterceptor paginationInterceptor = new PaginationInterceptor();

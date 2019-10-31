@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -42,6 +43,7 @@ import io.gomk.service.IGTagService;
  * @since 2019-10-01
  */
 @Service
+@DS("oneself")
 public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IGTagService {
 	Logger log = LoggerFactory.getLogger(GTagServiceImpl.class);
 	
