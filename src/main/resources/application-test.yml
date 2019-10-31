@@ -30,24 +30,23 @@ mybatis-plus:
     # 支持统配符 * 或者 ; 分割
   typeEnumsPackage: io.gomk.enums
   type-aliases-package: io.gomk.model.entity
-    
+
 spring:
-  application:
-    name: gomk-b-core
+  autoconfigure.exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
   datasource:
-    druid:
-      min-idle: 10  
-      test-while-idle: true
-      max-active: 20
-      initial-size: 5
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      max-wait: 10
-      url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
-      username: root
-      password: Abcd1234!
-      #url: jdbc:mysql://58.119.224.27:3306/gomk_test?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
-      #username: root
-      #password: root@2019
+    dynamic:
+      primary: master #设置默认的数据源或者数据源组,默认值即为master
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+          username: root
+          password: Abcd1234!
+        oneself:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+          username: root
+          password: Abcd1234!
 
 
 swagger:

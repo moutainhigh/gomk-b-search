@@ -6,6 +6,7 @@ import io.gomk.es6.ESRestClient;
 import io.gomk.mapper.GCompletionMapper;
 import io.gomk.service.IGCompletionService;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
  * @since 2019-10-01
  */
 @Service
+@DS("oneself")
 public class GCompletionServiceImpl extends ServiceImpl<GCompletionMapper, GCompletion> implements IGCompletionService {
 
 	@Autowired

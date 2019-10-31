@@ -4,6 +4,8 @@ import io.gomk.model.GZgyq;
 import io.gomk.controller.response.SearchResultVO;
 import io.gomk.mapper.GZgyqMapper;
 import io.gomk.service.IGZgyqService;
+
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
  * @since 2019-10-28
  */
 @Service
+@DS("oneself")
 public class GZgyqServiceImpl extends ServiceImpl<GZgyqMapper, GZgyq> implements IGZgyqService {
 	@Autowired
 	GZgyqMapper zgyqMapper;

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
@@ -53,6 +54,7 @@ import io.gomk.service.IGZgyqService;
 import io.gomk.service.ISearchService;
 
 @Service
+@DS("oneself")
 public class SearchService extends EsBaseService implements ISearchService {
 
 	private Logger logger = LoggerFactory.getLogger(SearchService.class);
