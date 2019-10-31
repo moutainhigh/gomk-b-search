@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.IndexTokenizer;
 
@@ -214,22 +216,14 @@ public class SearchService extends EsBaseService implements ISearchService {
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
-           // Object abstracts = sourceAsMap.get("abstract");
-            //从map中取字段值
-            /*
-            String documentTitle = (String) sourceAsMap.get("title"); 
-            List<Object> users = (List<Object>) sourceAsMap.get("user");
-            Map<String, Object> innerObject = (Map<String, Object>) sourceAsMap.get("innerObject");
-            */
+     
             logger.info("index:" + index + "  type:" + type + "  id:" + id);
-         //   logger.info(sourceAsString);
             
             vo.setTitle(sourceAsMap.get("title").toString());
             Object addDate = sourceAsMap.get("addDate");
-            vo.setAddDate(addDate == null ? sourceAsMap.get("add_date").toString() : addDate.toString());
-            //Object zbfw = sourceAsMap.get("zbfw");
-            //vo.setZbfwInfo(zbfw == null ? "" : zbfw.toString() );
-            
+            String date = DateFormatUtils.format((long)addDate, "yyyy-MM-dd");
+            vo.setAddDate(date);
+           
             Object obj = sourceAsMap.get("tag");
             HashSet<String> tags = new HashSet<>();
 		    if (obj instanceof ArrayList<?>) {
@@ -259,12 +253,8 @@ public class SearchService extends EsBaseService implements ISearchService {
             	logger.info("fragmentString1:" + fragmentString);
             	vo.setContent(replaceRN(fragmentString));
             } else {
-            		String text = "";
-//            		if (zbfw != null) {
-//            			text = zbfw.toString();
-//            			text = replaceRN(text);
-//            		}
-            		vo.setContent(text);
+            	List<String> text = HanLP.extractSummary(sourceAsMap.get("content").toString(), 10);
+            	vo.setContent(StringUtils.strip(text.toString(), "[]"));
             }
             
 //            if (indexName.equals(zgyqIndex)) {
