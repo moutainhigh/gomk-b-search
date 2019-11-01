@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hankcs.hanlp.HanLP;
 
 import io.gomk.enums.TagClassifyScopeEnum;
 import io.gomk.framework.utils.FileListUtil;
@@ -51,6 +52,7 @@ import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
 import io.gomk.mapper.MasterDBMapper;
 import io.gomk.model.GZgyq;
+import io.gomk.service.IGWordsService;
 import io.gomk.service.IGZgyqService;
 import io.gomk.task.DBInfoBean;
 import io.gomk.task.ESInfoBean;
@@ -69,6 +71,8 @@ public class EsUtil {
 	MasterDBMapper masterDBMapper;
 	@Autowired
 	IGZgyqService zgyqService;
+	@Autowired
+	IGWordsService wordsService;
 	
 
 	@Value("${elasticsearch.index.zbName}")
@@ -303,6 +307,9 @@ public class EsUtil {
 			//========存招标文件库=======
 			if (StringUtils.isNotBlank(content)) {
 				esBean.setContent(content);
+				List<String> phraseList = HanLP.extractPhrase(content, 2);
+				//保存新词
+				wordsService.saveByList(phraseList);
 				saveES(zbIndex, esBean);
 			}
 		
