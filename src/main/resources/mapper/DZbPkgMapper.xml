@@ -105,8 +105,11 @@
          t.cust_name,t.tendering_content,
         t.prj_type,
         t.industry_name,
+        t.tendering_content,
         t.prj_nature,
-        t.pm_name
+        t.pm_name,
+        t.entrust_amt,
+        t.set_time
         FROM d_zb_prj t
         left join d_zb_pkg t1 on t1.prj_code=t.prj_code
         left join f_zb_sel_bid_detail t2 on t2.pkg_code=t1.pkg_code
@@ -115,7 +118,7 @@
     <select id="costProject"  parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
         t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
-        t.consultation_method,t.entrust_time
+        t.consultation_method,t.entrust_time,t.approve_amt,t.prj_file_time
          from d_prj_manufactur_cost t
         left join d_cust t1 on t1.cust_document_code = t.document_code
         where t.prj_name like concat('%', #{prjName}, '%')
