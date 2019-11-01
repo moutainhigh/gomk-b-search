@@ -62,11 +62,11 @@ public class SearchLibraryController {
 
     @ApiOperation(value = "专家列表分页(d_zb_expert)")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="pageNumber", value="当前页", required=true, paramType="query", dataType="int", defaultValue="1"),
+            @ApiImplicitParam(name="page", value="当前页", required=true, paramType="query", dataType="int", defaultValue="1"),
             @ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10")
     })
     @GetMapping(value = "/expert")
-    public ResponseData<IPage<DZbExpert>> sbequipmentf(int pageNumber, int pageSize,String keyWord){
+    public ResponseData<IPage<DZbExpert>> sbequipmentf(int page, int pageSize,String keyWord){
 
         if (StringUtils.isBlank(keyWord)) {
             return ResponseData.success();
@@ -74,7 +74,7 @@ public class SearchLibraryController {
         QueryWrapper<DZbExpert> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().like(DZbExpert::getExpertName,keyWord);
 
-        IPage<DZbExpert> pages = dZbExpertService.page(new Page<>(pageNumber, pageSize),queryWrapper);
+        IPage<DZbExpert> pages = dZbExpertService.page(new Page<>(page, pageSize),queryWrapper);
         return ResponseData.success(pages);
     }
 }
