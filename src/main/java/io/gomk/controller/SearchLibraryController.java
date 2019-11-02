@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.common.rs.response.ResponseData;
+import io.gomk.model.entity.DCust;
 import io.gomk.model.entity.DZbExpert;
+import io.gomk.service.DCustService;
 import io.gomk.service.DZbExpertService;
 import io.gomk.service.DZbPkgService;
 import io.swagger.annotations.Api;
@@ -14,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +35,9 @@ public class SearchLibraryController {
 
     @Autowired
     private DZbExpertService dZbExpertService;
+
+    @Autowired
+    private DCustService dCustService;
 
     @GetMapping("/bindProject")
     public ResponseData<IPage<Map<String,String>>> biddingProject(int page, int pageSize,String keyWord) throws Exception {
@@ -76,5 +82,26 @@ public class SearchLibraryController {
 
         IPage<DZbExpert> pages = dZbExpertService.page(new Page<>(page, pageSize),queryWrapper);
         return ResponseData.success(pages);
+    }
+
+    @GetMapping(value = "/custDetails")
+    public ResponseData<DCust> custDetails(String id){
+
+
+        QueryWrapper<DCust> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().like(DCust::getId,id);
+
+        DCust dcust = dCustService.getOne(queryWrapper);
+        return ResponseData.success(dcust);
+    }
+
+    @GetMapping(value = "/expertDetails")
+    public ResponseData<DZbExpert> expertDetails(String expertCode){
+
+        QueryWrapper<DZbExpert> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().like(DZbExpert::getExpertCode,expertCode);
+
+        DZbExpert expert = dZbExpertService.getOne(queryWrapper);
+        return ResponseData.success(expert);
     }
 }

@@ -2,7 +2,10 @@ package io.gomk.controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.gomk.service.IZbLinePrjSupplService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
 import org.slf4j.Logger;
@@ -69,6 +72,8 @@ public class SearchContentController extends SuperController {
 	ISearchService searchService;
 	@Autowired
 	IGCompletionService completionService;
+	@Autowired
+	private IZbLinePrjSupplService supplService;
 	
 	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
 	@ApiImplicitParams({
@@ -361,6 +366,21 @@ public class SearchContentController extends SuperController {
 			return ResponseData.error("id or scope is error.");
 		}
 		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
+	}
+
+	@ApiOperation("产品价格-中标价格")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+			@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+			@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="露天煤矿")
+	})
+	@GetMapping("/price")
+	public ResponseData<IPage<Map<String,String>>> price(int page, int pageSize, String keyWord) throws Exception {
+		// 当前页码，每页条数
+		Page<Map<String,String>> pageParam = new Page<>(page, pageSize);
+
+		IPage<Map<String,String>> pageResult = supplService.queryQuote(pageParam,keyWord);
+		return  ResponseData.success(pageResult);
 	}
 	
 //	

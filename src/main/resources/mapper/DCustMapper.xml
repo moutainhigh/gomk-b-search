@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.DCustMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.DCust">
+        <result column="DATE_TIME" property="dateTime" />
+        <result column="ID" property="id" />
+        <result column="CUST_DOCUMENT_CODE" property="custDocumentCode" />
+        <result column="CUST_DOCUMENT_TYPE" property="custDocumentType" />
+        <result column="CUST_NAME" property="custName" />
+        <result column="CUST_SHORT_NAME" property="custShortName" />
+        <result column="CUST_BLK" property="custBlk" />
+        <result column="UNIT_NATURE" property="unitNature" />
+        <result column="GROUP_UNIT" property="groupUnit" />
+        <result column="GROUP_UNIT_CODE" property="groupUnitCode" />
+        <result column="EXT_UNIT" property="extUnit" />
+        <result column="EXT_UNIT_CODE" property="extUnitCode" />
+        <result column="INDUSTRY_GROUP" property="industryGroup" />
+        <result column="INDUSTRY_GROUP_CODE" property="industryGroupCode" />
+        <result column="PROVINCES" property="provinces" />
+        <result column="PROVINCES_CODE" property="provincesCode" />
+        <result column="CITY" property="city" />
+        <result column="CITY_CODE" property="cityCode" />
+        <result column="COUNTY" property="county" />
+        <result column="COUNTY_CODE" property="countyCode" />
+        <result column="PID" property="pid" />
+        <result column="P_CUST_NAME" property="pCustName" />
+        <result column="INVOICE_TYPE" property="invoiceType" />
+        <result column="TAXPAYER_NUM" property="taxpayerNum" />
+        <result column="ADDR_AND_TEL" property="addrAndTel" />
+        <result column="BANK_AND_ACCOUNT" property="bankAndAccount" />
+        <result column="MDMCODE" property="mdmcode" />
+        <result column="SRMCODE" property="srmcode" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="STATUS" property="status" />
+        <result column="FLAG" property="flag" />
+        <result column="LEVELPATH" property="levelpath" />
+        <result column="REMARK" property="remark" />
+    </resultMap>
+
+</mapper>

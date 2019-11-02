@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.IZbLinePrjSupplMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.IZbLinePrjSuppl">
+        <result column="DATE_TIME" property="dateTime" />
+        <result column="GUID" property="guid" />
+        <result column="MATE_CODE" property="mateCode" />
+        <result column="MATE_NAME" property="mateName" />
+        <result column="PKG_CODE" property="pkgCode" />
+        <result column="DOCUMENT_CODE" property="documentCode" />
+        <result column="DOCUMENT_TYPE" property="documentType" />
+        <result column="SUPPL_DOCUMENT_CODE" property="supplDocumentCode" />
+        <result column="SUPPL_DOCUMENT_TYPE" property="supplDocumentType" />
+        <result column="QTY" property="qty" />
+        <result column="PRICE_HISTORY" property="priceHistory" />
+        <result column="PRICE" property="price" />
+        <result column="PRICE_NO_TAX" property="priceNoTax" />
+        <result column="OFFER_AMT" property="offerAmt" />
+        <result column="IF_WIN_BID" property="ifWinBid" />
+        <result column="OFFER_TIME" property="offerTime" />
+        <result column="DATA_SOURCE" property="dataSource" />
+        <result column="ETL_TIME" property="etlTime" />
+        <result column="BUY_CAR_ID" property="buyCarId" />
+        <result column="PKG_NAME" property="pkgName" />
+        <result column="PKG_PD_ID" property="pkgPdId" />
+        <result column="PKG_PD_NAME" property="pkgPdName" />
+        <result column="PM_CODE" property="pmCode" />
+        <result column="PM_NAME" property="pmName" />
+        <result column="WIN_AMT" property="winAmt" />
+        <result column="WIN_DATE" property="winDate" />
+        <result column="DOCUMENT_NAME" property="documentName" />
+        <result column="DATA_GUID" property="dataGuid" />
+        <result column="HDIBATCHNO" property="hdibatchno" />
+        <result column="ETL_TIME1" property="etlTime1" />
+        <result column="BEGIN_DATE" property="beginDate" />
+        <result column="END_DATE" property="endDate" />
+        <result column="VAILD_FLAG" property="vaildFlag" />
+    </resultMap>
+    <select id="queryQuote" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct
+        t2.prj_code,t2.prj_name,t1.pkg_code,t1.pkg_win_bid_amt,
+        t.mate_code,t.mate_name,t.price
+        from i_zb_line_prj_suppl t
+        inner join d_zb_pkg  t1 on t1.pkg_code=t.pkg_code
+        inner join d_zb_prj t2 on t2.prj_code=t1.prj_code
+		where t.mate_name=#{mateName}
+    </select>
+</mapper>
