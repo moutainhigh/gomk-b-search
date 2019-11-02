@@ -105,7 +105,6 @@
          t.cust_name,t.tendering_content,
         t.prj_type,
         t.industry_name,
-        t.tendering_content,
         t.prj_nature,
         t.pm_name,
         t.entrust_amt,
