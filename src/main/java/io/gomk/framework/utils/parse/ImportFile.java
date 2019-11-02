@@ -16,6 +16,7 @@ import com.hankcs.hanlp.HanLP;
 import io.gomk.controller.response.NumberVO;
 import io.gomk.framework.utils.FileListUtil;
 import io.gomk.framework.utils.ParseExcelUtil;
+import io.gomk.task.ESInfoBean;
 
 public class ImportFile {
 	static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -139,21 +140,20 @@ public class ImportFile {
 		return list;
 	}
 
-	public static List<Map<String, Object>> getJSYQMap() throws IOException {
+	public static List<ESInfoBean> getJSYQMap() throws IOException {
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/JSYQ";
-		List<Map<String, Object>> list = getIndexMap(directoryPath);
+		List<ESInfoBean> list = getIndexMap(directoryPath);
 		return list;
 	}
 
-	public static List<Map<String, Object>> getPBBFMap() throws IOException {
+	public static List<ESInfoBean> getPBBFMap() throws IOException {
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/pbbf";
-		List<Map<String, Object>> list = getIndexMap(directoryPath);
+		List<ESInfoBean> list = getIndexMap(directoryPath);
 		return list;
 	}
 
-	private static List<Map<String, Object>> getIndexMap(String directoryPath) throws IOException {
-		List<Map<String, Object>> list = new ArrayList<>();
-		String now = format.format(new Date());
+	private static List<ESInfoBean> getIndexMap(String directoryPath) throws IOException {
+		List<ESInfoBean> list = new ArrayList<>();
 		//
 		List<File> files = new ArrayList<>();
 		FileListUtil.getFiles(directoryPath, 3, files);
@@ -171,13 +171,12 @@ public class ImportFile {
 					content = PDF.read(f.getAbsolutePath());
 				}
 				if (!"".equals(content)) {
-					Map<String, Object> map = new HashMap<>();
 					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-					map.put("title", fileName);
-					map.put("content", content);
-					map.put("tag", "");
-					map.put("addDate", now);
-					list.add(map);
+					ESInfoBean esBean = new ESInfoBean();
+					esBean.setTitle(fileName);
+					esBean.setContent(content);
+					esBean.setAddDate(new Date());
+					list.add(esBean);
 				}
 			}
 		}
@@ -272,16 +271,17 @@ public class ImportFile {
 		return list;
 	}
 
-	public static List<Map<String, Object>> getZBFBMap() throws IOException {
-		//String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
-		String directoryPath = "/soft/doc/zbfb";
-		List<Map<String, Object>> list = getIndexMap(directoryPath);
+	public static List<ESInfoBean> getZBFBMap() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
+		//String directoryPath = "/soft/doc/zbfb";
+		List<ESInfoBean> list = getIndexMap(directoryPath);
 		return list;
 	}
 
-	public static List<Map<String, Object>> getZCFGMap() throws IOException {
-		String directoryPath = "/soft/doc/zcfg";
-		List<Map<String, Object>> list = getIndexMap(directoryPath);
+	public static List<ESInfoBean> getZCFGMap() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/DOC/zcfg";
+		//String directoryPath = "/soft/doc/zcfg";
+		List<ESInfoBean> list = getIndexMap(directoryPath);
 		return list;
 	}
 

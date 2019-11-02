@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class AddDocTagRequest {
 	
-	@ApiModelProperty(value = "库范围")
+	@ApiModelProperty(value = "库范围1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)")
 	@NotNull
     private int scope;
 	

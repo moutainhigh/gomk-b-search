@@ -75,7 +75,7 @@ public class Swagger2 {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("gomk-b-core 后台API")
+                .title("大数据组件 后台API")
                 //.contact(new Contact("", "http://localhost/swagger-ui.html", "84658948@qq.com"))
                 .version("1.0")
                 .build();

@@ -10,7 +10,8 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
 	JSYQ(4, "技术要求库"),
 	ZJCG(5, "造价成果库"),
 	ZCFG(6, "政策法规库"),
-	ZBFB(7, "招标范本库");
+	ZBFB(7, "招标范本库"),
+	TBWJ(8, "投标文件库");
     
 	TagClassifyScopeEnum(int value, String desc) {
         this.value = value;

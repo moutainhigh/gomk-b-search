@@ -12,15 +12,20 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESClientFactory;
+import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.parse.ImportFile;
 import io.gomk.service.IIndexService;
+import io.gomk.task.ESInfoBean;
 
 @Service
 public class IndexService extends EsBaseService implements IIndexService {
+	@Autowired
+	EsUtil esUtil;
 	
 	public String mapping = "  {\n" +
             "    \"_doc\": {\n" +
@@ -144,15 +149,26 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> bulkJSYQDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getJSYQMap();
-		bulkDoc(jsyqIndex, sourceList);
+		List<ESInfoBean> sourceList = ImportFile.getJSYQMap();
+		saveES(jsyqIndex, sourceList);
 		return ResponseData.success();
 	}
 
+	private void saveES(String index, List<ESInfoBean> sourceList) {
+		sourceList.forEach(bean -> {
+			try {
+				esUtil.saveES(index, bean);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+	}
+	
 	@Override
 	public ResponseData<String> bulkPBBFDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getPBBFMap();
-		bulkDoc(pbbfIndex, sourceList);
+		List<ESInfoBean> sourceList = ImportFile.getPBBFMap();
+		saveES(pbbfIndex, sourceList);
 		return ResponseData.success();
 	}
 
@@ -322,16 +338,16 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> bulkZCFGDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getZCFGMap();
-		bulkDoc(zcfgIndex, sourceList);
+		List<ESInfoBean> sourceList = ImportFile.getZCFGMap();
+		saveES(zcfgIndex, sourceList);
 		return ResponseData.success();
 	}
 
 	
 	@Override
 	public ResponseData<String> bulkZBFBDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getZBFBMap();
-		bulkDoc(zbfbIndex, sourceList);
+		List<ESInfoBean> sourceList = ImportFile.getZBFBMap();
+		saveES(zbfbIndex, sourceList);
 		return ResponseData.success();
 	}
 

@@ -72,7 +72,7 @@ public class SearchContentController extends SuperController {
 	
 	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
 		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备")
 	})
 	@GetMapping("/result/tag")
@@ -85,7 +85,7 @@ public class SearchContentController extends SuperController {
 	}
 	@ApiOperation("查询搜索列表详细信息")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
 		@ApiImplicitParam(name="id", value="列表id", required=true, paramType="query", dataType="String", defaultValue="xxxx")
 	})
 	@GetMapping("/doc/detail")
@@ -293,7 +293,7 @@ public class SearchContentController extends SuperController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="露天煤矿"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="单一来源采购"),
 		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
 	})
 	@GetMapping("/zcfg")
@@ -340,7 +340,7 @@ public class SearchContentController extends SuperController {
 	}
 	@ApiOperation("文件对比")
 	@ApiImplicitParams({
-		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)", required=true, paramType="query", dataType="Integer", defaultValue="4"),
+		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)", required=true, paramType="query", dataType="Integer", defaultValue="4"),
 		@ApiImplicitParam(name="id1", value="id1", required=true, paramType="query", dataType="String", defaultValue="W8aDHW4BoSxhtYv8d3z-"),
 		@ApiImplicitParam(name="id2", value="id2", required=true, paramType="query", dataType="String", defaultValue="YsaDHW4BoSxhtYv8i3zi")
 	})

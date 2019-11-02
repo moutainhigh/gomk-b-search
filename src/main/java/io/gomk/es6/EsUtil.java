@@ -77,6 +77,8 @@ public class EsUtil {
 
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
+	@Value("${elasticsearch.index.tbName}")
+	protected String tbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.jsyqName}")
@@ -218,6 +220,9 @@ public class EsUtil {
 			break;
 		case ZBFB:
 			indexName = zbfbIndex;
+			break;
+		case TBWJ:
+			indexName = tbIndex;
 			break;
 		default:
 			break;
@@ -429,7 +434,7 @@ public class EsUtil {
 		return content;
 	}
 
-	private void saveES(String index, ESInfoBean esBean) throws IOException {
+	public void saveES(String index, ESInfoBean esBean) throws IOException {
 		RestHighLevelClient client = ESClientFactory.getClient();
 
 		IndexRequest request = new IndexRequest(index, "_doc");
