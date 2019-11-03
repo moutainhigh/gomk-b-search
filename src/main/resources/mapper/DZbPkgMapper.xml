@@ -105,11 +105,10 @@
          t.cust_name,t.tendering_content,
         t.prj_type,
         t.industry_name,
-        t.tendering_content,
         t.prj_nature,
         t.pm_name,
         t.entrust_amt,
-        t.set_time
+        DATE_FORMAT(t.set_time,'%Y-%m-%d')  set_time
         FROM d_zb_prj t
         left join d_zb_pkg t1 on t1.prj_code=t.prj_code
         left join f_zb_sel_bid_detail t2 on t2.pkg_code=t1.pkg_code

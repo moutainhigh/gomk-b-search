@@ -112,7 +112,7 @@
 //        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 //        
 //        //构造QueryBuilder
-//        /*QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("user", "kimchy")
+//        /*QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("User", "kimchy")
 //                .fuzziness(Fuzziness.AUTO)
 //                .prefixLength(3)
 //                .maxExpansions(10);
@@ -130,7 +130,7 @@
 //        //sourceBuilder.fetchSource(false);
 //        
 //        //设置返回哪些字段
-//        /*String[] includeFields = new String[] {"title", "user", "innerObject.*"};
+//        /*String[] includeFields = new String[] {"title", "User", "innerObject.*"};
 //        String[] excludeFields = new String[] {"_type"};
 //        sourceBuilder.fetchSource(includeFields, excludeFields);*/
 //        
@@ -173,7 +173,7 @@
 //        
 //        //做查询建议
 //        /*SuggestionBuilder termSuggestionBuilder =
-//                SuggestBuilders.termSuggestion("user").text("kmichy"); 
+//                SuggestBuilders.termSuggestion("User").text("kmichy");
 //            SuggestBuilder suggestBuilder = new SuggestBuilder();
 //            suggestBuilder.addSuggestion("suggest_user", termSuggestionBuilder); 
 //        sourceBuilder.suggest(suggestBuilder);*/
@@ -219,7 +219,7 @@
 //            //从map中取字段值
 //            /*
 //            String documentTitle = (String) sourceAsMap.get("title"); 
-//            List<Object> users = (List<Object>) sourceAsMap.get("user");
+//            List<Object> users = (List<Object>) sourceAsMap.get("User");
 //            Map<String, Object> innerObject = (Map<String, Object>) sourceAsMap.get("innerObject");
 //            */
 //            logger.info("index:" + index + "  type:" + type + "  id:" + id);

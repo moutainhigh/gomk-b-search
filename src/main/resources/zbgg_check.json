@@ -1,0 +1,133 @@
+[{
+  "name": "招标范围",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "title"
+}, {
+  "name": "投标人资格要求",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "title"
+}, {
+  "name": "招标文件的获取",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "title"
+}, {
+  "name": "投标文件的递交及开标",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "title"
+}, {
+  "name": "发布公告的媒介",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "title"
+}, {
+  "name": "联系方式",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "项目名称:/",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "资金来源/建设资金",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "权威",
+  "type": "ALL",
+  "calculate": "NOT_CONTAIN",
+  "result": "",
+  "scope": "投标人资格要求"
+}, {
+  "name": "相关",
+  "type": "ALL",
+  "calculate": "NOT_CONTAIN",
+  "result": "",
+  "scope": "投标人资格要求"
+}, {
+  "name": "有关部门业绩",
+  "type": "ALL",
+  "calculate": "NOT_CONTAIN",
+  "result": "",
+  "scope": "投标人资格要求"
+}, {
+  "name": "神华招标网",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "发布公告的媒介"
+}, {
+  "name": "中国招标投标公共服务平台",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "发布公告的媒介"
+}, {
+  "name": "中国招标投标公共服务平台",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "发布公告的媒介"
+}, {
+  "name": "招标代理机构/客户",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "联系人",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "地址",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "电话",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "邮箱",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "电子邮件",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "联系方式"
+}, {
+  "name": "交货地",
+  "type": "货物公告",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "项目地点/建设地点/所在地",
+  "type": "工程公告",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}]
