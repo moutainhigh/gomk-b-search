@@ -9,6 +9,8 @@ import lombok.Data;
 public class DBInfoBean {
 	private String uuid;
 	
+	private String wjtm;
+	
 	private String title;
 	//标段编号
 	private String pkgCode;

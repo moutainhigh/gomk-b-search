@@ -1,14 +1,9 @@
 package io.gomk.framework.hdfs;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -44,10 +39,10 @@ public class HdfsOperator {
 //        status = checkAndDel( dst , conf) ;
 //        System.out.println("status="+status) ;
 //    }
-    public static boolean CreatDir(String dst , Configuration conf) throws InterruptedException, URISyntaxException{
+    public static boolean CreatDir(String dst , Configuration conf){
         Path dstPath = new Path(dst) ;
         try{
-            FileSystem dhfs = FileSystem.get(new URI("hdfs://58.119.224.26:8020"), conf, "hdfsuser");
+            FileSystem dhfs = FileSystem.get(conf);
             dhfs.mkdirs(dstPath);
         }
         catch(IOException ie){
@@ -86,56 +81,17 @@ public class HdfsOperator {
         return true ;
     }
     
-    /**
-     * 下载HDFS文件
-     * @param path
-     * @param downloadPath
-     * @throws Exception
-     */
-    public static void downloadFile(String path, String downloadPath, Configuration conf) throws Exception {
-        if (StringUtils.isEmpty(path) || StringUtils.isEmpty(downloadPath)) {
-            return;
+    public static InputStream getInputStreamFromHDFS(String src , String dst , Configuration conf){
+        Path dstPath = new Path(dst) ;
+        try{
+            FileSystem dhfs = dstPath.getFileSystem(conf) ;
+            return  dhfs.open(new Path(src));
+        }catch(IOException ie){
+            ie.printStackTrace() ;
+            return null ;
         }
-        // 上传路径
-        Path clientPath = new Path(path);
-        FileSystem fs = clientPath.getFileSystem(conf) ;
-        // 目标路径
-        Path serverPath = new Path(downloadPath);
-
-        // 调用文件系统的文件复制方法，第一个参数是否删除原文件true为删除，默认为false
-        fs.copyToLocalFile(false, clientPath, serverPath);
-        fs.close();
     }
-    /**
-	 * 从hdfs下载
-	 * 
-	 * @param hdfsFilename
-	 * @param localPath
-	 * @return
-	 */
-	public static boolean downloadFileFromHdfs(String hdfsFilename, String localPath, Configuration conf) {
-		try {
-			Path f = new Path(hdfsFilename);
-			FileSystem hdfs = f.getFileSystem(conf) ;
-			FSDataInputStream dis = hdfs.open(f);
-			File file = new File(localPath + "/" + f.getName());
-			FileOutputStream os = new FileOutputStream(file);
- 
-			byte[] buffer = new byte[1024000];
-			int length = 0;
-			while ((length = dis.read(buffer)) > 0) {
-				os.write(buffer, 0, length);
-			}
- 
-			os.close();
-			dis.close();
- 
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+
     /**
      * 文件删除
      */

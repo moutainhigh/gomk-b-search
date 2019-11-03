@@ -39,7 +39,7 @@ spring:
       datasource:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://10.212.169.142:3306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+          url: jdbc:mysql://10.212.169.142:3306/BIData?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
           username: zg
           password: ZGmysql123!
         oneself:
@@ -47,7 +47,26 @@ spring:
           url: jdbc:mysql://10.212.169.142:3306/analysis?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
           username: zg
           password: ZGmysql123!
-          
+  data:
+    hbase:
+      master: 10.212.169.158:60000
+      zookeeper:
+        quorum: 10.212.169.158,10.212.169.166,10.212.169.167
+        port: 2181
+        znode: /hbase-unsecure
+        maxsize: 1572864000   
+  redis:
+    host: 10.212.169.159
+    port: 7001
+    password: GCGSredis123!
+    timeout: 1000
+    lettuce:
+      pool:
+        max-active: 200 #连接池最大连接数（使用负值表示没有限制）
+        max-idle: 20 # 连接池中的最大空闲连接
+        min-idle: 5 #连接池中的最小空闲连接
+        max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
+             
 swagger:
    host: 
    

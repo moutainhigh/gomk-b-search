@@ -47,37 +47,26 @@ spring:
           url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
           username: root
           password: Abcd1234!
+  data:
+    hbase:
+      master: 10.212.169.158:60000
+      zookeeper:
+        quorum: 10.212.169.158,10.212.169.166,10.212.169.167
+        port: 2181
+        znode: /hbase-unsecure
+        maxsize: 1572864000
+  redis:
+    host: 10.212.169.159
+    port: 7001
+    password: GCGSredis123!
+    timeout: 1000
+    lettuce:
+      pool:
+        max-active: 200 #连接池最大连接数（使用负值表示没有限制）
+        max-idle: 20 # 连接池中的最大空闲连接
+        min-idle: 5 #连接池中的最小空闲连接
+        max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
         
-#spring:
-#  application:
-#    name: gomk-b-core
-#  datasource:
-#    druid:
-#      min-idle: 10  
-#      test-while-idle: true
-#      max-active: 20
-#      initial-size: 5
-#      driver-class-name: com.mysql.cj.jdbc.Driver
-#      max-wait: 10
-#      url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
-#      username: root
-#      password: Abcd1234!
-#    url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
-#    username: root
-#    password: Abcd1234!
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    
-    
-    
-#  data:
-#    hbase:
-#      quorum: xxx
-#      rootDir: xxx
-#      nodeParent: xxx
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 100MB
 swagger:
    host: 
    

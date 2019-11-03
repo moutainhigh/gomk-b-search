@@ -271,18 +271,12 @@ public class ImportFile {
 		return list;
 	}
 
-	public static List<ESInfoBean> getZBFBMap() throws IOException {
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
-		//String directoryPath = "/soft/doc/zbfb";
-		List<ESInfoBean> list = getIndexMap(directoryPath);
-		return list;
+	 
+	public static List<ESInfoBean> getCommonESInfo(String directoryPath) throws IOException {
+		
+		return  getIndexMap(directoryPath);
 	}
 
-	public static List<ESInfoBean> getZCFGMap() throws IOException {
-		String directoryPath = "/Users/vko/Documents/my-code/DOC/zcfg";
-		//String directoryPath = "/soft/doc/zcfg";
-		List<ESInfoBean> list = getIndexMap(directoryPath);
-		return list;
-	}
+	
 
 }

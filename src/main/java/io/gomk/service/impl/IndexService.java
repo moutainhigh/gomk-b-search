@@ -93,6 +93,15 @@ public class IndexService extends EsBaseService implements IIndexService {
             "        \"weight\": {\n" +
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
+            "        \"storeUrl\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"storeType\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
+            "        \"ext\": {\n" +
+            "          \"type\": \"keyword\"\n" +
+            "        },\n" +
             "        \"directoryTree\": {\n" +
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
@@ -338,16 +347,19 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> bulkZCFGDoc() throws IOException {
-		List<ESInfoBean> sourceList = ImportFile.getZCFGMap();
-		saveES(zcfgIndex, sourceList);
+		
+		//String directoryPath = "/Users/vko/Documents/my-code/DOC/zcfg";
+		String directoryPath = "/soft/doc/zcfg";
+		saveES(zcfgIndex, ImportFile.getCommonESInfo(directoryPath));
 		return ResponseData.success();
 	}
 
 	
 	@Override
 	public ResponseData<String> bulkZBFBDoc() throws IOException {
-		List<ESInfoBean> sourceList = ImportFile.getZBFBMap();
-		saveES(zbfbIndex, sourceList);
+		//String directoryPath = "/Users/vko/Documents/my-code/DOC/zbfb";
+		String directoryPath = "/soft/doc/zbfb";
+		saveES(zbfbIndex, ImportFile.getCommonESInfo(directoryPath));
 		return ResponseData.success();
 	}
 
@@ -386,6 +398,14 @@ public class IndexService extends EsBaseService implements IIndexService {
 	public ResponseData<String> createZBFBIndex() throws IOException {
 		createIndex(zbfbIndex, mapping);
 		return null;
+	}
+
+	@Override
+	public ResponseData<String> bulkTBDoc() throws IOException {
+		String directoryPath = "/Users/vko/Documents/my-code/testDOC/tb";
+		//String directoryPath = "/soft/doc/zbfb";
+		saveES(tbIndex, ImportFile.getCommonESInfo(directoryPath));
+		return ResponseData.success();
 	}
 
 

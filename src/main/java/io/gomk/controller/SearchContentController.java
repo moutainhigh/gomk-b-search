@@ -50,6 +50,8 @@ public class SearchContentController extends SuperController {
 	
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
+	@Value("${elasticsearch.index.tbName}")
+	protected String tbIndex;
 	@Value("${elasticsearch.index.zgyqName}")
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.jsyqName}")
@@ -131,7 +133,7 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.getBdw(page, pageSize, keyWord));
 	}
 	
-	@ApiOperation("招标文件")
+	@ApiOperation("招标文件库")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
@@ -145,6 +147,33 @@ public class SearchContentController extends SuperController {
 		}
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbIndex));
 	}
+	@ApiOperation("投标文件库")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="设备"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="")
+	})
+	@GetMapping("/tbwj")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchTBWJ(int page, int pageSize, String keyWord, String tag) throws Exception {
+		if (StringUtils.isBlank(keyWord)) {
+			return ResponseData.success();
+		}
+		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, tbIndex));
+	}
+	@ApiOperation("右侧推荐")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name="scope", value="1(招标文件库)2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)", required=true, paramType="query", dataType="Integer", defaultValue="2"),
+		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
+	})
+	@GetMapping("/recommend/right")
+	public ResponseData<PageResult<Page<List<SearchResultVO>>>> rightRecommend(int scope, int size, String tag) throws Exception {
+		return ResponseData.success(searchService.searchCommonRecommend(size, tag, esUtil.getIndexname(scope)));
+	}
+	
+	
+	
 	
 	@ApiOperation("招标文件推荐(右边)")
 	@ApiImplicitParams({
@@ -155,6 +184,9 @@ public class SearchContentController extends SuperController {
 	public ResponseData<PageResult<Page<List<SearchResultVO>>>> recommend(int size, String tag) throws Exception {
 		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zbIndex));
 	}
+	
+	
+	
 	
 
 	@ApiOperation("资格要求库")
@@ -329,15 +361,6 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(searchService.commonSearch(page, pageSize, keyWord, tag, zbfbIndex));
 	}
 	
-	@ApiOperation("招标范本库推荐(右边)")
-	@ApiImplicitParams({
-		@ApiImplicitParam(name="size", value="条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-		@ApiImplicitParam(name="tag", value="标签", required=false, paramType="query", dataType="String", defaultValue="中型项目")
-	})
-	@GetMapping("/zbfb/recommend")
-	public ResponseData<PageResult<Page<List<SearchResultVO>>>> zbfbRecommend(int size, String tag) throws Exception {
-		return ResponseData.success(searchService.searchCommonRecommend(size, tag, zbfbIndex));
-	}
 	@ApiOperation("文件对比")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name="scope", value="2(资格要求库)3(评标办法库)4(技术要求库)5(造价成果库)6(政策法规库)7(招标范本库)8(投标文件库)", required=true, paramType="query", dataType="Integer", defaultValue="4"),
@@ -362,68 +385,5 @@ public class SearchContentController extends SuperController {
 		}
 		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
 	}
-	
-//	
-//	@ApiOperation("文件对比")
-//	@PostMapping("/contrast")
-//	public ResponseData<String> contrast(@RequestBody ContrastRequest request) throws Exception {
-//		String content1 = request.getContent1();
-//		String content2 = request.getContent2();
-//		if (StringUtils.isBlank(content1) || StringUtils.isBlank(content2)) {
-//			return ResponseData.success();
-//		}
-//		
-//		return ResponseData.success(RuntimeUtils.getContrastResult(content1, content2));
-//	}
-	
-//
-//	@ApiOperation("资格要求库")
-//	@ApiImplicitParams({
-//		@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
-//		@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-//		@ApiImplicitParam(name="keyWord", value="关键字", required=false, paramType="query", dataType="String", defaultValue="设备")
-//	})
-//	@GetMapping("/zgyq") //资格要求
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZGYQ(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchZGYQ(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/zhuanjia") //专家库
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZHUANJIA(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchZHUANJIA(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/zbr")//招标人
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZBR(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchZBR(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/tbwj")//投标文件
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchTBWJ(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchTBWJ(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/pbbf")//评标办法
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPBBF(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchPBBF(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/jsyq")//技术要求
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchJSYQ(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchJSYQ(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/price")//价格
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchPrice(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchPrice(page, pageSize, keyWord));
-//	}
-//	
-//	@GetMapping("/zcfg") //政策法规
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZCFG(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchZCFG(page, pageSize, keyWord));
-//	}
-//	@GetMapping("/zjcg") //造价成果
-//	public ResponseData<PageResult<Page<List<SearchResultVO>>>> searchZJCG(int page, int pageSize, String keyWord) throws Exception {
-//		return ResponseData.success(searchService.searchZJCG(page, pageSize, keyWord));
-//	}
+
 }

@@ -1,6 +1,8 @@
 package io.gomk.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESRestClient;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.controller.SuperController;
+import io.gomk.framework.utils.parse.ImportFile;
 import io.gomk.service.IIndexService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -124,12 +127,7 @@ public class IndexController extends SuperController {
 		return indexService.createZBFBIndex();
 	}
 	
-	@ApiOperation("批量添加招标范本文件")
-	@PostMapping("/zbfb/bulk")
-	public ResponseData<String> bulkZbfb() throws IOException {
-		
-		return indexService.bulkZBFBDoc();
-	}
+	
 	
 	@ApiOperation("创建索引-技术要求")
 	@PostMapping("/jsyq")
@@ -169,6 +167,19 @@ public class IndexController extends SuperController {
 	@PostMapping("/zjcg/bulk")
 	public ResponseData<String> bulkZJCG() throws IOException {
 		return indexService.bulkZJCGDoc();
+	}
+	
+	@ApiOperation("批量添加投标文件")
+	@PostMapping("/tb/bulk")
+	public ResponseData<String> bulkTbwj() throws IOException {
+		return indexService.bulkTBDoc();
+	}
+	
+	@ApiOperation("批量添加招标范本文件")
+	@PostMapping("/zbfb/bulk")
+	public ResponseData<String> bulkZbfb() throws IOException {
+		
+		return indexService.bulkZBFBDoc();
 	}
 	
 

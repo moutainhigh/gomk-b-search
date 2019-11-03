@@ -1,44 +1,48 @@
 package io.gomk.framework.hbase;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptor;
+import org.apache.hadoop.hbase.client.ColumnFamilyDescriptorBuilder;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.TableDescriptor;
+import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import sun.misc.BASE64Decoder;
+
 /**
  * @Auther: ZHG
  * @Date: 2019/5/23 0023 10:04
  * @Description:
  */
-//@Service
 public class HBaseService {
 
     private Logger log = LoggerFactory.getLogger(HBaseService.class);
     private Admin admin = null;
     private Connection connection = null;
-    
-    static Configuration conf=null;
-    static {
-        conf= HBaseConfiguration.create();
-        //conf.set("hbase.zookeeper.quorum","58.119.224.26");
-        conf.set("hbase.zookeeper.quorum","10.212.169.157");
-        conf.set("hbase.zookeeper.property.clientPort","2181");
-        conf.set("log4j.logger.org.apache.hadoop.hbase","WARN");
-    }
 
-    public HBaseService() {
+    public HBaseService(Configuration conf) {
         try {
             connection = ConnectionFactory.createConnection(conf);
             admin = connection.getAdmin();
@@ -318,5 +322,12 @@ public class HBaseService {
             }
         }
     }
+    
+    public InputStream down(String text) throws IOException{
+		BASE64Decoder be = new BASE64Decoder();
+		byte []c = 	be.decodeBuffer(text);
+		InputStream in = new ByteArrayInputStream(c); 
+		return in;
+	}
 
 }

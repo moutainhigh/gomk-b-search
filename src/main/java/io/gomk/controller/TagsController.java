@@ -30,7 +30,7 @@ import io.gomk.controller.response.SecondClassifyResponse;
 import io.gomk.controller.response.TagDetailVO;
 import io.gomk.controller.response.TagListResponse;
 import io.gomk.enums.DateRangeEnum;
-import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.enums.ScopeEnum;
 import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.enums.UnknownEnumException;
 import io.gomk.framework.controller.SuperController;
@@ -99,7 +99,7 @@ public class TagsController extends SuperController {
 	@PostMapping("/doc")
 	public ResponseData<?> add(@RequestBody AddDocTagRequest request) throws Exception {
 		String tagName = request.getTag();
-		TagClassifyScopeEnum scopes = TagClassifyScopeEnum.fromValue(request.getScope());
+		ScopeEnum scopes = ScopeEnum.fromValue(request.getScope());
 		
 		tagService.addDocTag(request.getScope(), tagName, request.getIds());
 		return ResponseData.success();
@@ -138,8 +138,8 @@ public class TagsController extends SuperController {
 	@GetMapping("/enum/scope")
 	public ResponseData<List<EnumVO>> getScope() throws Exception {
 		List<EnumVO> response = new ArrayList<>();
-		List<TagClassifyScopeEnum> list = EnumUtils.getEnumList(TagClassifyScopeEnum.class);
-		for (TagClassifyScopeEnum em : list) {
+		List<ScopeEnum> list = EnumUtils.getEnumList(ScopeEnum.class);
+		for (ScopeEnum em : list) {
 			EnumVO vo = new EnumVO();
 			vo.setId(em.getValue());
 			vo.setDesc(em.getDesc());

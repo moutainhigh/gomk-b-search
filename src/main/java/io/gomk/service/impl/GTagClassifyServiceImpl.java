@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import io.gomk.enums.TagClassifyScopeEnum;
+import io.gomk.enums.ScopeEnum;
 import io.gomk.enums.UnknownEnumException;
 import io.gomk.mapper.GTagClassifyMapper;
 import io.gomk.mapper.GTagClassifyScopeMapper;
@@ -37,7 +37,7 @@ public class GTagClassifyServiceImpl extends ServiceImpl<GTagClassifyMapper, GTa
 	public void saveSecondClassify(Set<Integer> scopes, GTagClassify entity) throws UnknownEnumException {
 		super.baseMapper.insert(entity);
 		for (Integer scope : scopes) {
-			TagClassifyScopeEnum.fromValue(scope);
+			ScopeEnum.fromValue(scope);
 			GTagClassifyScope classScope = new GTagClassifyScope();
 			classScope.setClassifyId(entity.getId());
 			classScope.setScopes(scope);

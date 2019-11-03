@@ -24,8 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @author chen
  * @Date 2019/10/1
  */
-@RestController
-@RequestMapping("/hdfs")
+//@RestController
+//@RequestMapping("/hdfs")
 public class HdfsController {
     private static Logger LOGGER = LoggerFactory.getLogger(HdfsController.class);
 

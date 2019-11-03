@@ -34,24 +34,24 @@ public class HBaseTest {
 	@Test
 	public void testUpload() throws IOException {
 		//System.setProperty("hadoop.home.dir", "hadoop");
-		HBaseService service = new HBaseService();
-		
-		String filePath = "/Users/vko/Documents/my-code/DOC/分布式体系在保险行业的试点分享.pdf";
-		String tableName = "table2";
-		String familyName = "content";
-		String columnName = "c1";
-		String rowKey = "5875cb00-ebbd-4486-8dd8-4216bf9378";
-		
-		//create table 
-		//service.creatTable(tableName, new ArrayList<>(Arrays.asList(familyName)));
-		
-		logger.info(service.getAllTableNames().toString());
-		//service.putData(tableName, rowKey, familyName, columnName, getSource(filePath).getBytes());
-		//Map<String, Map<String, String>> m = service.getResultScanner(tableName);
-		//logger.info(m.toString());
-		//logger.info("========" + service.getRowData(tableName, rowKey).get(columnName));
-		String tmp = service.getRowData(tableName, rowKey).get(columnName);
-		down(tmp);
+//		HBaseService service = new HBaseService();
+//		
+//		String filePath = "/Users/vko/Documents/my-code/DOC/分布式体系在保险行业的试点分享.pdf";
+//		String tableName = "table2";
+//		String familyName = "content";
+//		String columnName = "c1";
+//		String rowKey = "5875cb00-ebbd-4486-8dd8-4216bf9378";
+//		
+//		//create table 
+//		//service.creatTable(tableName, new ArrayList<>(Arrays.asList(familyName)));
+//		
+//		logger.info(service.getAllTableNames().toString());
+//		//service.putData(tableName, rowKey, familyName, columnName, getSource(filePath).getBytes());
+//		//Map<String, Map<String, String>> m = service.getResultScanner(tableName);
+//		//logger.info(m.toString());
+//		//logger.info("========" + service.getRowData(tableName, rowKey).get(columnName));
+//		String tmp = service.getRowData(tableName, rowKey).get(columnName);
+//		down(tmp);
 		
 	}
 	

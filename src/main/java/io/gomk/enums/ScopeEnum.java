@@ -3,7 +3,7 @@ package io.gomk.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 
-public enum TagClassifyScopeEnum implements IEnum<Integer> {
+public enum ScopeEnum implements IEnum<Integer> {
 	ZBWJ(1, "招标文件库"),
     ZGYQ(2, "资格要求库"),
     PBBF(3, "评标办法库"),
@@ -13,7 +13,7 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
 	ZBFB(7, "招标范本库"),
 	TBWJ(8, "投标文件库");
     
-	TagClassifyScopeEnum(int value, String desc) {
+	ScopeEnum(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }
@@ -27,8 +27,8 @@ public enum TagClassifyScopeEnum implements IEnum<Integer> {
 	public String getDesc() {
 		return this.desc;
 	}
-	public static TagClassifyScopeEnum fromValue(Integer value) throws UnknownEnumException {
-		for (TagClassifyScopeEnum tEnum : TagClassifyScopeEnum.values()) {
+	public static ScopeEnum fromValue(Integer value) throws UnknownEnumException {
+		for (ScopeEnum tEnum : ScopeEnum.values()) {
             if (tEnum.getValue() == value) {
                 return tEnum;
             }
