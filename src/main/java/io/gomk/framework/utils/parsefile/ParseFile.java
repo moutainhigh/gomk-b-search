@@ -283,13 +283,14 @@ public class ParseFile {
             int tIndexListSize = tIndexList.size();
             int j = 0;
             while (j < tIndexListSize - 1 && j < totalParagraph) {
-                int twoStart = tIndexList.get(j) + 1;
+                int twoStart = tIndexList.get(j);
                 j++;
                 int twoEnd = tIndexList.get(j);
 
                 StringBuilder twoSb = new StringBuilder();
                 for (int t = twoStart; t < twoEnd; t++) {
-                    String twoC = paragraph[t].trim().replaceAll("[^\u4e00-\u9fa5]", "");
+                	String twoC = paragraph[t].trim();
+                    //String twoC = paragraph[t].trim().replaceAll("[^\u4e00-\u9fa5]", "");
                     if (!"".equals(twoC)) {
                         System.out.println("-->"+twoC);
                         twoSb.append(twoC);
@@ -328,21 +329,23 @@ public class ParseFile {
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
 //        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
-        File file1 = new File("/Users/baibing6/Desktop/file/CEZB190205192.pdf");
+       // File file1 = new File("/Users/baibing6/Desktop/file/CEZB190205192.pdf");
+        File file1 = new File("/Users/vko/Documents/my-code/testDOC/内蒙古国华呼伦贝尔发电有限公司2017-2018年全厂专职消防队服务项目招标文件.doc");
+        
         try (InputStream in1 = new FileInputStream(file1);
              InputStream in2 = new FileInputStream(file1);
              InputStream in3 = new FileInputStream(file1);
              InputStream in4 = new FileInputStream(file1);
         ) {
 //            Map<String, StringBuilder> map = new ParseFile().parseText(in1, DOC);
-//            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
-//            String a0 = new ParseFile().parseTenderScope(in2, DOC);
-//            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
-//            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
-            List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
-            String a0 = new ParseFile().parseTenderScope(in2, PDF);
-            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
-            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
+            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
+            String a0 = new ParseFile().parseTenderScope(in2, DOC);
+            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
+            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
+//            List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
+//            String a0 = new ParseFile().parseTenderScope(in2, PDF);
+//            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
+//            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
             log.info("");
         } catch (Exception e) {
             e.printStackTrace();
@@ -382,7 +385,17 @@ public class ParseFile {
             }
 
         }
-        return Arrays.asList(sb.toString().split("\r"));
+        
+        List<String> infos = Arrays.asList(sb.toString().split("\r"));
+        List<String> results = new ArrayList<>();
+        String t3 = "满足以下条件";
+        for (String s : infos) {
+        	if (!s.contains(t1) && !s.contains(t2) && !s.contains(t3)) {
+        		results.add(s.replaceFirst("^+\\s*\\d+.\\d*", ""));
+        	}
+        }
+        
+        return results;
     }
 
     /**
