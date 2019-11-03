@@ -6,7 +6,7 @@
   "result": "",
   "scope": "ALL",
   "patterns": [
-    "项目编号: [a-zA-Z0-9]+","标号：0744-[a-zA-Z0-9]+"
+    "项目编号[：/:][a-zA-Z0-9]+"
   ]
 }, {
   "name": "项目名称",
@@ -16,7 +16,7 @@
   "result": "",
   "scope": "ALL",
   "patterns": [
-    "项目名称: .*"
+    "项目名称.*"
   ]
 }, {
   "name": "成果编号",
@@ -36,10 +36,10 @@
   "result": "",
   "scope": "ALL",
   "patterns": [
-    "封面日期: [a-zA-Z0-9]+"
+    "\\d{4}年\\d{1,2}月\\d{1,2}日"
   ]
 
-}, {
+},{
   "name": "工程量",
   "type": "ALL",
   "calculate": "CONTAIN",
@@ -59,7 +59,25 @@
   "result": "",
   "scope": "ALL",
   "patterns": [
-    "送审值: .*"
+    "金额.*[0-9]+"
+  ]
+},{
+  "name": "送审金额",
+  "type": "OTHER",
+  "calculate": "FIND",
+  "result": "",
+  "scope": "ALL",
+  "patterns" : [
+    "送审招标控制价[\\u4e00-\\u9fa5]+[0-9.]+"
+  ]
+},{
+  "name": "审定金额",
+  "type": "OTHER",
+  "calculate": "FIND",
+  "result": "",
+  "scope": "ALL",
+  "patterns" : [
+    "审定招标控制价[\\u4e00-\\u9fa5]+[0-9.]+"
   ]
 }
 ]
