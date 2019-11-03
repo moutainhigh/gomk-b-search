@@ -1,5 +1,6 @@
 package io.gomk.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.common.utils.PageResult;
@@ -230,5 +231,12 @@ public class DZbPkgServiceImpl extends ServiceImpl<DZbPkgMapper, DZbPkg> impleme
     @Override
     public IPage<Map<String, String>> biddingPerson(Page<Map<String, String>> param,String custName) {
         return dZbPkgMapper.biddingPerson(param,custName);
+    }
+
+    @Override
+    public List<DZbPkg> findPkg(String prjCode) {
+        QueryWrapper<DZbPkg> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("prj_code",prjCode);
+        return dZbPkgMapper.selectList(queryWrapper);
     }
 }

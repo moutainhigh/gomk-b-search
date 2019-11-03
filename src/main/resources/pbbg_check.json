@@ -1,0 +1,46 @@
+[ {
+  "name": "项目编号",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjCode",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "项目编号: [a-zA-Z0-9]+","招标编号：[-a-zA-Z0-9]+"
+  ]
+},{
+  "name": "委托人",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "custName",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "招标人: [a-zA-Z0-9\\u4e00-\\u9fa5]+","招标人为[a-zA-Z0-9\\u4e00-\\u9fa5]+","[\\u4e00-\\u9fa5]+"
+  ]
+}, {
+  "name": "招标方式",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "purchasingStrategy",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "招标方式为：[a-zA-Z0-9\\u4e00-\\u9fa5]+"
+  ]
+}, {
+  "name": "废标情况",
+  "type": "ALL",
+  "calculate": "SUB",
+  "result": "",
+  "scope": "ALL",
+  "subcontext": "废标原因"
+}, {
+  "name": "目录",
+  "type": "ALL",
+  "calculate": "FIND",
+  "result": "",
+  "scope": "ALL",
+  "subcontext": "废标原因"
+}
+]

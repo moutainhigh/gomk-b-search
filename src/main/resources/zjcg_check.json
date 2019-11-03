@@ -1,0 +1,65 @@
+[ {
+  "name": "项目编号",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjCode",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "项目编号: [a-zA-Z0-9]+","标号：0744-[a-zA-Z0-9]+"
+  ]
+}, {
+  "name": "项目名称",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjName",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "项目名称: .*"
+  ]
+}, {
+  "name": "成果编号",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjCode",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "成果编号: [a-zA-Z0-9]+"
+  ]
+},{
+  "name": "封面日期",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjCode",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "封面日期: [a-zA-Z0-9]+"
+  ]
+
+}, {
+  "name": "工程量",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+},{
+  "name": "经济指标",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "送审值",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "reportAmt",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "送审值: .*"
+  ]
+}
+]
