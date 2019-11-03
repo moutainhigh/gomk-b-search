@@ -57,10 +57,10 @@ public class Swagger2 {
      */
     List<Parameter> getParameters() {
     	
-    	String token = "";
+    	String token = "c2hnY3NoZ2NhZG1pbg==";
 		
         return Collections.singletonList(new ParameterBuilder()
-                .name("Authorization")
+                .name("token")
                 .defaultValue(token)
                 .description("Authorization")
                 .modelRef(new ModelRef("string"))

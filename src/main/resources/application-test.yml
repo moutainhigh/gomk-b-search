@@ -1,6 +1,9 @@
 server:
   port: 7106
 
+cookie:
+  domain: 39.105.18.142
+
 elasticsearch:
   #ip: 39.105.192.98:29200
   ip: 58.119.224.27:29200

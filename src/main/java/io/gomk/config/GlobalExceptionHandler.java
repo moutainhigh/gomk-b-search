@@ -24,17 +24,17 @@ import io.gomk.common.rs.response.ResponseData;
 public class GlobalExceptionHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * 处理所有不可知的异常
-     * @param e
-     * @return
-     */
-    @ExceptionHandler(Exception.class)
-    @ResponseBody
-    ResponseData<?> handleException(Exception e){
-        LOGGER.error(e.getMessage(), e);
-        return ResponseData.error("服务器内部错误！");
-    }
+//    /**
+//     * 处理所有不可知的异常
+//     * @param e
+//     * @return
+//     */
+//    @ExceptionHandler(Exception.class)
+//    @ResponseBody
+//    ResponseData<?> handleException(Exception e){
+//        LOGGER.error(e.getMessage(), e);
+//        return ResponseData.error("服务器内部错误！");
+//    }
 
     /**
      * 处理所有业务异常

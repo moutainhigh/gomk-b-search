@@ -9,7 +9,7 @@ public enum StatusCode implements IExceptionEnum {
 
     SUCCEED(200, "成功"),
     ERROR(500, "服务器内部错误"),
-    PERMISSION_DENIED(401, "用户未登录或权限不足"),
+    PERMISSION_DENIED(403, "用户未登录或权限不足"),
     TOKEN_ERROR(601, "TOKEN认证失败！"),
     TOKEN_EXPIRE(602, "TOKEN过期！"),
     

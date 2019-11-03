@@ -73,4 +73,16 @@ public class WordsController extends SuperController {
 		return ResponseData.success();
 	}
 	
+	@ApiOperation("删除已确认的")
+	@PostMapping("/delete")
+	public ResponseData<?> delete(@RequestBody List<Integer> ids) throws Exception {
+		ids.forEach(id -> {
+			GWords word = new GWords();
+			word.setId(id);
+			word.setConfirm(false);
+			wordsService.updateById(word);
+		});
+		return ResponseData.success();
+	}
+	
 }
