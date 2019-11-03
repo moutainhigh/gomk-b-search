@@ -207,11 +207,21 @@ public class CheckFileController {
         String[] paragraphs = extractor.getParagraphText();
         List<String> contents = new ArrayList<>(paragraphs.length);
         Collections.addAll(contents, paragraphs);
-        return contents;
+        List<String> results = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0, j=0; i < contents.size(); i++,j++) {
+            if(j!=0 && j%80==0 || i == contents.size()-1) {
+                results.add(builder.toString());
+                builder.delete(0, builder.length());
+                j=0;
+            }
+            builder.append(contents.get(i).replaceAll("\r\n","").replaceAll("\f",""));
+        }
+        return results;
     }
 
     private List<String> getDocxContent(MultipartFile file) throws IOException {
-        List<String> contexts = new ArrayList<>();
+        List<String> contents = new ArrayList<>();
         System.out.println(file.getContentType());
         ZipSecureFile.setMinInflateRatio(-1.0d);
         XWPFDocument doc = new XWPFDocument(file.getInputStream());
@@ -220,10 +230,20 @@ public class CheckFileController {
             para.getParagraphText();
             String text = para.getParagraphText();
             if (!text.trim().isEmpty()) {
-                contexts.add(text);
+                contents.add(text);
             }
         }
-        return contexts;
+        List<String> results = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0, j=0; i < contents.size(); i++,j++) {
+            if(j!=0 && j%80==0 || i == contents.size()-1) {
+                results.add(builder.toString());
+                builder.delete(0, builder.length());
+                j=0;
+            }
+            builder.append(contents.get(i).replaceAll("\r\n","").replaceAll("\f",""));
+        }
+        return results;
     }
 
     private void pbbg(List<String> result, DZbPrj prj, List<CheckVO> checkVOs, List<String> contexts) {
@@ -288,16 +308,42 @@ public class CheckFileController {
                 for(String text : resultList){
                     checkZjcgText(prj, checkVOs, resultList, text);
                 }
+                List<String> resultContents = getDocContent(file3);
+                checkVOs.forEach(checkVO -> {
+                    if(CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
+                        resultContents.forEach(t -> {
+                            checkVO.getPatterns().forEach(pattern -> {
+                                Matcher matcher = ConverCompile(StringUtils.trim(t), pattern);
+                                System.out.println(t);
+                                while(matcher.find()){
+                                    System.out.println(matcher.group());
+                                    String group = matcher.group();
+                                    Matcher matcher1 = ConverCompile(group, "[0-9.]+");
+                                    if(matcher1.find()) {
+                                        System.out.println(matcher1.group());
+                                        resultList.forEach(r -> {
+                                            if(r.contains(matcher1.group())){
+                                                checkVO.setResult("true");
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        });
+                    }
+                });
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         checkVOs.forEach(checkVO -> {
-            if(!"true".equals(checkVO.getResult()) && !CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
+            if(!"true".equals(checkVO.getResult())){
                 System.out.println(checkVO.toString());
-                if(CheckTypeEnum.ALL.toString().equals(checkVO.getType())) {
+//                if(CheckTypeEnum.ALL.toString().equals(checkVO.getType())) {
                     result.add("否决信息：" + checkVO.getName() + "项不符合" + checkVO.getName() + "否决规则");
-                }
+//                }
             }
         });
         if(result.size()>0) {
@@ -446,7 +492,9 @@ public class CheckFileController {
                                 while(matcher.find()){
                                     System.out.println(matcher.group());
                                     Object v = ReflectUtil.getValueFormObject(prj,checkVO.getTablefleld());
-                                    if(matcher.group().contains(v.toString())){
+                                    System.out.println(v.toString());
+
+                                    if(matcher.group().contains(v.toString().replaceAll(".00",""))){
                                         checkVO.setResult(String.valueOf(true));
                                     }else{
 
