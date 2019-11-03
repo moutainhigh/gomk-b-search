@@ -405,5 +405,14 @@ public class SearchContentController extends SuperController {
 		IPage<Map<String,String>> pageResult = supplService.queryQuote(pageParam,keyWord);
 		return  ResponseData.success(pageResult);
 	}
+	@ApiOperation("产品价格-中标价格-折线图")
+	@GetMapping("/priceCharts")
+	public ResponseData<List<Map<String,Object>>> selectPriceCharts( String mateName) throws Exception {
+		// 当前页码，每页条数
+
+		return  ResponseData.success(supplService.selectPriceCharts(mateName));
+	}
+
+
 	
 }

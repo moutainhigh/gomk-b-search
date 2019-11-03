@@ -1,0 +1,75 @@
+[{
+  "name": "交货期",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "交货期：合同签订后[\\d+]个月",".*交货时间为.*",".*以上交货时间为货物到达现场的时间*.",".*交货时间为自合同生效日起至交货*.",".*交货日期：.*"
+  ]
+}, {
+  "name": "项目编号",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjCode",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "项目编号: [a-zA-Z0-9]+","标号：0744-[a-zA-Z0-9]+"
+  ]
+}, {
+  "name": "项目名称",
+  "type": "ALL",
+  "calculate": "findANDequals",
+  "tablefleld": "prjName",
+  "result": "",
+  "scope": "ALL",
+  "patterns": [
+    "项目名称: .*"
+  ]
+},
+  {
+  "name": "标段包编号",
+  "type": "OTHER",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "标段包名称",
+  "type": "OTHER",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+},
+  {
+  "name": "工期",
+  "type": "工程",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "工程质量",
+  "type": "工程",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "工程缺陷责任期",
+  "type": "工程",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}, {
+  "name": "踏勘信息",
+  "type": "ALL",
+  "calculate": "SUB",
+  "result": "",
+  "scope": "ALL",
+  "subcontext": "踏勘地址"
+}, {
+  "name": "保证金金额",
+  "type": "ALL",
+  "calculate": "CONTAIN",
+  "result": "",
+  "scope": "ALL"
+}]

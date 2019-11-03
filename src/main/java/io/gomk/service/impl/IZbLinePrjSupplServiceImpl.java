@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,5 +28,10 @@ public class IZbLinePrjSupplServiceImpl extends ServiceImpl<IZbLinePrjSupplMappe
     @Override
     public IPage<Map<String, String>> queryQuote(Page<Map<String, String>> param, String mateName) {
         return supplMapper.queryQuote(param,mateName);
+    }
+
+    @Override
+    public List<Map<String, Object>> selectPriceCharts(String mateName) {
+        return supplMapper.selectPriceCharts(mateName);
     }
 }

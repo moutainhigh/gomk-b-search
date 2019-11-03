@@ -124,6 +124,7 @@
     </select>
     <select id="biddingPerson"  parameterType="java.lang.String" resultType="java.util.Map">
         select
+        t.id,
         t.cust_name,t.cust_short_name,t.addr_and_tel,t.provinces,t.provinces_code,t.city,t.city_code,t.county,
         t.cust_document_code,t.cust_blk,t.group_unit,t.group_unit_code,t.ext_unit,t.ext_unit_code,
         t.pid,t.p_cust_name
@@ -139,7 +140,9 @@
     <select id="costDetails"  parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
         t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
-        t.consultation_method,t.entrust_time,t.approve_amt,t.prj_file_time
+        t.consultation_method,
+         DATE_FORMAT(t.entrust_time,'%Y-%m-%d')   entrust_time,
+         t.approve_amt,t.prj_file_time
          from D_PRJ_MANUFACTUR_COST t
         left join D_CUST t1 on t1.cust_document_code = t.document_code
         where t.prj_code = #{prjCode}
