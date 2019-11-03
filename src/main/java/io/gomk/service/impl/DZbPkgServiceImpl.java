@@ -239,4 +239,23 @@ public class DZbPkgServiceImpl extends ServiceImpl<DZbPkgMapper, DZbPkg> impleme
         queryWrapper.eq("prj_code",prjCode);
         return dZbPkgMapper.selectList(queryWrapper);
     }
+
+    @Override
+    public Map<String, Object> biddingDetails(String prjCode) {
+        Map<String, Object> details = new HashMap<>();
+        Map<String,Object> bidding = dZbPkgMapper.biddingDetails(prjCode);
+        details.put("bidding",bidding);
+
+        QueryWrapper<DZbPkg> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().like(DZbPkg::getPrjCode,prjCode);
+
+        List<DZbPkg> pkglist = dZbPkgMapper.selectList(queryWrapper);
+        details.put("pkgs",pkglist);
+        return details;
+    }
+
+    @Override
+    public Map<String, Object> costDetails(String prjCode) {
+        return dZbPkgMapper.costDetails(prjCode);
+    }
 }

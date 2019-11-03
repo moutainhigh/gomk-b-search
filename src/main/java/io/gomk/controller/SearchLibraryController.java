@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,7 @@ public class SearchLibraryController {
 
     @Autowired
     private DCustService dCustService;
-
+    @ApiOperation(value = "招标项目列表")
     @GetMapping("/bindProject")
     public ResponseData<IPage<Map<String,String>>> biddingProject(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
@@ -47,7 +48,7 @@ public class SearchLibraryController {
         IPage<Map<String,String>> pageResult = dZbPkgService.biddingProject(pageParam,keyWord);
         return  ResponseData.success(pageResult);
     }
-
+    @ApiOperation(value = "造价列表")
     @GetMapping("/costProject")
     public ResponseData<IPage<Map<String,String>>> costProject(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
@@ -56,7 +57,7 @@ public class SearchLibraryController {
         IPage<Map<String,String>> pageResult = dZbPkgService.costProject(pageParam,keyWord);
         return  ResponseData.success(pageResult);
     }
-
+    @ApiOperation(value = "招标人列表")
     @GetMapping("/bindPerson")
     public ResponseData<IPage<Map<String,String>>> bindPerson(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
@@ -83,7 +84,7 @@ public class SearchLibraryController {
         IPage<DZbExpert> pages = dZbExpertService.page(new Page<>(page, pageSize),queryWrapper);
         return ResponseData.success(pages);
     }
-
+    @ApiOperation(value = "客户详情")
     @GetMapping(value = "/custDetails")
     public ResponseData<DCust> custDetails(String id){
 
@@ -94,7 +95,7 @@ public class SearchLibraryController {
         DCust dcust = dCustService.getOne(queryWrapper);
         return ResponseData.success(dcust);
     }
-
+    @ApiOperation(value = "专家详情")
     @GetMapping(value = "/expertDetails")
     public ResponseData<DZbExpert> expertDetails(String expertCode){
 
@@ -104,4 +105,21 @@ public class SearchLibraryController {
         DZbExpert expert = dZbExpertService.getOne(queryWrapper);
         return ResponseData.success(expert);
     }
+    @ApiOperation(value = "招标项目详情")
+    @GetMapping(value = "/biddingDetails")
+    public ResponseData<Map<String,Object>> biddingDetails(String prjCode){
+
+
+        return ResponseData.success(dZbPkgService.biddingDetails(prjCode));
+    }
+
+    @ApiOperation(value = "造价项目详情")
+    @GetMapping(value = "/costDetails")
+    public ResponseData<Map<String,Object>> costDetails(String prjCode){
+
+
+        return ResponseData.success(dZbPkgService.costDetails(prjCode));
+    }
+
+
 }

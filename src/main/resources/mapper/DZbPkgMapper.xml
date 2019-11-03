@@ -59,43 +59,43 @@
     </resultMap>
 
     <select id="queryGroup" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select * from d_zb_pkg
-        from bi_dict_item
+        select * from D_ZB_PKG
+        from BI_DICT_ITEM
         where pkg_code = #{pkgCode}
     </select>
     <!--标的物名称查询-->
     <select id="matename" parameterType="java.lang.String" resultType="java.lang.String">
-      select distinct mate_name from gcgs_zb.i_zb_line_prj_suppl where mate_name = #{metaName}
+      select distinct mate_name from I_ZB_LINE_PRJ_SUPPL where mate_name = #{metaName}
     </select>
     <!--基于标的物查询属于那个标段-->
     <select id="pkgname" parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
          t.pkg_code,t.pkg_name
-         from d_zb_pkg t
-        inner join i_zb_line_prj_suppl t1 on t1.pkg_code=t.pkg_code
+         from D_ZB_PKG t
+        inner join I_ZB_LINE_PRJ_SUPPL t1 on t1.pkg_code=t.pkg_code
         where  t1.mate_name = #{metaName}
     </select>
     <!--出现的项目-->
     <select id="prjname" parameterType="java.lang.String" resultType="java.util.Map">
-        select distinct t.prj_code,t.prj_name from d_zb_prj t
-        inner join d_zb_pkg t1 on t1.prj_code=t.prj_code
-        inner join i_zb_line_prj_suppl t2 on t2.pkg_code=t1.pkg_code
+        select distinct t.prj_code,t.prj_name from D_ZB_PRJ t
+        inner join D_ZB_PKG t1 on t1.prj_code=t.prj_code
+        inner join I_ZB_LINE_PRJ_SUPPL t2 on t2.pkg_code=t1.pkg_code
         where t2.mate_name = #{metaName}
     </select>
     <!--出现的投标人-->
     <select id="documentname" parameterType="java.lang.String" resultType="java.util.Map">
-        select distinct document_name from i_zb_line_prj_suppl where mate_name= #{metaName}
+        select distinct document_name from I_ZB_LINE_PRJ_SUPPL where mate_name= #{metaName}
     </select>
     <!--出现的价格-->
     <select id="price" parameterType="java.lang.String" resultType="java.util.Map">
-      select distinct price from i_zb_line_prj_suppl where  if_win_bid='1' and mate_name=#{metaName} and price is not null
+      select distinct price from I_ZB_LINE_PRJ_SUPPL where  if_win_bid='1' and mate_name=#{metaName} and price is not null
     </select>
     <!--招标人-->
     <select id="custname" parameterType="java.lang.String" resultType="java.util.Map">
         select distinct t.cust_name
-        from d_zb_prj t
-        inner join d_zb_pkg t1 on t1.prj_code=t.prj_code
-        inner join i_zb_line_prj_suppl t2 on t2.pkg_code=t1.pkg_code
+        from D_ZB_PRJ t
+        inner join D_ZB_PKG t1 on t1.prj_code=t.prj_code
+        inner join I_ZB_LINE_PRJ_SUPPL t2 on t2.pkg_code=t1.pkg_code
         where t2.mate_name=#{metaName}
     </select>
     <select id="biddingProject" parameterType="java.lang.String" resultType="java.util.Map">
@@ -109,17 +109,17 @@
         t.pm_name,
         t.entrust_amt,
         DATE_FORMAT(t.set_time,'%Y-%m-%d')  set_time
-        FROM d_zb_prj t
-        left join d_zb_pkg t1 on t1.prj_code=t.prj_code
-        left join f_zb_sel_bid_detail t2 on t2.pkg_code=t1.pkg_code
+        FROM D_ZB_PRJ t
+        left join D_ZB_PKG t1 on t1.prj_code=t.prj_code
+        left join F_ZB_SEL_BID_DETAIL t2 on t2.pkg_code=t1.pkg_code
         where t.prj_name like  concat('%', #{prjName}, '%')
     </select>
     <select id="costProject"  parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
         t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
         t.consultation_method,t.entrust_time,t.approve_amt,t.prj_file_time
-         from d_prj_manufactur_cost t
-        left join d_cust t1 on t1.cust_document_code = t.document_code
+         from D_PRJ_MANUFACTUR_COST t
+        left join D_CUST t1 on t1.cust_document_code = t.document_code
         where t.prj_name like concat('%', #{prjName}, '%')
     </select>
     <select id="biddingPerson"  parameterType="java.lang.String" resultType="java.util.Map">
@@ -127,7 +127,21 @@
         t.cust_name,t.cust_short_name,t.addr_and_tel,t.provinces,t.provinces_code,t.city,t.city_code,t.county,
         t.cust_document_code,t.cust_blk,t.group_unit,t.group_unit_code,t.ext_unit,t.ext_unit_code,
         t.pid,t.p_cust_name
-        from d_cust t
+        from D_CUST t
         where t.cust_name like concat('%', #{custName}, '%')
+    </select>
+    <select id="biddingDetails"  parameterType="java.lang.String" resultType="java.util.Map">
+        select
+        t.*
+        from D_ZB_PRJ t
+        where t.prj_code = #{prjCode}
+    </select>
+    <select id="costDetails"  parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct
+        t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
+        t.consultation_method,t.entrust_time,t.approve_amt,t.prj_file_time
+         from D_PRJ_MANUFACTUR_COST t
+        left join D_CUST t1 on t1.cust_document_code = t.document_code
+        where t.prj_code = #{prjCode}
     </select>
 </mapper>
