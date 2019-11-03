@@ -59,9 +59,9 @@ spring:
         znode: /hbase-unsecure
         maxsize: 1572864000
   redis:
-    host: 10.212.169.159
-    port: 7001
-    password: GCGSredis123!
+    host: 39.105.192.98
+    port: 36379
+    password: 
     timeout: 1000
     lettuce:
       pool:
