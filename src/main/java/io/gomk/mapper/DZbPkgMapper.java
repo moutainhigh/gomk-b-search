@@ -55,4 +55,8 @@ public interface DZbPkgMapper extends BaseMapper<DZbPkg> {
     IPage<Map<String,String>> costProject(Page<Map<String,String>> param,@Param("prjName")String prjName);
 
     IPage<Map<String,String>> biddingPerson(Page<Map<String,String>> param,@Param("custName")String custName);
+
+    Map<String,Object> biddingDetails(@Param("prjCode")String prjCode);
+
+    Map<String,Object> costDetails(@Param("prjCode")String prjCode);
 }

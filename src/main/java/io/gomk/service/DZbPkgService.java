@@ -31,4 +31,8 @@ public interface DZbPkgService extends IService<DZbPkg> {
 
     List<DZbPkg> findPkg(String prjCode);
 
+    Map<String, Object> biddingDetails(String prjCode);
+
+    Map<String, Object> costDetails(String prjCode);
+
 }
