@@ -37,7 +37,7 @@
   "subcontext": "废标原因"
 }, {
   "name": "目录",
-  "type": "ALL",
+  "type": "OTHER",
   "calculate": "FIND",
   "result": "",
   "scope": "ALL",
