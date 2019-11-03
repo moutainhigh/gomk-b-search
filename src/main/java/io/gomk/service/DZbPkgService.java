@@ -28,4 +28,7 @@ public interface DZbPkgService extends IService<DZbPkg> {
     IPage<Map<String,String>> costProject(Page<Map<String,String>> param,String prjName);
 
     IPage<Map<String,String>> biddingPerson(Page<Map<String,String>> param,String custName);
+
+    List<DZbPkg> findPkg(String prjCode);
+
 }
