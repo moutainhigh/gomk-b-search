@@ -69,7 +69,8 @@ public class SchedulerService {
 		esUtil.parseAndSaveEs();
 	}
 	
-   // @Scheduled(fixedRate = 11115000)
+    //晚上1点 执行自动打标签
+	@Scheduled(cron = "0 0 1 * * ?")
     public void task1() throws Exception{
         System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
         QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
@@ -116,7 +117,7 @@ public class SchedulerService {
         			}
         			
         			if (keyword.getDateRange() != null && keyword.getDateRange() != 0) {
-        				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publish_date");
+        				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("noticeDate");
         				switch (DateRangeEnum.fromValue(keyword.getDateRange())) {
 						case BEFORE_THREE_MONTH:
 							rangeQueryBuilder.gte("now-3M/M");
@@ -171,15 +172,16 @@ public class SchedulerService {
     			String index = esUtil.getIndexname(classifyScope.getScopes());
     			List<String> ids = esUtil.getIDsByKeyword(index, query);
         		System.out.println("ids size:" + ids.size());
-        		esUtil.updateTagByIds(index, tag.getTagName(), ids, true);
+        		esUtil.updateTagByIds(index, tag.getTagName(), ids, true, true);
     		}
+        	
+        	//标签库标记，已执行完打标签任务
+        	tag.setTaskFinished(Boolean.TRUE);
+        	tagMapper.updateById(tag);
         }
         
     }
 
-    
-   
-    
     
 //    /**默认是fixedDelay 上一次执行完毕时间后执行下一轮*/
 //    @Scheduled(cron = "0/5 * * * * *")

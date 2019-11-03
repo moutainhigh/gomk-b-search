@@ -150,8 +150,8 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> bulkZJCGDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getZJCGMap();
-		bulkDoc(zjcgIndex, sourceList);
+		List<ESInfoBean> sourceList = ImportFile.getZJCGMap();
+		saveES(zjcgIndex, sourceList);
 		return ResponseData.success();
 	}
 

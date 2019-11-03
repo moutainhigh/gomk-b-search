@@ -1,5 +1,6 @@
 package io.gomk.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +37,7 @@ import io.gomk.service.IGTagService;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author Robinxiao
@@ -46,31 +47,31 @@ import io.gomk.service.IGTagService;
 @DS("oneself")
 public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IGTagService {
 	Logger log = LoggerFactory.getLogger(GTagServiceImpl.class);
-	
+
 	@Autowired
 	protected ESRestClient esClient;
-	
+
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
-	
+
 	@Autowired
 	GTagMapper tagMapper;
-	
+
 	@Autowired
 	GTagClassifyScopeMapper tagClassifyScopeMapper;
-	
+
 	@Autowired
 	GTagKeywordMapper tagKeywordMapper;
-	
+
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
-	
+
 	@Autowired
 	GTagClassifyMapper tagClassifyMapper;
-	
+
 	@Autowired
 	EsUtil esUtil;
-	
+
 	@Override
 	@Transactional
 	public void addDocTag(int scope, String tagName, List<String> ids) throws Exception {
@@ -84,8 +85,8 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			tag.setTaskFinished(true);
 			tagMapper.insert(tag);
 		}
-		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false);
-		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, true);
+		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, 1);
 	}
 
 	@Override
@@ -96,16 +97,16 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Override
 	public List<TreeDto> getTreeByScope(Integer scope) {
 		List<TreeDto> totalList = new ArrayList<>();
-		//一级分类
+		// 一级分类
 		List<TreeDto> firstList = tagClassifyMapper.selectByScope(scope);
 		totalList.addAll(firstList);
-		//二级分类
+		// 二级分类
 		HashSet<String> ids = new HashSet<>();
 		for (TreeDto dto : firstList) {
 			ids.add(dto.getId());
 		}
 		List<TreeDto> secondList = tagClassifyMapper.selectClassifyByParentId(ids);
-		
+
 		totalList.addAll(secondList);
 		return TreeUtils.getTree(totalList);
 	}
@@ -118,17 +119,17 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Override
 	public List<TreeDto> getAllTree() {
 		List<TreeDto> totalList = new ArrayList<>();
-		
-		//一级and二级分类
+
+		// 一级and二级分类
 		List<TreeDto> classifyList = tagClassifyMapper.selectAllClassify();
 		totalList.addAll(classifyList);
-		
+
 		return TreeUtils.getTree(totalList);
 	}
 
 	@Override
 	@Transactional
-	public void saveTagForKeyword (GTag entity, GTagKeyword keywords) throws Exception {
+	public void saveTagForKeyword(GTag entity, GTagKeyword keywords) throws Exception {
 		tagMapper.insert(entity);
 		keywords.setTagId(entity.getId());
 		tagKeywordMapper.insert(keywords);
@@ -160,31 +161,38 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		if (tag.getTaskFinished()) {
 			vo.setUpdate(false);
 		}
-		
+
 		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda()
-    		.eq(GTagKeyword::getTagId, tag.getId());
+		queryWrapper.lambda().eq(GTagKeyword::getTagId, tag.getId());
 		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
 		if (keywordList != null && keywordList.size() > 0) {
 			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
 			vo.setKeywords(keywordList);
 		} else {
 			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
-			query.lambda()
-	    		.eq(GTagFormula::getTagId, tag.getId());
+			query.lambda().eq(GTagFormula::getTagId, tag.getId());
 			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
 			if (formulaList != null && formulaList.size() > 0) {
 				vo.setRule(TagRuleTypeEnum.FORMULA.getValue());
 				vo.setFormulas(formulaList);
-			} 
+			}
 		}
-		
+
 		return vo;
 	}
 
 	@Override
 	public List<String> getCompletion(int size, String name) {
 		return tagMapper.getCompletion(size, name);
+	}
+
+	@Override
+	public void deleteDocTag(int scope, String tagName, String id) throws Exception {
+		List<String> ids = new ArrayList<>();
+		ids.add(id);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, false);
+		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, -1);
+
 	}
 
 }

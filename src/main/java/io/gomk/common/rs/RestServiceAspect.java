@@ -55,13 +55,9 @@ public class RestServiceAspect {
 		return pjp.proceed();
 
 	}
-	private Boolean checkToken(String token) {
+	private Boolean checkToken(String token) throws UnsupportedEncodingException {
 		String restore = "";
-		try {
-			restore = new String(decoder.decode(token), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new BusinessException(StatusCode.PERMISSION_DENIED);
-		}
+		restore = new String(decoder.decode(token), "UTF-8");
     	String salt = "shgc";
     	String userKey = restore.substring(salt.length());
     	Object obj = redisUtil.get(userKey);

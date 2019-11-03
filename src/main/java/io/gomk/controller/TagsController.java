@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.gomk.common.constants.CommonConstants;
 import io.gomk.common.rs.response.ResponseData;
 import io.gomk.controller.request.AddDocTagRequest;
+import io.gomk.controller.request.DeleteDocTagRequest;
 import io.gomk.controller.request.FormulaVO;
 import io.gomk.controller.request.TagClassifyRequest;
 import io.gomk.controller.request.addFormulaTagRequest;
@@ -102,6 +103,15 @@ public class TagsController extends SuperController {
 		ScopeEnum scopes = ScopeEnum.fromValue(request.getScope());
 		
 		tagService.addDocTag(request.getScope(), tagName, request.getIds());
+		return ResponseData.success();
+	}
+	@ApiOperation("删除标签")
+	@PostMapping("/doc/delete")
+	public ResponseData<?> delete(@RequestBody DeleteDocTagRequest request) throws Exception {
+		String tagName = request.getTag();
+		ScopeEnum scopes = ScopeEnum.fromValue(request.getScope());
+		
+		tagService.deleteDocTag(request.getScope(), tagName, request.getId());
 		return ResponseData.success();
 	}
 	

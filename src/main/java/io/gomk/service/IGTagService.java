@@ -39,4 +39,6 @@ public interface IGTagService extends IService<GTag> {
 
 	List<String> getCompletion(int size, String keyWord);
 
+	void deleteDocTag(int scope, String tagName, String id) throws Exception;
+
 }

@@ -1,6 +1,9 @@
 package io.gomk.mapper;
 
 import io.gomk.model.GWords;
+
+import org.apache.ibatis.annotations.Select;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -12,5 +15,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2019-11-01
  */
 public interface GWordsMapper extends BaseMapper<GWords> {
+
+	@Select("select * from t_g_words where words =#{words}")
+	GWords getByWords(String words);
 
 }

@@ -108,8 +108,10 @@ public class EsUtil {
 	 * 条件更新
 	 * 
 	 * @return
+	 * async 是否异步
+	 * addOrDelete 添加or删除 false删除
 	 */
-	public void updateTagByIds(String indexName, String tag, List<String> ids, boolean async) throws IOException {
+	public void updateTagByIds(String indexName, String tag, List<String> ids, boolean async, boolean addOrDelete) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
 		Set<String> idSet = new HashSet<String>(ids);
 		for (String id : idSet) {
@@ -117,15 +119,21 @@ public class EsUtil {
 			GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 			GetResponse getResponse = client.get(getRequest);
 			Object obj = getResponse.getSourceAsMap().get("tag");
-			HashSet<String> result = new HashSet<>();
-			result.add(tag);
-			if (obj != null) {
-				if (obj instanceof ArrayList<?>) {
-					for (Object o : (List<?>) obj) {
-						result.add(String.class.cast(o));
-					}
-				}
+			HashSet<String> result = new HashSet<String>((List<String>)obj);
+			if (addOrDelete) {
+				result.add(tag);
+			} else {
+				result.remove(tag);
 			}
+//			HashSet<String> result = new HashSet<>();
+//			result.add(tag);
+//			if (obj != null) {
+//				if (obj instanceof ArrayList<?>) {
+//					for (Object o : (List<?>) obj) {
+//						result.add(String.class.cast(o));
+//					}
+//				}
+//			}
 			jsonMap.put("tag", result);
 
 			UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
@@ -256,6 +264,7 @@ public class EsUtil {
 			//List<DBInfoBean> list = masterDBMapper.getTestDBInfo(ids);
 			log.info("===size====" + list.size());
 			if (list.size() == 0) break;
+			log.info("===i====" + i);
 			if (i >10) break;
 			i++;
 			// 1. 下载文件 分页查询未处理的纪录
@@ -540,7 +549,7 @@ public class EsUtil {
 				baos.flush(); 
 				
 				String fileName = f.getName();
-				System.out.println(fileName);
+				//System.out.println(fileName);
 				String content = "";
 				if (fileName.endsWith(".doc")) {
 					content = Word2003.read(f.getAbsolutePath());
@@ -556,7 +565,9 @@ public class EsUtil {
 					esBean.setTitle(fileName);
 					esBean.setContent(content);
 					esBean.setAddDate(new Date());
-					
+					List<String> phraseList = HanLP.extractPhrase(content, 2);
+					//保存新词
+					wordsService.saveByList(phraseList);					
 					saveES(zbIndex, esBean);
 				
 					//招标范围
@@ -617,7 +628,7 @@ public class EsUtil {
 		
 	}
 
-	public void updateWeightById(String indexName, String id) throws IOException {
+	public void updateWeightById(String indexName, String id, int num) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
@@ -625,7 +636,7 @@ public class EsUtil {
 			Object obj = getResponse.getSourceAsMap().get("weight");
 			int weight = 1;
 			if (obj != null) {
-				weight = Integer.parseInt(obj.toString()) + 1;
+				weight = Integer.parseInt(obj.toString()) + num;
 			}
 
 			Map<String, Object> jsonMap = new HashMap<>();
@@ -637,9 +648,9 @@ public class EsUtil {
 		}
 	}
 
-	public void updateWeightByIds(String indexname, List<String> ids) throws IOException {
+	public void updateWeightByIds(String indexname, List<String> ids, int num) throws IOException {
 		for (String id : ids) {
-			updateWeightById(indexname, id);
+			updateWeightById(indexname, id, num);
 		}
 		
 	}

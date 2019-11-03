@@ -183,8 +183,8 @@ public class ImportFile {
 		return list;
 	}
 
-	public static List<Map<String, Object>> getZJCGMap() throws IOException {
-		List<Map<String, Object>> list = new ArrayList<>();
+	public static List<ESInfoBean> getZJCGMap() throws IOException {
+		List<ESInfoBean> list = new ArrayList<>();
 		String now = format.format(new Date());
 		String directoryPath = "/Users/vko/Documents/my-code/DOC/zj";
 		//String directoryPath = "/soft/doc/zj";
@@ -212,13 +212,13 @@ public class ImportFile {
 				if (!"".equals(content)) {
 					Map<String, Object> map = new HashMap<>();
 					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-					map.put("title", fileName);
-					map.put("content", content);
-					map.put("tag", "");
-					//String fileUrl = filePath.replace(directoryPath, "");
-					map.put("directoryTree", sb.toString());
-					map.put("addDate", now);
-					list.add(map);
+					ESInfoBean esBean = new ESInfoBean();
+					esBean.setTitle(fileName);
+					esBean.setContent(content);
+					esBean.setAddDate(new Date());
+					esBean.setDirectoryTree(sb.toString());
+					
+					list.add(esBean);
 				}
 			}
 		}

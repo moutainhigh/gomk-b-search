@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,13 +29,19 @@ import org.springframework.stereotype.Service;
 @DS("oneself")
 public class GWordsServiceImpl extends ServiceImpl<GWordsMapper, GWords> implements IGWordsService {
 
+	@Autowired
+	GWordsMapper wordMapper;
 	@Override
 	public void saveByList(List<String> phraseList) {
 		phraseList.forEach( words -> {
-			GWords entity = new GWords();
-			entity.setAddDict(false);
-			entity.setConfirm(false);
-			super.baseMapper.insert(entity);
+			if (wordMapper.getByWords(words) != null) {
+				GWords entity = new GWords();
+				entity.setAddDict(false);
+				entity.setConfirm(false);
+				entity.setWords(words);
+				super.baseMapper.insert(entity);
+			}
+			
 		});
 		
 	}

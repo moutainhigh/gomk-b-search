@@ -24,6 +24,7 @@ import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.redis.RedisUtil;
 import io.gomk.framework.utils.HanyuPinyinUtil;
+import io.gomk.task.DBInfoBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

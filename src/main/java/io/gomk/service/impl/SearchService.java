@@ -157,6 +157,8 @@ public class SearchService extends EsBaseService implements ISearchService {
         highlightTitle.highlighterType("fvh");  
         highlightBuilder.field(highlightContent);
         highlightBuilder.requireFieldMatch(false);
+        highlightBuilder.preTags("<span style=\"color:red\"><b>");
+        highlightBuilder.postTags("</b></span>");
         sourceBuilder.highlighter(highlightBuilder);
         
         //sort 
@@ -399,7 +401,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 		GetResponse getResponse = client.get(getRequest);
 		//update weight
-		esUtil.updateWeightById(indexName, id);
+		esUtil.updateWeightById(indexName, id, 1);
 		return getResponse;
 	}
 
