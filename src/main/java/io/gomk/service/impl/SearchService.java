@@ -257,10 +257,15 @@ public class SearchService extends EsBaseService implements ISearchService {
     		HighlightField highlight2 = highlightFields.get("content"); 
             if (highlight2 != null) {
             	Text[] fragments2 = highlight2.fragments();  
-            	fragmentString = fragments2[0].string();
-            	logger.info("fragments1 size:" + fragments2.length);
-            	logger.info("fragmentString1:" + fragmentString);
-            	vo.setContent(replaceRN(fragmentString));
+//            	fragmentString = fragments2[0].string();
+//            	logger.info("fragments1 size:" + fragments2.length);
+//            	logger.info("fragmentString1:" + fragmentString);
+//            	vo.setContent(replaceRN(fragmentString));
+            	String name = "";
+            	for (Text text : fragments2) {
+            		name += text;
+            	}
+            	vo.setContent(replaceRN(name));
             } else {
             	List<String> text = HanLP.extractSummary(sourceAsMap.get("content").toString(), 10);
             	vo.setContent(StringUtils.strip(text.toString(), "[]"));
