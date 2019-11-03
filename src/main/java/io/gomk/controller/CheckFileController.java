@@ -73,11 +73,13 @@ public class CheckFileController {
         if(file.isEmpty()){
             responseData.setSuccess(false);
             responseData.setMessage("please upload file");
+            return responseData;
         }
         DZbPrj prj = idZbPrjService.getPrjByPrjCode(prjCode);
         if(prj == null){
             responseData.setSuccess(false);
             responseData.setMessage("项目不存在");
+            return responseData;
         }
         String areaData = null;
         try {
@@ -148,11 +150,13 @@ public class CheckFileController {
         if(file.isEmpty()){
             responseData.setSuccess(false);
             responseData.setMessage("please upload file");
+            return responseData;
         }
         DZbPrj prj = idZbPrjService.getPrjByPrjCode(prjCode);
         if(prj == null){
             responseData.setSuccess(false);
             responseData.setMessage("项目不存在");
+            return responseData;
         }
 
         String pbbgDate = null;
@@ -169,7 +173,7 @@ public class CheckFileController {
         }
         if ("docx".equals(fileType)) {
             try {
-                List<String> contexts = getDocxContent(file);
+                List<String> contexts = getDocxPbbgContent(file);
                 pbbg(result, prj, checkVOs, contexts);
             } catch(IOException e){
                 responseData.setSuccess(false);
@@ -177,7 +181,7 @@ public class CheckFileController {
             }
         }else {
             try {
-                List<String> contents = getDocContent(file);
+                List<String> contents = getDocPbbgContent(file);
                 pbbg(result, prj, checkVOs, contents);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -219,7 +223,13 @@ public class CheckFileController {
         }
         return results;
     }
-
+    private List<String> getDocPbbgContent(MultipartFile file) throws IOException {
+        WordExtractor extractor = new WordExtractor(file.getInputStream());
+        String[] paragraphs = extractor.getParagraphText();
+        List<String> contents = new ArrayList<>(paragraphs.length);
+        Collections.addAll(contents, paragraphs);
+        return contents;
+    }
     private List<String> getDocxContent(MultipartFile file) throws IOException {
         List<String> contents = new ArrayList<>();
         System.out.println(file.getContentType());
@@ -244,6 +254,22 @@ public class CheckFileController {
             builder.append(contents.get(i).replaceAll("\r\n","").replaceAll("\f",""));
         }
         return results;
+    }
+
+    private List<String> getDocxPbbgContent(MultipartFile file) throws IOException {
+        List<String> contents = new ArrayList<>();
+        System.out.println(file.getContentType());
+        ZipSecureFile.setMinInflateRatio(-1.0d);
+        XWPFDocument doc = new XWPFDocument(file.getInputStream());
+        List<XWPFParagraph> paras = doc.getParagraphs();
+        for (XWPFParagraph para : paras) {
+            para.getParagraphText();
+            String text = para.getParagraphText();
+            if (!text.trim().isEmpty()) {
+                contents.add(text);
+            }
+        }
+        return contents;
     }
 
     private void pbbg(List<String> result, DZbPrj prj, List<CheckVO> checkVOs, List<String> contexts) {
@@ -278,6 +304,11 @@ public class CheckFileController {
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode) {
         ResponseData responseData = new ResponseData();
         DPrjManufacturCost prj = idPrjManufacturCostService.getPrjCostByPrjCode(prjCode);
+        if(prj == null){
+            responseData.setSuccess(false);
+            responseData.setMessage("造价成果数据不存在");
+            return responseData;
+        }
         List<String> result = new ArrayList<>();
         String pbbgDate = null;
         try {
@@ -297,6 +328,7 @@ public class CheckFileController {
                 for(String text : contexts){
                     checkZjcgText(prj,checkVOs, contexts,text);
                 }
+                zjcgAmt(file3, checkVOs, contexts);
 
             } catch(IOException e){
                 responseData.setSuccess(false);
@@ -308,30 +340,7 @@ public class CheckFileController {
                 for(String text : resultList){
                     checkZjcgText(prj, checkVOs, resultList, text);
                 }
-                List<String> resultContents = getDocContent(file3);
-                checkVOs.forEach(checkVO -> {
-                    if(CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
-                        resultContents.forEach(t -> {
-                            checkVO.getPatterns().forEach(pattern -> {
-                                Matcher matcher = ConverCompile(StringUtils.trim(t), pattern);
-                                System.out.println(t);
-                                while(matcher.find()){
-                                    System.out.println(matcher.group());
-                                    String group = matcher.group();
-                                    Matcher matcher1 = ConverCompile(group, "[0-9.]+");
-                                    if(matcher1.find()) {
-                                        System.out.println(matcher1.group());
-                                        resultList.forEach(r -> {
-                                            if(r.contains(matcher1.group())){
-                                                checkVO.setResult("true");
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        });
-                    }
-                });
+                zjcgAmt(file3, checkVOs, resultList);
 
 
             } catch (IOException e) {
@@ -357,8 +366,35 @@ public class CheckFileController {
         return responseData;
     }
 
+    private void zjcgAmt(@RequestParam("file3") @ApiParam(name = "file3", value = "审核说明（控制价审核）文件", required = true) MultipartFile file3, List<CheckVO> checkVOs, List<String> resultList) throws IOException {
+        List<String> resultContents = getDocContent(file3);
+        checkVOs.forEach(checkVO -> {
+            if(CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
+                resultContents.forEach(t -> {
+                    checkVO.getPatterns().forEach(pattern -> {
+                        Matcher matcher = ConverCompile(StringUtils.trim(t), pattern);
+                        System.out.println(t);
+                        while(matcher.find()){
+                            System.out.println(matcher.group());
+                            String group = matcher.group();
+                            Matcher matcher1 = ConverCompile(group, "[0-9.]+");
+                            if(matcher1.find()) {
+                                System.out.println(matcher1.group());
+                                resultList.forEach(r -> {
+                                    if(r.contains(matcher1.group())){
+                                        checkVO.setResult("true");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
 
-        private void checkZDBBH(String prjCode,List<String> contents,List<String> results){
+
+    private void checkZDBBH(String prjCode,List<String> contents,List<String> results){
         List<DZbPkg> pkgs = dZbPkgService.findPkg(prjCode);
         pkgs.forEach(dZbPkg -> {
             contents.forEach(content -> {
@@ -445,12 +481,16 @@ public class CheckFileController {
                         }
                         if("SUB".equals(checkVO.getCalculate())){
                             if(t.contains(checkVO.getName())){
+                                boolean b = false;
+                                checkVO.setResult(String.valueOf(b));
                                 for (String tex : resultList) {
-                                    boolean b = tex.contains(checkVO.getSubcontext());
+                                    b = tex.contains(checkVO.getSubcontext());
                                     if(b){
                                         checkVO.setResult(String.valueOf(b));
                                     }
                                 }
+                            }else{
+                                checkVO.setResult(String.valueOf(true));
                             }
                         }
 
