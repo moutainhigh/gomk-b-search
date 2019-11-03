@@ -47,4 +47,14 @@
         inner join D_ZB_PRJ t2 on t2.prj_code=t1.prj_code
 		where t.mate_name=#{mateName}
     </select>
+    <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
+       select distinct
+		t.date_time,AVG(t.price)  price
+        from i_zb_line_prj_suppl t
+        where t.mate_name=#{mateName}
+        and t.price is not null
+        group by t.date_time
+		order by  t.date_time
+    </select>
+
 </mapper>

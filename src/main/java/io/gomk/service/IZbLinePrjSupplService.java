@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.model.entity.IZbLinePrjSuppl;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,4 +19,6 @@ import java.util.Map;
 public interface IZbLinePrjSupplService extends IService<IZbLinePrjSuppl> {
 
     IPage<Map<String,String>> queryQuote(Page<Map<String,String>> param, String mateName);
+
+    List<Map<String,Object>> selectPriceCharts(String mateName);
 }
