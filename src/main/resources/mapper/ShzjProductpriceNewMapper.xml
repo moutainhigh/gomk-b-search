@@ -21,7 +21,7 @@
         <result column="collectsource" property="collectsource" />
         <result column="updateuser" property="updateuser" />
         <result column="updatedate" property="updatedate" />
-        <result column="remark" property="remark" />
+        <result column="remark" property="remark" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.BlobTypeHandler"/>
         <result column="attrib1" property="attrib1" />
         <result column="attrib2" property="attrib2" />
         <result column="attrib3" property="attrib3" />
@@ -34,7 +34,7 @@
 
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
       select distinct
-		t.operatedate as date_time,AVG(t.unitprice)  price
+        DATE_FORMAT(t.operatedate,'%Y-%m-%d') as date_time,AVG(t.unitprice)  price
         from SHZJ_PRODUCTPRICE_NEW t
         where t.product_name=#{productName}
         and t.unitprice is not null
