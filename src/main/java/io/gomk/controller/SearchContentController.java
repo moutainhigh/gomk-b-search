@@ -4,8 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.gomk.model.entity.DZbExpert;
+import io.gomk.model.entity.ShzjProductpriceNew;
 import io.gomk.service.IZbLinePrjSupplService;
+import io.gomk.service.ShzjProductpriceNewService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
 import org.slf4j.Logger;
@@ -76,6 +80,8 @@ public class SearchContentController extends SuperController {
 	IGCompletionService completionService;
 	@Autowired
 	private IZbLinePrjSupplService supplService;
+	@Autowired
+	private ShzjProductpriceNewService productpriceNewService;
 	
 	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
 	@ApiImplicitParams({
@@ -391,7 +397,7 @@ public class SearchContentController extends SuperController {
 		return ResponseData.success(RuntimeUtils.getContrastResult(obj1.toString(), obj2.toString()));
 	}
 
-	@ApiOperation("产品价格-中标价格")
+	@ApiOperation("行项目报价-中标价格")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
 			@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
@@ -405,7 +411,7 @@ public class SearchContentController extends SuperController {
 		IPage<Map<String,String>> pageResult = supplService.queryQuote(pageParam,keyWord);
 		return  ResponseData.success(pageResult);
 	}
-	@ApiOperation("产品价格-中标价格-折线图")
+	@ApiOperation("行项目报价-中标价格-折线图")
 	@GetMapping("/priceCharts")
 	public ResponseData<List<Map<String,Object>>> selectPriceCharts( String mateName) throws Exception {
 		// 当前页码，每页条数
@@ -413,6 +419,28 @@ public class SearchContentController extends SuperController {
 		return  ResponseData.success(supplService.selectPriceCharts(mateName));
 	}
 
+	@ApiOperation("材价网-价格")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+			@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+			@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="采煤机-通用")
+	})
+	@GetMapping("/productPrice")
+	public ResponseData<IPage<ShzjProductpriceNew>> productPrice(int page, int pageSize, String keyWord) throws Exception {
+		// 当前页码，每页条数
+		QueryWrapper<ShzjProductpriceNew> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda().like(ShzjProductpriceNew::getProductName,keyWord);
 
+		IPage<ShzjProductpriceNew> pages = productpriceNewService.page(new Page<>(page, pageSize),queryWrapper);
+		return ResponseData.success(pages);
+	}
+
+	@ApiOperation("材价网-价格-折线图")
+	@GetMapping("/productPriceCharts")
+	public ResponseData<List<Map<String,Object>>> productPriceCharts( String productName) throws Exception {
+		// 当前页码，每页条数
+
+		return  ResponseData.success(productpriceNewService.selectPriceCharts(productName));
+	}
 	
 }

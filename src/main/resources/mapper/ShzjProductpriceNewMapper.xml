@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.ShzjProductpriceNewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.ShzjProductpriceNew">
+        <result column="belongxiaqucode" property="belongxiaqucode" />
+        <result column="operateusername" property="operateusername" />
+        <result column="operatedate" property="operatedate" />
+        <result column="yearflag" property="yearflag" />
+        <result column="rowguid" property="rowguid" />
+        <result column="product_code" property="productCode" />
+        <result column="product_name" property="productName" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="supplier_location" property="supplierLocation" />
+        <result column="contact" property="contact" />
+        <result column="measurementunit" property="measurementunit" />
+        <result column="unitprice" property="unitprice" />
+        <result column="provider" property="provider" />
+        <result column="collectdate" property="collectdate" />
+        <result column="collectsource" property="collectsource" />
+        <result column="updateuser" property="updateuser" />
+        <result column="updatedate" property="updatedate" />
+        <result column="remark" property="remark" />
+        <result column="attrib1" property="attrib1" />
+        <result column="attrib2" property="attrib2" />
+        <result column="attrib3" property="attrib3" />
+        <result column="properties" property="properties" />
+        <result column="unitnsprice" property="unitnsprice" />
+        <result column="wl_no" property="wlNo" />
+        <result column="clcateguid" property="clcateguid" />
+        <result column="ismuban" property="ismuban" />
+    </resultMap>
+
+    <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
+      select distinct
+		t.operatedate as date_time,AVG(t.unitprice)  price
+        from SHZJ_PRODUCTPRICE_NEW t
+        where t.product_name=#{productName}
+        and t.unitprice is not null
+        group by t.operatedate
+		order by  t.operatedate
+    </select>
+
+</mapper>

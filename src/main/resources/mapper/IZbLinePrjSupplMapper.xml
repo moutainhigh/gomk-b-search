@@ -40,17 +40,19 @@
     </resultMap>
     <select id="queryQuote" parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
-        t2.prj_code,t2.prj_name,t1.pkg_code,t1.pkg_win_bid_amt,
-        t.mate_code,t.mate_name,t.price
+        t.date_time,t2.prj_code,t2.prj_name,t1.pkg_code,t1.pkg_win_bid_amt,
+        t.mate_code,t.mate_name,t.price,t.qty,t.price_no_tax,t4.danweiname
         from I_ZB_LINE_PRJ_SUPPL t
         inner join D_ZB_PKG  t1 on t1.pkg_code=t.pkg_code
         inner join D_ZB_PRJ t2 on t2.prj_code=t1.prj_code
+        left join F_ZB_SEL_BID_DETAIL t3 on t3.pkg_code=t.pkg_code
+        left join D_ZB_SUPPL t4 on t4.suppl_document_code = t3.document_code
 		where t.mate_name=#{mateName}
     </select>
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
        select distinct
 		t.date_time,AVG(t.price)  price
-        from i_zb_line_prj_suppl t
+        from I_ZB_LINE_PRJ_SUPPL t
         where t.mate_name=#{mateName}
         and t.price is not null
         group by t.date_time
