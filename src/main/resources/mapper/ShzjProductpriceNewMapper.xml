@@ -32,6 +32,11 @@
         <result column="ismuban" property="ismuban" />
     </resultMap>
 
+    <select id="selectProductPrice" parameterType="java.lang.String" resultMap="BaseResultMap">
+         select * from SHZJ_PRODUCTPRICE_NEW t
+        where t.product_name = #{productName}
+    </select>
+
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
       select distinct
         DATE_FORMAT(t.operatedate,'%Y-%m-%d') as date_time,AVG(t.unitprice)  price

@@ -1,5 +1,7 @@
 package io.gomk.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.gomk.model.entity.ShzjProductpriceNew;
 import io.gomk.mapper.ShzjProductpriceNewMapper;
 import io.gomk.service.ShzjProductpriceNewService;
@@ -23,8 +25,14 @@ public class ShzjProductpriceNewServiceImpl extends ServiceImpl<ShzjProductprice
 
     @Autowired
     private ShzjProductpriceNewMapper productpriceNewMapper;
+
     @Override
     public List<Map<String, Object>> selectPriceCharts(String productName) {
         return productpriceNewMapper.selectPriceCharts(productName);
+    }
+
+    @Override
+    public IPage<ShzjProductpriceNew> selectProductPrice(Page<Map<String, String>> param, String productName) {
+        return productpriceNewMapper.selectProductPrice(param,productName);
     }
 }

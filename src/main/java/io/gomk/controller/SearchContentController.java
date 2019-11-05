@@ -428,10 +428,8 @@ public class SearchContentController extends SuperController {
 	@GetMapping("/productPrice")
 	public ResponseData<IPage<ShzjProductpriceNew>> productPrice(int page, int pageSize, String keyWord) throws Exception {
 		// 当前页码，每页条数
-		QueryWrapper<ShzjProductpriceNew> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda().like(ShzjProductpriceNew::getProductName,keyWord);
-
-		IPage<ShzjProductpriceNew> pages = productpriceNewService.page(new Page<>(page, pageSize),queryWrapper);
+		
+		IPage<ShzjProductpriceNew> pages = productpriceNewService.selectProductPrice(new Page<>(page, pageSize),keyWord);
 		return ResponseData.success(pages);
 	}
 
