@@ -78,10 +78,8 @@ public class SearchLibraryController {
         if (StringUtils.isBlank(keyWord)) {
             return ResponseData.success();
         }
-        QueryWrapper<DZbExpert> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().like(DZbExpert::getExpertName,keyWord);
 
-        IPage<DZbExpert> pages = dZbExpertService.page(new Page<>(page, pageSize),queryWrapper);
+        IPage<DZbExpert> pages = dZbExpertService.selectExpert(new Page<>(page, pageSize),keyWord);
         return ResponseData.success(pages);
     }
     @ApiOperation(value = "客户详情")

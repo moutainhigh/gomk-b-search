@@ -3,6 +3,8 @@ package io.gomk.model.entity;
 import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,6 +22,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("D_CUST")
 @ApiModel(value="DCust对象", description="业主维度表")
 public class DCust implements Serializable {
 

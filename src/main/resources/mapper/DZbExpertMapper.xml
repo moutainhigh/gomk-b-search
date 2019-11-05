@@ -57,4 +57,9 @@
         <result column="IS_ICE_OUT" property="isIceOut" />
     </resultMap>
 
+    <select id="selectExpert" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from D_ZB_EXPERT t
+        where t.expert_name like  concat('%', #{expertName}, '%')
+    </select>
+
 </mapper>
