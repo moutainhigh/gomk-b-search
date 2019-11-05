@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.sql.Blob;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,6 +23,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("SHZJ_PRODUCTPRICE_NEW")
 @ApiModel(value="ShzjProductpriceNew对象", description="")
 public class ShzjProductpriceNew implements Serializable {
 

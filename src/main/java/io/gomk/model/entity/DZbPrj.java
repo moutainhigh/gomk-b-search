@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("d_zb_prj")
+@TableName("D_ZB_PRJ")
 @ApiModel(value="项目", description="")
 public class DZbPrj implements Serializable {
 
