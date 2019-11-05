@@ -12,25 +12,37 @@ import java.text.NumberFormat;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import io.gomk.controller.response.ContrastVO;
+import io.gomk.framework.context.ApplicationContextUtility;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RuntimeUtils {
 	final static Base64.Encoder encoder = Base64.getEncoder();
 
 	public static ContrastVO getContrastResult(String str1, String str2) throws UnsupportedEncodingException {
 		ContrastVO vo = new ContrastVO();
 		StringBuilder sb = new StringBuilder();
-		String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
-		String filePath = rootPath + "t1.py";
-		// String filePath = "/root/python/difflib/diffString.py";
-		//str1 = "/Users/vko/Documents/my-code/python/v11.txt";
-		//str2 = "/Users/vko/Documents/my-code/python/v12.txt";
-		String str1Path = rootPath + "1.txt";
-		String str2Path = rootPath + "2.txt";
-		string2File(str1, str1Path);
-		string2File(str2, str2Path);
+		//String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
+		String str1Path  = "";
+		String str2Path = "";
+		Resource resource = new ClassPathResource("python/t1.py");
 		try {
+			File f = resource.getFile();
+			log.info("path:" + resource.getFile().getAbsolutePath());
+			
+			String filePath = f.getAbsolutePath();
+			// String filePath = "/root/python/difflib/diffString.py";
+			//str1 = "/Users/vko/Documents/my-code/python/v11.txt";
+			//str2 = "/Users/vko/Documents/my-code/python/v12.txt";
+			str1Path = f.getParent() + "/1.txt";
+			str2Path = f.getParent() + "/2.txt";
+			string2File(str1, str1Path);
+			string2File(str2, str2Path);
+			
 			String[] args1 = new String[] { "python", filePath, str1Path, str2Path };
 			Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 
@@ -48,6 +60,18 @@ public class RuntimeUtils {
 				}
 				i++;
 			}
+			// 获取异常输出流
+
+			BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+
+			String linee = null;
+
+			while ((linee = ine.readLine()) != null) {
+
+				log.error("===Contrast proc error===" +linee);
+
+			}
+			
 			in.close();
 			proc.waitFor();
 		} catch (IOException e) {

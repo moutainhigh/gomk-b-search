@@ -1,4 +1,8 @@
 package io.gomk.controller;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -7,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,12 +27,14 @@ import io.gomk.enums.ScopeEnum;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
+import io.gomk.framework.hdfs.HdfsOperator;
 import io.gomk.framework.redis.RedisUtil;
 import io.gomk.framework.utils.HanyuPinyinUtil;
 import io.gomk.task.DBInfoBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import sun.misc.BASE64Decoder;
 
 
 @RestController
@@ -53,12 +60,31 @@ public class TestController {
     public ResponseData<?> hbase() throws Exception {
     	HBaseService hbaseService = hbaseClient.getService();
     	log.info("tableNames:" + hbaseService.getAllTableNames().toString());
-    	String rowKey = "0014d5a310d048a48732e5b209df9e09";
+    	String rowKey = "003fdbc71fd347cebd19340fc9470218";
     	String tableName = "FileStore";
-    	Map<String, String> map = hbaseService.getRowData(tableName, rowKey);
-    	
-    	return ResponseData.success(map);
+    	hbaseService.GetData(tableName, rowKey);
+    	return ResponseData.success();
     }
+    @ApiOperation("hdfs操作")
+    @PostMapping("/hdfs")
+    public ResponseData<?> hdfs() throws Exception {
+    	System.setProperty("HADOOP_USER_NAME","hdfs");
+    	Configuration configuration = new Configuration();
+        configuration.set("fs.default.name", "hdfs://10.212.169.158:8020");
+        String pathName = "/ibs/AttachStorage/201712/J134/5693490d-ad46-4679-812f-42b0067a6ed3/a51358bc-8d21-466e-98b1-776a1ed0cf87.doc";
+        HdfsOperator.getFromHDFS(pathName, "/temp/d0cf87.doc",  configuration);
+        log.info("===hdfs InputStream====");
+    	
+    	return ResponseData.success();
+    }
+    
+    public void down(String text) throws IOException{
+		BASE64Decoder be = new BASE64Decoder();
+		byte []c = 	be.decodeBuffer(text);
+		FileOutputStream out = new FileOutputStream(new File("/temp/t2.pdf"));
+		out.write(c);
+		out.close();
+	}
     
     @ApiOperation("入库测试")
     @PostMapping("/1")
@@ -66,6 +92,13 @@ public class TestController {
     	esUtil.parseAndSaveEs();
     	return ResponseData.success();
     }
+    @ApiOperation("压缩文件处理")
+    @PostMapping("/2")
+    public ResponseData<?> test2() throws Exception {
+    	esUtil.parseRarAndZip();
+    	return ResponseData.success();
+    }
+    
 
     @ApiOperation("存redis 用户权限信息")
     @PostMapping("/redis/user/role")

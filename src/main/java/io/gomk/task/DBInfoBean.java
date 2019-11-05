@@ -46,4 +46,7 @@ public class DBInfoBean {
 	private String storeType;
 	//扩展名
 	private String ext;
+	//备注 取标识为成果文件 的造价文件
+	private String bz;
+		
 }

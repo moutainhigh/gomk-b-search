@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -49,10 +50,11 @@ import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
 import io.gomk.framework.utils.FileListUtil;
+import io.gomk.framework.utils.RandomUtil;
 import io.gomk.framework.utils.parse.PDF;
 import io.gomk.framework.utils.parse.Word2003;
 import io.gomk.framework.utils.parse.Word2007;
-import io.gomk.framework.utils.parse.ZipUtil;
+import io.gomk.framework.utils.parse.ZipAndRarTools;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
 import io.gomk.mapper.MasterDBMapper;
@@ -101,9 +103,13 @@ public class EsUtil {
 	protected String completionIndex;
 
 	private final static String STORE_HBASE = "HBASE";
-	private final static String STORE_HDFS = "HFS";
+	private final static String STORE_HDFS = "HDFS";
+	private final static String HBASE_SERVER = "hdfs://10.212.169.158:8020";
 	private final static String HBASE_TABLE_NAME = "FileStore";
 	private final static String HBASE_COLUMN_NAME = "a";
+	private final static String ZJCG_CODE = "成果文件"; //造价
+	
+	
 	/*
 	 * 条件更新
 	 * 
@@ -119,21 +125,24 @@ public class EsUtil {
 			GetRequest getRequest = new GetRequest(indexName, "_doc", id);
 			GetResponse getResponse = client.get(getRequest);
 			Object obj = getResponse.getSourceAsMap().get("tag");
-			HashSet<String> result = new HashSet<String>((List<String>)obj);
+			
+			HashSet<String> result = null;
 			if (addOrDelete) {
-				result.add(tag);
+				if (obj == null) {
+					result = new HashSet<>();
+					result.add(tag);
+				} else {
+					result = new HashSet<String>((List<String>)obj);
+					result.add(tag);
+				}
 			} else {
-				result.remove(tag);
+				if (obj != null) {
+					result = new HashSet<String>((List<String>)obj);
+					result.remove(tag);
+				} else {
+					break;
+				}
 			}
-//			HashSet<String> result = new HashSet<>();
-//			result.add(tag);
-//			if (obj != null) {
-//				if (obj instanceof ArrayList<?>) {
-//					for (Object o : (List<?>) obj) {
-//						result.add(String.class.cast(o));
-//					}
-//				}
-//			}
 			jsonMap.put("tag", result);
 
 			UpdateRequest request = new UpdateRequest(indexName, "_doc", id).doc(jsonMap);
@@ -245,7 +254,23 @@ public class EsUtil {
 		return indexName;
 	}
 	
-
+	
+	/**
+	 * 处理造价压缩文件 
+	 */
+	public void parseRarAndZip() {
+		List<DBInfoBean> list = masterDBMapper.getRarAndZipDBInfo();
+		log.info("===size====" + list.size());
+		list.forEach(bean -> {
+			InputStream in = getInputStream(bean);
+			try {
+				disposeZJRARandZIP(bean, in);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+	}
 	/**
 	 * 下截文件--抽取内容--存储es索引
 	 */
@@ -256,49 +281,72 @@ public class EsUtil {
 			List<String> ids = db2esMapper.selectIDS();
 			List<DBInfoBean> list = new ArrayList<>();
 			if (ids.size() == 0) {
-				list = db2esMapper.getTestALLDBInfo(ids);
+				list = masterDBMapper.getTestALLDBInfo(ids);
 			} else {
-				list = db2esMapper.getTestDBInfo(ids);
+				//临时库
+				//list = db2esMapper.getTestDBInfo(ids);
+				//正式库
+				list = masterDBMapper.getDBInfo(ids);
 			}
 			//暂时切到自己库
-			//List<DBInfoBean> list = masterDBMapper.getTestDBInfo(ids);
 			log.info("===size====" + list.size());
 			if (list.size() == 0) break;
-			log.info("===i====" + i);
-			if (i >10) break;
-			i++;
+//			log.info("===i====" + i);
+//			if (i >1) break;
+//			i++;
 			// 1. 下载文件 分页查询未处理的纪录
 			list.forEach(bean -> {
+				log.info(bean.getUuid() + "==========wjtm=======" + bean.getWjtm());
+				//log.info( "==========detail======" + bean.toString());
 				switch (bean.getFileType()) {
 				case "ztb":
 					if (bean.getWjtm().startsWith("招标文件及审批表")) {
+						log.info("====招标文件 ====");
 						InputStream in = getInputStream(bean);
 						if (in != null) {
 							try {
 								saveZB(bean, in);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
-								e.printStackTrace();
+								log.error("error" +e.getMessage());
+								break;
 							}
 						}
 					} else if ("投标文件".equals(bean.getWjtm())) {
+						log.info("====投标文件 ====");
 						InputStream in = getInputStream(bean);
 						if (in != null) {
 							try {
 								disposeTB(bean, in);
 							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								log.error("error" +e.getMessage());
+								break;
 							}
 						}
 					}
 					break;
 				case "gczj":
+					log.info("====zaojia文件 ====");
 					try {
-						disposeZJ(bean);
+						if (bean.getBz() != null && bean.getBz().equals(ZJCG_CODE)) {
+							if (!bean.getExt().equals("rar") && !bean.getExt().equals("zip")) {
+								InputStream in = getInputStream(bean);
+								if (in != null) {
+									saveZaojia(bean, in);
+								}
+							} else if (bean.getExt().equals("zip") || bean.getExt().equals("rar")){
+								//处理压缩文件
+								//InputStream in = getInputStream(bean);
+								//disposeZJRARandZIP(bean, in);
+								break;
+							}
+						} else {
+							break;
+						}
+						
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("error" +e.getMessage());
+						break;
 					}
 					break;
 				default:
@@ -312,27 +360,36 @@ public class EsUtil {
 
 
 	private InputStream getInputStream(DBInfoBean bean) {
-		String storeUrl = bean.getStoreUrl();
 		String storeType = bean.getStoreType();
+		String storeUrl = bean.getStoreUrl();
+		log.info("===get inputStream====" + storeType);
 		if (storeType.equals(STORE_HBASE)) {
 			log.info("===save type:hbase====");
 			HBaseService hbaseService = hbaseClient.getService();
-			Map<String, String> result = hbaseService.getRowData(HBASE_TABLE_NAME, storeUrl);
-			if (result != null) {
-				try {
-					InputStream in  = hbaseService.down(result.get(HBASE_COLUMN_NAME));
-					return in;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			InputStream in = hbaseService.getInputStream(HBASE_TABLE_NAME, storeUrl);
+			//log.info("=====hbase inputstream:" + in.toString());
+			return in;
+			
 		} else if (storeType.equals(STORE_HDFS)) {
 			log.info("===save type:hdfs====");
+			System.setProperty("HADOOP_USER_NAME","hdfs");
 			Configuration configuration = new Configuration();
-	        configuration.set("fs.defaultFS", "hdfs://10.212.169.167:8020");
-	        InputStream in = HdfsOperator.getInputStreamFromHDFS(bean.getPathName(), storeUrl, configuration);
-	        log.info("===hdfs InputStream====");
-	        return in;
+	        configuration.set("fs.defaultFS", HBASE_SERVER);
+	        String target= "/temp/" + RandomUtil.getGlobalUniqueId() + "." + bean.getExt();
+	        //HdfsOperator.getFromHDFS(storeUrl, target, configuration);
+	       return  HdfsOperator.getInputStreamFromHDFS(storeUrl, target, configuration);
+	        
+//	        log.info("===hdfs InputStream====");
+//	        File temp = new File(target);
+//	        try {
+//				return new FileInputStream(temp);
+//			} catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} finally {
+//				//temp.delete();
+//			}
+	        
 		} 
 		return null;
 	}
@@ -371,7 +428,8 @@ public class EsUtil {
 		//========存招标文件库=======
 		if (StringUtils.isNotBlank(content)) {
 			esBean.setContent(content);
-			List<String> phraseList = HanLP.extractPhrase(content, 2);
+			List<String> phraseList = HanLP.extractPhrase(content, 3);
+			log.info("========words size=======" + phraseList.size());
 			//保存新词
 			wordsService.saveByList(phraseList);
 			saveES(zbIndex, esBean);
@@ -383,18 +441,20 @@ public class EsUtil {
 			esBean.setContent(zgyqList.toString());
 			saveES(zgyqIndex, esBean);
 			zgyqList.forEach(str ->{
-				QueryWrapper<GZgyq> query = new QueryWrapper<>();
-				query.lambda()
-		    		.eq(GZgyq::getContent, str);
-				GZgyq zgyqItem = zgyqService.getOne(query);
-				if (zgyqItem != null) {
-					zgyqItem.setAmount(zgyqItem.getAmount() + 1);
-					zgyqService.updateById(zgyqItem);
-				} else {
-					zgyqItem = new GZgyq();
-					zgyqItem.setAmount(0);
-					zgyqItem.setContent(str);
-					zgyqService.save(zgyqItem);
+				if (StringUtils.isNotBlank(str)) {
+					QueryWrapper<GZgyq> query = new QueryWrapper<>();
+					query.lambda()
+					.eq(GZgyq::getContent, str);
+					GZgyq zgyqItem = zgyqService.getOne(query);
+					if (zgyqItem != null) {
+						zgyqItem.setAmount(zgyqItem.getAmount() + 1);
+						zgyqService.updateById(zgyqItem);
+					} else {
+						zgyqItem = new GZgyq();
+						zgyqItem.setAmount(0);
+						zgyqItem.setContent(str);
+						zgyqService.save(zgyqItem);
+					}
 				}
 			});
 			
@@ -430,6 +490,25 @@ public class EsUtil {
 			saveES(tbIndex, esBean);
 		}
 	}
+	
+	/**
+	 * 处理非压缩造价文件
+	 * 
+	 * @param bean
+	 * @param in 
+	 * @throws IOException 
+	 */
+	private void saveZaojia(DBInfoBean bean, InputStream in) throws IOException {
+		//全文
+		String content = getContent(in, bean.getExt());
+		if (StringUtils.isNotBlank(content)) {
+			ESInfoBean esBean = new ESInfoBean();
+			BeanUtils.copyProperties(bean, esBean);
+			esBean.setAddDate(new Date());
+			esBean.setContent(content);
+			saveES(zjcgIndex, esBean);
+		}
+	}
 
 	/**
 	 * 处理造价文件
@@ -437,66 +516,70 @@ public class EsUtil {
 	 * @param bean
 	 * @throws IOException 
 	 */
-	private void disposeZJ(DBInfoBean bean) throws IOException {
-		String storeType = bean.getStoreType();
-		if (bean.getExt().equals("zip") && storeType.equals(STORE_HBASE)) {
-			HBaseService hbaseService = hbaseClient.getService();
-			Map<String, String> result = hbaseService.getRowData(HBASE_TABLE_NAME, bean.getStoreUrl());
-			if (result != null) {
-				InputStream initialStream  = hbaseService.down(result.get(HBASE_COLUMN_NAME));
-				String path = "/tmp/targetFile.zip";
-				String targetDir = "/tmp/zip";
-				File targetFile = new File(path);
-				FileUtils.copyInputStreamToFile(initialStream, targetFile);
+	private void disposeZJRARandZIP(DBInfoBean bean, InputStream initialStream) throws IOException {
+		String ext = bean.getExt();
+		String zipPath = "/temp/targetFile_zip.zip";
+		String rarPath = "/temp/targetFile_rar.rar";
+		String targetDir = "/temp/zip_rar";
+		
+		if ("zip".equals(ext)) {
+			File targetFile = new File(zipPath);
+			FileUtils.copyInputStreamToFile(initialStream, targetFile);
+			ZipAndRarTools.unZipFiles(zipPath, targetDir);
+		} else if ("rar".equals(ext)){
+//			File targetFile = new File(rarPath);
+//			FileUtils.copyInputStreamToFile(initialStream, targetFile);
+			try {
+				ZipAndRarTools.unRar(initialStream, targetDir);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+			try {
+				List<File> files = new ArrayList<>();
+				StringBuffer sb = new StringBuffer();
+				FileListUtil.findDir(targetDir, 3, files, sb);
 				
-				try {
-					ZipUtil.unZipFiles(path, targetDir);
-				
-					List<File> files = new ArrayList<>();
-					StringBuffer sb = new StringBuffer();
-					FileListUtil.findDir(targetDir, 3, files, sb);
-					
-					for (File f : files) {
-						if (f.isFile()) {
-							String fileName = f.getName();
-							String content = "";
-							if (fileName.endsWith(".doc")) {
-								content = Word2003.read(f.getAbsolutePath());
-							} else if (fileName.endsWith(".docx")) {
-								content = Word2007.read(f.getAbsolutePath());
-							} else if (fileName.endsWith(".pdf")) {
-								content = PDF.read(f.getAbsolutePath());
-							}
-							if (!"".equals(content)) {
-								ESInfoBean esBean = new ESInfoBean();
-								BeanUtils.copyProperties(bean, esBean);
-								esBean.setAddDate(new Date());
-								fileName = fileName.substring(0, fileName.lastIndexOf("."));
-								esBean.setTitle(fileName);
-								esBean.setContent(content);
-								esBean.setDirectoryTree(sb.toString());
-								saveES(zjcgIndex, esBean);
-							}
+				for (File f : files) {
+					if (f.isFile()) {
+						String fileName = f.getName();
+						String content = "";
+						if (fileName.endsWith(".doc")) {
+							content = Word2003.read(f.getAbsolutePath());
+						} else if (fileName.endsWith(".docx")) {
+							content = Word2007.read(f.getAbsolutePath());
+						} else if (fileName.endsWith(".pdf")) {
+							content = PDF.read(f.getAbsolutePath());
+						}
+						if (!"".equals(content)) {
+							ESInfoBean esBean = new ESInfoBean();
+							BeanUtils.copyProperties(bean, esBean);
+							esBean.setAddDate(new Date());
+							fileName = fileName.substring(0, fileName.lastIndexOf("."));
+							esBean.setTitle(fileName);
+							esBean.setContent(content);
+							esBean.setDirectoryTree(sb.toString());
+							saveES(zjcgIndex, esBean);
 						}
 					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
 					try {
-						ZipUtil.delDir(targetDir);
+						ZipAndRarTools.delDir(targetDir);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
-				
 			}
-		}
+			
+				
 	}
 	
 
-	private String getContent(InputStream in, String extensionName) throws IOException {
+	private String getContent(InputStream in, String extensionName) throws InvalidPasswordException, IOException {
 		String content = "";
 		if (extensionName.endsWith("doc")) {
 			content = Word2003.read(in);
@@ -505,6 +588,7 @@ public class EsUtil {
 		} else if (extensionName.endsWith("pdf")) {
 			content = PDF.read(in);
 		}
+		log.info("content=length==========" + content.length());
 		return content;
 	}
 
@@ -513,6 +597,8 @@ public class EsUtil {
 
 		IndexRequest request = new IndexRequest(index, "_doc");
 		request.source(JSON.toJSONString(esBean), XContentType.JSON);
+		
+		log.info("=============insert ES...=======");
 		// 同步请求
 		IndexResponse response = client.index(request);
 		log.info(response.getResult().toString());
@@ -580,7 +666,7 @@ public class EsUtil {
 					String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
 					
 					//log.info("zbfw====" + zbfw);
-//					log.info("zgyqList=======" + zgyqList.toString());
+					log.info("zgyqList=======" + zgyqList.toString());
 //					log.info("pbbf=====" + pbbf);
 //					log.info("jsyq=====" + jsyq);
 					

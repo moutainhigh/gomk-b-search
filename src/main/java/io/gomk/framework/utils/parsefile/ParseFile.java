@@ -223,7 +223,7 @@ public class ParseFile {
 
     private void generateByWord(Map<String, StringBuilder> result, Map<String, LinkedHashMap<Integer, String>> contentByTitles, String[] paragraph, String[] styles) {
         List<String> l = Arrays.asList(paragraph);
-        log.info("{}", l);
+        //log.info("{}", l);
         int totalParagraph = paragraph.length;
         List<Integer> fIndexList = new ArrayList<>();
         for (int i = 0; i < totalParagraph; i++) {
@@ -388,9 +388,10 @@ public class ParseFile {
         
         List<String> infos = Arrays.asList(sb.toString().split("\r"));
         List<String> results = new ArrayList<>();
-        String t3 = "满足以下条件";
+        String t3 = "以下条件";
+        String t4 = "以下资格条件";
         for (String s : infos) {
-        	if (!s.contains(t1) && !s.contains(t2) && !s.contains(t3)) {
+        	if (!s.contains(t1) && !s.contains(t2) && !s.contains(t3) && !s.contains(t4)) {
         		results.add(s.replaceFirst("^+\\s*\\d+.\\d*", ""));
         	}
         }

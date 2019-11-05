@@ -33,16 +33,15 @@ public class GWordsServiceImpl extends ServiceImpl<GWordsMapper, GWords> impleme
 	GWordsMapper wordMapper;
 	@Override
 	public void saveByList(List<String> phraseList) {
-		phraseList.forEach( words -> {
-			if (wordMapper.getByWords(words) != null) {
+		for (String words : phraseList) {
+			if (wordMapper.getByWords(words) == 0) {
 				GWords entity = new GWords();
 				entity.setAddDict(false);
 				entity.setConfirm(false);
 				entity.setWords(words);
-				super.baseMapper.insert(entity);
+				wordMapper.insert(entity);
 			}
-			
-		});
+		}
 		
 	}
 

@@ -16,7 +16,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface GWordsMapper extends BaseMapper<GWords> {
 
-	@Select("select * from t_g_words where words =#{words}")
-	GWords getByWords(String words);
+	@Select("select count(*) from t_g_words where words =#{words}")
+	int getByWords(String words);
 
 }

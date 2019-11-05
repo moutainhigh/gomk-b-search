@@ -31,8 +31,8 @@ public class RestServiceAspect {
 	final Base64.Decoder decoder = Base64.getDecoder();
 	final Base64.Encoder encoder = Base64.getEncoder();
 	
-	@Autowired
-	private RedisUtil redisUtil;
+	//@Autowired
+	//private RedisUtil redisUtil;
 	@Autowired
 	private ApiContext apiContext;
 
@@ -60,11 +60,11 @@ public class RestServiceAspect {
 		restore = new String(decoder.decode(token), "UTF-8");
     	String salt = "shgc";
     	String userKey = restore.substring(salt.length());
-    	Object obj = redisUtil.get(userKey);
-    	if (obj == null) {
-    		Log.info("error:not in redis.");
-    		return false;
-    	}
+//    	Object obj = redisUtil.get(userKey);
+//    	if (obj == null) {
+//    		Log.info("error:not in redis.");
+//    		return false;
+//    	}
 		return true;
 	}
 }

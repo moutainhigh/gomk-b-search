@@ -40,7 +40,7 @@ public interface DB2ESMapper {
 				"	a.uuid, a.syscode as fileType,a.wjtm," ,
 				"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName" , 
 				" FROM BIZ_Z_DFILE a " ,
-				"	inner join BIZ_Z_EFILE_COMPLETED b on a.uuid=b.puuid" ,
+				"	inner join BIZ_Z_EFILE_COMPLETED b on a.uuid=b.puuid " ,
                 "  limit 10",
 		"</script>"
 	})

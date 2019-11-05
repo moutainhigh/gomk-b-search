@@ -7,8 +7,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.usermodel.Range;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Word2003 {
 
 	public static void main(String[] args) {
@@ -19,10 +23,11 @@ public class Word2003 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(str);
-		//String str="China|||||America::::::England&&&&&&&Mexica";
-        //System.out.println(str.replaceAll("(.)\\1+","$1"));
+		// System.out.println(str);
+		// String str="China|||||America::::::England&&&&&&&Mexica";
+		// System.out.println(str.replaceAll("(.)\\1+","$1"));
 	}
+
 	public static String read(String filePath) throws IOException {
 		StringBuffer sbf = new StringBuffer();
 		if (filePath.contains("~")) {
@@ -43,11 +48,11 @@ public class Word2003 {
 //			fis.close();
 //			InputStream is = new ByteArrayInputStream(sbf.toString().getBytes());
 //			HWPFDocument doc = new HWPFDocument(is);
-			
+
 			return read(fis);
 		} catch (Exception e) {
 			System.out.println("error:" + e.getMessage());
-		} 
+		}
 		return "";
 	}
 
@@ -63,10 +68,11 @@ public class Word2003 {
 
 			Range rang = doc.getRange();
 			String doc3 = rang.text();
-			//content = doc3.replaceAll("(\r)\\1+","$1").replace("\t", "").replace("\r", " ");
+			// content = doc3.replaceAll("(\r)\\1+","$1").replace("\t", "").replace("\r", "
+			// ");
 			content = doc3.trim();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.info("word2003 error:"+ e.getMessage());
 		}
 		return content;
 	}
@@ -79,10 +85,45 @@ public class Word2003 {
 		}
 		return null;
 	}
-	public static String read(InputStream in) throws IOException {
-		HWPFDocument doc = new HWPFDocument(in);
-		String content = getContent(doc);
-		doc.close();
-		return content;
+
+	public static String read(InputStream in) {
+		WordExtractor wordExtractor;
+		try {
+			wordExtractor = new WordExtractor(in);
+			return wordExtractor.getText();
+		}  catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			return "";
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			
+			return "";
+		}catch (IOException e) {
+			return "";
+		}
+//		HWPFDocument doc;
+//		try {
+//			doc = new HWPFDocument(in);
+//			String content = getContent(doc);
+//			doc.close();
+//			return content;
+//		} catch (IllegalStateException e) {
+//			// TODO Auto-generated catch block
+//			//e.printStackTrace();
+//			
+//			return "";
+//		} catch (IllegalArgumentException e) {
+//			// TODO Auto-generated catch block
+//			//e.printStackTrace();
+//			return "";
+//		} catch (IOException e) {
+//			return "";
+//		} finally {
+//			doc.close();
+//		}
+//		
+
 	}
 }
