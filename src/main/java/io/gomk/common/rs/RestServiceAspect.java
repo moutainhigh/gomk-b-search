@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.python.jline.internal.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import io.gomk.common.code.StatusCode;
 import io.gomk.common.exception.BusinessException;
 import io.gomk.framework.context.ApiContext;
-import io.gomk.framework.redis.RedisUtil;
 
 @Aspect
 @Order(-99) // 控制多个Aspect的执行顺序，越小越先执行

@@ -2,21 +2,24 @@ package io.gomk.framework.utils.jython;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.Base64;
 
+import org.apache.catalina.startup.ClassLoaderFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import io.gomk.controller.response.ContrastVO;
-import io.gomk.framework.context.ApplicationContextUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -27,23 +30,23 @@ public class RuntimeUtils {
 		ContrastVO vo = new ContrastVO();
 		StringBuilder sb = new StringBuilder();
 		//String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
-		String str1Path  = "";
-		String str2Path = "";
-		Resource resource = new ClassPathResource("python/t1.py");
+		
 		try {
-			File f = resource.getFile();
-			log.info("path:" + resource.getFile().getAbsolutePath());
+			InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/t1.py");
+			String projectPath = System.getProperty("user.dir");
+			File targetFile = new File(projectPath + "/diff.py");
+			FileUtils.copyInputStreamToFile(initialStream, targetFile);
+			File temp1 = new File(projectPath + "/1.txt");
+			File temp2 = new File(projectPath + "/2.txt");
 			
-			String filePath = f.getAbsolutePath();
-			// String filePath = "/root/python/difflib/diffString.py";
-			//str1 = "/Users/vko/Documents/my-code/python/v11.txt";
-			//str2 = "/Users/vko/Documents/my-code/python/v12.txt";
-			str1Path = f.getParent() + "/1.txt";
-			str2Path = f.getParent() + "/2.txt";
-			string2File(str1, str1Path);
-			string2File(str2, str2Path);
+			log.info("projectPath:" + projectPath);
 			
-			String[] args1 = new String[] { "python", filePath, str1Path, str2Path };
+			InputStream txt1Stream = new ByteArrayInputStream(str1.getBytes());
+			InputStream txt2Stream = new ByteArrayInputStream(str2.getBytes());
+			FileUtils.copyInputStreamToFile(txt1Stream, temp1);
+			FileUtils.copyInputStreamToFile(txt2Stream, temp2);
+		 
+			String[] args1 = new String[] { "python", targetFile.getAbsolutePath(), temp1.getAbsolutePath(), temp2.getAbsolutePath() };
 			Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -79,10 +82,8 @@ public class RuntimeUtils {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
-			 File file1 = new File(str1Path);
-			 File file2 = new File(str2Path);
-			 file1.delete();
-			 file2.delete();
+			// file1.delete();
+			// file2.delete();
 		}
 		
 		// System.out.println(sb.toString());
@@ -133,54 +134,65 @@ public class RuntimeUtils {
 	}
 
 	public static void main(String[] args) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
-		String filePath = rootPath + "t1.py";
-		// String filePath = "/root/python/difflib/diffString.py";
-		String str1 = "对比nginx配置文件的差异34343";
-		String str2 = "对比nginx配置文件的差异";
-		String str1Path = rootPath + "1.txt";
-		String str2Path = rootPath + "2.txt";
-		string2File(str1, str1Path);
-		string2File(str2, str2Path);
+		//InputStream in  = Thread.currentThread().getContextClassLoader().getResourceAsStream("python/t1.py");
+		InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/t1.py");
+		//log.info(in.toString());
 		
-		String[] args1 = new String[] { "python", filePath, str1Path, str2Path };
-		Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-		String line = null;
-		int i = 0;
-		while ((line = in.readLine()) != null) {
-			if (i == 0 && StringUtils.isNotBlank(line)) {
-				NumberFormat format = NumberFormat.getPercentInstance();
-				format.setMaximumFractionDigits(2);// 设置保留几位小数
-				System.out.println("=====" + format.format(Double.parseDouble(line)));
-			} else {
-				//System.out.println("=====" + line);
-				sb.append(line);
-			}
-			i++;
-		}
-		// 获取异常输出流
-
-		BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-
-		String linee = null;
-
-		while ((linee = ine.readLine()) != null) {
-
-			System.out.println(linee);
-
-		}
-
-		in.close();
-		try {
-			proc.waitFor();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		System.out.println(sb.toString());
+		String projectPath = System.getProperty("user.dir");
+		File targetFile = new File(projectPath + "/diff.py");
+		FileUtils.copyInputStreamToFile(initialStream, targetFile);
+		
+		
+//		StringBuilder sb = new StringBuilder();
+//		String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
+//		String filePath = rootPath + "t1.py";
+//		// String filePath = "/root/python/difflib/diffString.py";
+//		String str1 = "对比nginx配置文件的差异34343";
+//		String str2 = "对比nginx配置文件的差异";
+//		String str1Path = rootPath + "1.txt";
+//		String str2Path = rootPath + "2.txt";
+//		string2File(str1, str1Path);
+//		string2File(str2, str2Path);
+//		
+//		String[] args1 = new String[] { "python", filePath, str1Path, str2Path };
+//		Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
+//
+//		BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+//		String line = null;
+//		int i = 0;
+//		while ((line = in.readLine()) != null) {
+//			if (i == 0 && StringUtils.isNotBlank(line)) {
+//				NumberFormat format = NumberFormat.getPercentInstance();
+//				format.setMaximumFractionDigits(2);// 设置保留几位小数
+//				System.out.println("=====" + format.format(Double.parseDouble(line)));
+//			} else {
+//				//System.out.println("=====" + line);
+//				sb.append(line);
+//			}
+//			i++;
+//		}
+//		// 获取异常输出流
+//
+//		BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+//
+//		String linee = null;
+//
+//		while ((linee = ine.readLine()) != null) {
+//
+//			System.out.println(linee);
+//
+//		}
+//
+//		in.close();
+//		try {
+//			proc.waitFor();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		System.out.println(sb.toString());
 	}
+	
+
 }

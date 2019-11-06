@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.python.jline.internal.Log;
-
 import com.hankcs.hanlp.HanLP;
 
 import io.gomk.controller.response.SearchResultVO;
@@ -248,6 +246,6 @@ public class FileListUtil {
         //find(directoryPath, directoryPath, depth, list);  
     	StringBuffer sb = new StringBuffer();
     	//findDir(directoryPath, 3, sb);
-    	Log.info("===="+ sb.toString());
+    	//Log.info("===="+ sb.toString());
     } 
 }

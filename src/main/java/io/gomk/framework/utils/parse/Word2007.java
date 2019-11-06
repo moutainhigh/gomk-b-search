@@ -7,8 +7,10 @@ import java.io.InputStream;
 
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.python.jline.internal.Log;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Word2007 {
 
 	public static String read(String filePath) {
@@ -36,7 +38,7 @@ public class Word2007 {
 			extractor.close();
 			return str;
 		} catch (IOException e) {
-			Log.info("word2007-error:"+e.getMessage());
+			log.info("word2007-error:"+e.getMessage());
 		}
 		
 		return "";
