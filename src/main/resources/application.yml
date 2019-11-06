@@ -3,3 +3,44 @@ spring:
     name: gomk-b-search
   profiles:
     active: @spring.active@
+  datasource:
+    url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+    #    url: jdbc:mysql:/39.105.192.98:33306/bidata?useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: Abcd1234!
+    druid:
+      web-stat-filter:
+        enabled: false
+      stat-view-servlet:
+        enabled: false
+  jackson:
+    date-format: com.fasterxml.jackson.databind.util.StdDateFormat
+    default-property-inclusion: always
+    property-naming-strategy: SNAKE_CASE
+    time-zone: GMT+8
+    open-in-view: false
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+server:
+  port: 8000
+graph:
+  query:
+    TimeLimit: 8000
+    fastProperty: true
+  storage:
+    backend: cql
+    keyspace: graph_1102
+    hostname: 101.201.77.122
+    batchLoading: true
+  search:
+    backend: elasticsearch
+    hostname: 58.119.224.27:29200
+  cache:
+    enable: true
+    #秒
+    time: 300
+    size: 0.25
