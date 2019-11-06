@@ -336,9 +336,8 @@ public class EsUtil {
 								}
 							} else if (bean.getExt().equals("zip") || bean.getExt().equals("rar")){
 								//处理压缩文件
-								//InputStream in = getInputStream(bean);
-								//disposeZJRARandZIP(bean, in);
-								break;
+								InputStream in = getInputStream(bean);
+								disposeZJRARandZIP(bean, in);
 							}
 						} else {
 							break;

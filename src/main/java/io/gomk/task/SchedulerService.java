@@ -64,7 +64,7 @@ public class SchedulerService {
 			e.printStackTrace();
 		}
 	}
-	//@Scheduled(fixedRate = 111150300)
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs();
 	}
