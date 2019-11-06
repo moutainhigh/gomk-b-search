@@ -1,7 +1,7 @@
 package io.gomk.service;
 
 import io.gomk.common.constants.GraphConstant;
-import io.gomk.model.TargetMapDTO;
+import io.gomk.model.entity.TargetMapDTO;
 import io.gomk.projection.*;
 import io.gomk.repository.GraphRepository;
 import lombok.extern.slf4j.Slf4j;

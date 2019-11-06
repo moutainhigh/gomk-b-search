@@ -1,5 +1,6 @@
-package io.gomk.model;
+package io.gomk.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -16,8 +17,10 @@ public class SupplyDO {
     @Id
     private String GUID;
 
+    @JsonProperty("mate_name")
     private String mateName;
 
+    @JsonProperty("mate_code")
     private String mateCode;
 
 

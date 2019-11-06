@@ -23,7 +23,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.2.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-validation:2.0.1.RELEASE" level="project" />
@@ -41,6 +41,8 @@
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.0.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.0.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-logging:2.0.1.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-to-slf4j:2.10.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: javax.annotation:javax.annotation-api:1.3.2" level="project" />
@@ -188,6 +190,7 @@
     <orderEntry type="library" name="Maven: com.github.virtuald:curvesapi:1.06" level="project" />
     <orderEntry type="library" name="Maven: org.apache.poi:poi-scratchpad:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.pdfbox:pdfbox-app:2.0.16" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.21.0-GA" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.ant:ant:1.10.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.ant:ant-launcher:1.10.7" level="project" />
@@ -359,7 +362,6 @@
     <orderEntry type="library" name="Maven: info.ganglia.gmetric4j:gmetric4j:1.0.3" level="project" />
     <orderEntry type="library" name="Maven: com.codahale.metrics:metrics-graphite:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.9-RC1" level="project" />
-    <orderEntry type="library" name="Maven: org.javassist:javassist:3.16.1-GA" level="project" />
     <orderEntry type="library" name="Maven: dom4j:dom4j:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: xml-apis:xml-apis:1.4.01" level="project" />
     <orderEntry type="library" name="Maven: org.locationtech.spatial4j:spatial4j:0.7" level="project" />
@@ -389,8 +391,6 @@
     <orderEntry type="library" name="Maven: org.janusgraph:janusgraph-es:0.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.2" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:stringtemplate:3.2" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
-    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:2.0.1.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.hibernate:hibernate-core:5.2.16.Final" level="project" />
     <orderEntry type="library" name="Maven: org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final" level="project" />

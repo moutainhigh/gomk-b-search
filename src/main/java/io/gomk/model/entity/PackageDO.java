@@ -1,4 +1,4 @@
-package io.gomk.model;
+package io.gomk.model.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

@@ -1,6 +1,6 @@
 package io.gomk.repository;
 
-import io.gomk.model.SupplyDO;
+import io.gomk.model.entity.SupplyDO;
 import io.gomk.projection.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

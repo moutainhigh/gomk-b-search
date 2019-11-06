@@ -1,6 +1,6 @@
 package io.gomk.controller;
 
-import io.gomk.model.TargetMapDTO;
+import io.gomk.model.entity.TargetMapDTO;
 import io.gomk.service.GraphService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
