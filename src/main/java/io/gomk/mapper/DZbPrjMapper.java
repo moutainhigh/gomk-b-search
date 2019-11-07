@@ -1,7 +1,12 @@
 package io.gomk.mapper;
 
-import io.gomk.model.entity.DZbPrj;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Select;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import io.gomk.model.entity.DZbPrj;
 
 /**
  * <p>
@@ -12,5 +17,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2019-10-28
  */
 public interface DZbPrjMapper extends BaseMapper<DZbPrj> {
+	
 
 }

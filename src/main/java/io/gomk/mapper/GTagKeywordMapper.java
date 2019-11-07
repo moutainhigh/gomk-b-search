@@ -1,6 +1,8 @@
 package io.gomk.mapper;
 
 import io.gomk.model.GTagKeyword;
+
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -11,6 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author Robinxiao
  * @since 2019-10-23
  */
+@DS("oneself")
 public interface GTagKeywordMapper extends BaseMapper<GTagKeyword> {
 
 }

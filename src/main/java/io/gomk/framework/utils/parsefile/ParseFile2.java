@@ -329,14 +329,14 @@ public class ParseFile2 {
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
 //        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
-        File file1 = new File("/Users/vko/Documents/my-code/testDOC/内蒙古国华呼伦贝尔发电有限公司2017-2018年全厂专职消防队服务项目招标文件.doc");
+        File file1 = new File("/Users/vko/Documents/my-code/testPDF/招标文件正文.pdf");
         try (InputStream in1 = new FileInputStream(file1);
              InputStream in2 = new FileInputStream(file1);
              InputStream in3 = new FileInputStream(file1);
              InputStream in4 = new FileInputStream(file1);
         ) {
 //            Map<String, StringBuilder> map = new ParseFile2().parseText(in1, DOC);
-            List<String> lst = new ParseFile2().parseTenderQualification(in1, DOC);
+           // List<String> lst = new ParseFile2().parseTenderQualification(in1, DOC);
 //            String a0 = new ParseFile2().parseTenderScope(in2, DOC);
 //            String a1 = new ParseFile2().parseTechnicalRequirement(in3, DOC);
 //            String a2 = new ParseFile2().parseTenderMethod(in4, DOC);
@@ -344,7 +344,7 @@ public class ParseFile2 {
             String a0 = new ParseFile2().parseTenderScope(in2, PDF);
             String a1 = new ParseFile2().parseTechnicalRequirement(in3, PDF);
             String a2 = new ParseFile2().parseTenderMethod(in4, PDF);
-           // log.info("");
+            log.info("");
         } catch (Exception e) {
             e.printStackTrace();
         }

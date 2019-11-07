@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author Robinxiao
  * @since 2019-10-20
  */
+@DS("oneself")
 public interface GTagFormulaMapper extends BaseMapper<GTagFormula> {
 	
 	@Select("select * from t_g_tag_formula where tag_id=#{tagId}")

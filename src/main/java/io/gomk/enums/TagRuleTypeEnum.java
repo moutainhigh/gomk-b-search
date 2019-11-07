@@ -10,7 +10,8 @@ import com.baomidou.mybatisplus.core.enums.IEnum;
 public enum TagRuleTypeEnum implements IEnum<Integer> {
 	CUSTOM(0, "自定义标签"),
 	KEYWORD(1, "关键字规则"),
-    FORMULA(2, "公式规则");
+    FORMULA(2, "公式规则"),
+	FIXED(3, "内置规则");
    
 	TagRuleTypeEnum(int value, String desc) {
         this.value = value;

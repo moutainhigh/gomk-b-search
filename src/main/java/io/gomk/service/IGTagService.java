@@ -23,8 +23,6 @@ public interface IGTagService extends IService<GTag> {
 
 	void addDocTag(int scope, String tagName, List<String> ids) throws Exception;
 
-	int getCountByTagName(String name);
-
 	List<TreeDto> getTreeByScope(Integer scope);
 
 	List<GTag> getTagBySecondId(Integer id);

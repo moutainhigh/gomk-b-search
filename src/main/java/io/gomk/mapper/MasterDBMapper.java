@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
+import io.gomk.model.entity.DZbPrj;
 import io.gomk.task.DBInfoBean;
 
 public interface MasterDBMapper {
@@ -77,6 +80,20 @@ public interface MasterDBMapper {
 		"</script>"
 	})
 	List<DBInfoBean> getRarAndZipDBInfo();
+
+
+	@Select("select d.prj_code, d.INDUSTRY_NAME,d.PRJ_TYPE,d.PRJ_NATURE, d.IF_CENT_PURCHAS, d.CAPITAL_SOURCE"
+			+ " from BIZ_Z_DFILE a " + 
+			" inner join D_ZB_PRJ d on d.prj_code=a.xmbh"
+			+ "limit #{i}, #{j}")
+	List<DZbPrj> getPageInfo(@Param("i")int i, @Param("j")int j);
+
+
+	@Select("select d.prj_code, d.INDUSTRY_NAME,d.PRJ_TYPE,d.PRJ_NATURE, d.IF_CENT_PURCHAS, d.CAPITAL_SOURCE"
+			+ " from BIZ_Z_DFILE a " + 
+			" inner join D_ZB_PRJ d on d.prj_code=a.xmbh"
+			+ "limit 0,1")
+	DZbPrj getTagInfo(String prjCode);
 
 	
 	

@@ -33,6 +33,8 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -57,8 +59,11 @@ import io.gomk.framework.utils.parse.Word2007;
 import io.gomk.framework.utils.parse.ZipAndRarTools;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
+import io.gomk.mapper.DZbPrjMapper;
 import io.gomk.mapper.MasterDBMapper;
+import io.gomk.model.GTagFormula;
 import io.gomk.model.GZgyq;
+import io.gomk.model.entity.DZbPrj;
 import io.gomk.service.IGWordsService;
 import io.gomk.service.IGZgyqService;
 import io.gomk.task.DBInfoBean;
@@ -82,6 +87,8 @@ public class EsUtil {
 	IGZgyqService zgyqService;
 	@Autowired
 	IGWordsService wordsService;
+	@Autowired
+	DZbPrjMapper prjMapper;
 	
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
@@ -117,7 +124,7 @@ public class EsUtil {
 	 * async 是否异步
 	 * addOrDelete 添加or删除 false删除
 	 */
-	public void updateTagByIds(String indexName, String tag, List<String> ids, boolean async, boolean addOrDelete) throws IOException {
+	public void updateTagByIds(String indexName, Set<String> tagSet, List<String> ids, boolean async, boolean addOrDelete) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
 		Set<String> idSet = new HashSet<String>(ids);
 		for (String id : idSet) {
@@ -126,19 +133,18 @@ public class EsUtil {
 			GetResponse getResponse = client.get(getRequest);
 			Object obj = getResponse.getSourceAsMap().get("tag");
 			
-			HashSet<String> result = null;
+			Set<String> result = null;
 			if (addOrDelete) {
 				if (obj == null) {
-					result = new HashSet<>();
-					result.add(tag);
+					result = tagSet;
 				} else {
 					result = new HashSet<String>((List<String>)obj);
-					result.add(tag);
+					result.addAll(tagSet);
 				}
 			} else {
 				if (obj != null) {
 					result = new HashSet<String>((List<String>)obj);
-					result.remove(tag);
+					result.removeAll(tagSet);
 				} else {
 					break;
 				}
@@ -174,7 +180,7 @@ public class EsUtil {
 
 	}
 
-	public List<String> getIDsByKeyword(String indexName, BoolQueryBuilder query) throws IOException {
+	public List<String> getIDsByKeyword(String indexName, QueryBuilder query) throws IOException {
 		List<String> result = new ArrayList<>();
 		RestHighLevelClient client = esClient.getClient();
 
@@ -182,12 +188,6 @@ public class EsUtil {
 		sourceBuilder.query(query);
 		sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 		sourceBuilder.fetchSource("_id", null);
-
-//		HighlightBuilder highlightBuilder = new HighlightBuilder();
-//		HighlightBuilder.Field highlightTitle = new HighlightBuilder.Field("content");
-//		highlightTitle.highlighterType("unified");
-//		highlightBuilder.field(highlightTitle);
-//		sourceBuilder.highlighter(highlightBuilder);
 
 		SearchRequest searchRequest = new SearchRequest(indexName);
 		searchRequest.types("_doc");
@@ -201,22 +201,7 @@ public class EsUtil {
 		SearchHit[] searchHits = hits.getHits();
 		for (SearchHit hit : searchHits) {
 			result.add(hit.getId());
-
-//			// 取高亮结果
-//			String fragmentString = "";
-//			Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-//			HighlightField highlight1 = highlightFields.get("content");
-//			if (highlight1 != null) {
-//				Text[] fragments1 = highlight1.fragments();
-//				fragmentString = fragments1[0].string();
-//				log.info("fragments1 size:" + fragments1.length);
-//				for (Text t : fragments1) {
-//					log.info("fragmentString1:" + t.toString());
-//				}
-//			}
-			// log.info(hit.getSourceAsMap().get("title").toString());
 		}
-
 		return result;
 	}
 
@@ -593,7 +578,10 @@ public class EsUtil {
 
 	public void saveES(String index, ESInfoBean esBean) throws IOException {
 		RestHighLevelClient client = ESClientFactory.getClient();
-
+		if (StringUtils.isNotBlank(esBean.getPrjCode())) {
+			Set<String> tagSet = getTagByPrjCode(esBean.getPrjCode());
+			esBean.setTags(tagSet);
+		}
 		IndexRequest request = new IndexRequest(index, "_doc");
 		request.source(JSON.toJSONString(esBean), XContentType.JSON);
 		
@@ -602,6 +590,7 @@ public class EsUtil {
 		IndexResponse response = client.index(request);
 		log.info(response.getResult().toString());
 	}
+
 
 	public static void main(String[] args) {
 //		File tempFile = new File("/Users/vko/Documents/my-code/DOC/zb/神华准能物资供应中心2018年第二批设备采购招标文件.doc");
@@ -732,11 +721,35 @@ public class EsUtil {
 			client.update(request);
 		}
 	}
-
+	/**
+	 * 更新权重
+	 * @param indexname
+	 * @param ids
+	 * @param num
+	 * @throws IOException
+	 */
 	public void updateWeightByIds(String indexname, List<String> ids, int num) throws IOException {
 		for (String id : ids) {
 			updateWeightById(indexname, id, num);
 		}
-		
 	}
+	/**
+	 * 给索引打内置标签
+	 */
+	
+	private Set<String> getTagByPrjCode(String prjCode) {
+		DZbPrj prj = masterDBMapper.getTagInfo(prjCode);
+		if (prj != null) {
+			Set<String> tagSet = new HashSet<>();
+			tagSet.add(prj.getPrjType()); //项目类型
+			tagSet.add(prj.getIndustryName()); //专业版块
+			tagSet.add(prj.getPrjNature()); //项目阶段
+			tagSet.add(prj.getIfCentPurchas().equals("1") ? "是" : "否"); //是否集采
+			tagSet.add(prj.getCapitalSource()); //资金来源
+			return tagSet;
+		}
+		return null;
+	}
+	
+	
 }

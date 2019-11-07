@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author Robinxiao
  * @since 2019-10-23
  */
+@DS("oneself")
 public interface GTagClassifyScopeMapper extends BaseMapper<GTagClassifyScope> {
 
 	@Select("select scopes from t_g_tag_classify_scope where classify_id=#{id}")

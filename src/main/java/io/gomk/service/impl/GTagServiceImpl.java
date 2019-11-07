@@ -1,6 +1,5 @@
 package io.gomk.service.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +75,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Transactional
 	public void addDocTag(int scope, String tagName, List<String> ids) throws Exception {
 		// ? 检查数据库中是否存在 tagName
-		int count = tagMapper.getCountByTagName(tagName);
+		int count = tagMapper.getCountByTagName(tagName, CommonConstants.TAG_CUSTOM_CLASSIFY_SECOND_ID);
 		if (count == 0) {
 			GTag tag = new GTag();
 			tag.setClassifyId(CommonConstants.TAG_CUSTOM_CLASSIFY_SECOND_ID);
@@ -85,13 +84,10 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			tag.setTaskFinished(true);
 			tagMapper.insert(tag);
 		}
-		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, true);
+		Set<String> tagSet = new HashSet<>();
+		tagSet.add(tagName);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagSet, ids, false, true);
 		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, 1);
-	}
-
-	@Override
-	public int getCountByTagName(String name) {
-		return tagMapper.getCountByTagName(name);
 	}
 
 	@Override
@@ -145,6 +141,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			bean.setFMark(formula.getMark());
 			bean.setFValue(formula.getValue());
 			bean.setTagId(entity.getId());
+			bean.setFFieldCn(formula.getFieldCn());
 			tagFormulaMapper.insert(bean);
 		}
 	}
@@ -190,7 +187,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	public void deleteDocTag(int scope, String tagName, String id) throws Exception {
 		List<String> ids = new ArrayList<>();
 		ids.add(id);
-		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, false);
+		Set<String> tagSet = new HashSet<>();
+		tagSet.add(tagName);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagSet, ids, false, false);
 		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, -1);
 
 	}
