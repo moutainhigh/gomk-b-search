@@ -1,6 +1,7 @@
 package io.gomk.mapper;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -95,6 +96,20 @@ public interface MasterDBMapper {
 			+ "limit 0,1")
 	DZbPrj getTagInfo(String prjCode);
 
+
+//	@Select("select from D_ZB_PRJ group by ")
+//	Set<String> getTagByClassify11();
+
+	@Select("select industry_name from D_ZB_PRJ group by industry_name")
+	Set<String> getTagByClassify12();
+	@Select("select prj_type from D_ZB_PRJ group by prj_type")
+	Set<String> getTagByClassify13();
+	@Select("select case if_cent_purchas when '0' then '否' else '是' end from D_ZB_PRJ group by if_cent_purchas")
+	Set<String> getTagByClassify14();
+	@Select("select prj_nature from D_ZB_PRJ group by prj_nature")
+	Set<String> getTagByClassify15();
+	@Select("select capital_source from D_ZB_PRJ group by capital_source")
+	Set<String> getTagByClassify16();
 	
 	
 }

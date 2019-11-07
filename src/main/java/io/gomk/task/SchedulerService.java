@@ -1,8 +1,11 @@
 package io.gomk.task;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,16 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import io.gomk.common.constants.CommonConstants;
 import io.gomk.enums.DateRangeEnum;
+import io.gomk.enums.FixedTagRuleEnum;
 import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.es6.EsUtil;
+import io.gomk.mapper.DB2ESMapper;
 import io.gomk.mapper.GTagClassifyScopeMapper;
 import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
+import io.gomk.mapper.MasterDBMapper;
 import io.gomk.model.GTag;
 import io.gomk.model.GTagClassifyScope;
 import io.gomk.model.GTagFormula;
@@ -45,6 +53,11 @@ public class SchedulerService {
 	EsUtil esUtil;
 	
 	@Autowired
+	DB2ESMapper db2esMapper;
+	@Autowired
+	MasterDBMapper masterDBMapper;
+	
+	@Autowired
 	GTagMapper tagMapper;
 	
 	@Autowired
@@ -55,7 +68,6 @@ public class SchedulerService {
 	
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
-	
 	
 	//@Scheduled(fixedRate = 111150300)
 	public void insertEsFromLocalTask() {
@@ -68,7 +80,93 @@ public class SchedulerService {
 			e.printStackTrace();
 		}
 	}
+	
 	@Scheduled(cron = "0 0 1 * * ?")
+	//@Scheduled(fixedRate = 111150300)
+	public void insertFixedTag() {
+		Set<String> classify11 = new HashSet<>();
+		Set<String> classify12 = new HashSet<>();
+		Set<String> classify13 = new HashSet<>();
+		Set<String> classify14 = new HashSet<>();
+		Set<String> classify15 = new HashSet<>();
+		Set<String> classify16 = new HashSet<>();
+		//内置标签
+		List<GTag> tags = tagMapper.getAllFixedTag(TagRuleTypeEnum.FIXED.getValue());
+		tags.forEach(tag -> {
+			Integer classifyId = tag.getClassifyId();
+			if (classifyId == FixedTagRuleEnum.F11.getValue()) {
+				classify11.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F12.getValue()) {
+				classify12.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F13.getValue()) {
+				classify13.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F14.getValue()) {
+				classify14.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F15.getValue()) {
+				classify15.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F16.getValue()) {
+				classify16.add(tag.getTagName());
+			}
+		});
+		
+		//Set<String> masterTag11 = masterDBMapper.getTagByClassify11();
+		Set<String> masterTag12 = masterDBMapper.getTagByClassify12();
+		Set<String> masterTag13 = masterDBMapper.getTagByClassify13();
+		Set<String> masterTag14 = masterDBMapper.getTagByClassify14();
+		Set<String> masterTag15 = masterDBMapper.getTagByClassify15();
+		Set<String> masterTag16 = masterDBMapper.getTagByClassify16();
+		
+		//masterTag11.removeAll(classify11);
+		masterTag12.removeAll(classify12);
+		masterTag13.removeAll(classify13);
+		masterTag14.removeAll(classify14);
+		masterTag15.removeAll(classify15);
+		masterTag16.removeAll(classify16);
+//		masterTag11.forEach(masterTag -> {
+//			insertTag(masterTag, CommonConstants.TAG_CLASSIFY_11);
+//		});
+		
+		
+		masterTag12.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F12);
+		});
+		
+		masterTag13.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F13);
+		});
+		masterTag14.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F14);
+		});
+		masterTag15.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F15);
+		});
+		masterTag16.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F16);
+		});
+		
+	}
+
+	@Transactional
+	private void insertTag(String masterTag, FixedTagRuleEnum fenum) {
+		if (StringUtils.isNotBlank(masterTag)) {
+			GTag entity = new GTag();
+			entity.setClassifyId(fenum.getValue());
+			entity.setTagName(masterTag);
+			entity.setTaskFinished(true);
+			entity.setTagRule(TagRuleTypeEnum.FIXED.getValue());
+			tagMapper.insert(entity);
+			
+			GTagFormula fa = new GTagFormula();
+			fa.setFField(fenum.getField());
+			fa.setFFieldCn(fenum.getFieldCN());
+			fa.setFMark("=");
+			fa.setFValue(masterTag);
+			fa.setTagId(entity.getId());
+			tagFormulaMapper.insert(fa);
+		}
+	}
+	
+	//@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs();
 	}

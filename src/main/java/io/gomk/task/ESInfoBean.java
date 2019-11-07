@@ -47,7 +47,7 @@ public class ESInfoBean {
 	//添加日期
 	private Date addDate;
 	//权重
-	private String weight;
+	private Integer weight;
 	//文件存储地址 
 	private String storeUrl;
 	//存储类型

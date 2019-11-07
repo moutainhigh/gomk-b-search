@@ -32,9 +32,7 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -61,7 +59,6 @@ import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.DB2ESMapper;
 import io.gomk.mapper.DZbPrjMapper;
 import io.gomk.mapper.MasterDBMapper;
-import io.gomk.model.GTagFormula;
 import io.gomk.model.GZgyq;
 import io.gomk.model.entity.DZbPrj;
 import io.gomk.service.IGWordsService;
@@ -578,9 +575,11 @@ public class EsUtil {
 
 	public void saveES(String index, ESInfoBean esBean) throws IOException {
 		RestHighLevelClient client = ESClientFactory.getClient();
+		esBean.setWeight(0);
 		if (StringUtils.isNotBlank(esBean.getPrjCode())) {
 			Set<String> tagSet = getTagByPrjCode(esBean.getPrjCode());
 			esBean.setTags(tagSet);
+			esBean.setWeight(1);
 		}
 		IndexRequest request = new IndexRequest(index, "_doc");
 		request.source(JSON.toJSONString(esBean), XContentType.JSON);
@@ -746,6 +745,7 @@ public class EsUtil {
 			tagSet.add(prj.getPrjNature()); //项目阶段
 			tagSet.add(prj.getIfCentPurchas().equals("1") ? "是" : "否"); //是否集采
 			tagSet.add(prj.getCapitalSource()); //资金来源
+			
 			return tagSet;
 		}
 		return null;

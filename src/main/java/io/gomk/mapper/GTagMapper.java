@@ -30,6 +30,7 @@ public interface GTagMapper extends BaseMapper<GTag> {
 			" inner join t_g_tag_classify_scope tgtcs on tgtc.id = tgtcs.classify_id" + 
 			" where tgtcs.scopes =#{scope}")
 	List<TreeDto> selectByScope(Integer scope);
+	
 	@Select("select * from t_g_tag where classify_id = #{id}")
 	List<GTag> getTagBySecondId(Integer id);
 	
@@ -40,5 +41,8 @@ public interface GTagMapper extends BaseMapper<GTag> {
 	
 	@Select("select tag_name from t_g_tag where classify_id =21 and tag_name like '%${name}%' limit #{size}")
 	List<String> getCompletion(@Param("size")int size, @Param("name")String name);
+	
+	@Select("select * from t_g_tag where tag_rule = #{tagRole}")
+	List<GTag> getAllFixedTag(Integer tagRole);
 
 }

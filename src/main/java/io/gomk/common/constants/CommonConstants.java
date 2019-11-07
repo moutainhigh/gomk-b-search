@@ -15,6 +15,5 @@ public interface CommonConstants {
     
     static Integer TAG_CUSTOM_CLASSIFY_FIRST_ID = 20;
     static Integer TAG_CUSTOM_CLASSIFY_SECOND_ID = 21;
-    
    
 }

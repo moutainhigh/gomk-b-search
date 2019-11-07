@@ -1,5 +1,6 @@
 package io.gomk.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -158,20 +159,26 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		if (tag.getTaskFinished()) {
 			vo.setUpdate(false);
 		}
-
-		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda().eq(GTagKeyword::getTagId, tag.getId());
-		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
-		if (keywordList != null && keywordList.size() > 0) {
-			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
-			vo.setKeywords(keywordList);
-		} else {
+		if (TagRuleTypeEnum.FIXED.getValue().equals(tag.getTagRule())) {
 			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
 			query.lambda().eq(GTagFormula::getTagId, tag.getId());
 			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
 			if (formulaList != null && formulaList.size() > 0) {
-				vo.setRule(TagRuleTypeEnum.FORMULA.getValue());
+				vo.setFixedRules(formulaList);
+			}
+		} else if (TagRuleTypeEnum.FORMULA.getValue().equals(tag.getTagRule())) {
+			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
+			query.lambda().eq(GTagFormula::getTagId, tag.getId());
+			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
+			if (formulaList != null && formulaList.size() > 0) {
 				vo.setFormulas(formulaList);
+			}
+		} else if (TagRuleTypeEnum.KEYWORD.getValue().equals(tag.getTagRule())) {
+			QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
+			queryWrapper.lambda().eq(GTagKeyword::getTagId, tag.getId());
+			List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
+			if (keywordList != null && keywordList.size() > 0) {
+				vo.setKeywords(keywordList);
 			}
 		}
 
