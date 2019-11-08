@@ -170,7 +170,8 @@ public class TagsController extends SuperController {
 		TagListResponse response = new TagListResponse();
 		response.setEdit(true);
 		GTagClassify classify = tagClassifyService.getById(classifyId);
-		if (classify.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_FIRST_ID)) {
+		if (classify.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_FIRST_ID)
+				|| classify.getParentId().equals(CommonConstants.TAG_FIXED_CLASSIFY_ID)) {
 			response.setEdit(false);
 		}
 		response.setTags(list);
