@@ -27,7 +27,6 @@ import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
-import io.gomk.framework.jedis.RedisUtil;
 import io.gomk.framework.utils.HanyuPinyinUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -104,48 +103,48 @@ public class TestController {
 //    	return ResponseData.success();
 //    }
 
-    @ApiOperation("存redis 用户权限信息")
-    @PostMapping("/redis/user/role")
-    public ResponseData<?> saveUser() throws Exception {
-    	List<ScopeEnum> scopes = EnumUtils.getEnumList(ScopeEnum.class);
-    	List<Map<String, String>> userRoles = new ArrayList<>();
-    	for (ScopeEnum se : scopes) {
-    		String pinyin = HanyuPinyinUtil.toHanyuPinyin(se.getDesc());
-    		Map<String, String> map = new HashMap<>();
-    		map.put("authority", pinyin);
-    		userRoles.add(map);
-    	}
-    	String json = JSON.toJSONString(userRoles);
-    	String result = RedisUtil.putString("shgcadmin", json);
-    	log.info("add redis result:" + result);
-    	return ResponseData.success();
-    }
-    @ApiOperation("取token信息，base64解码，得到user-key,到redis中取数据")
-    @GetMapping("/redis/user/role/{userKeyBase64}")
-    public ResponseData<?> getUser(@PathVariable("userKeyBase64") String userKeyBase64) {
-    	
-    	String restore = "";
-		try {
-			restore = new String(decoder.decode(userKeyBase64), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			return ResponseData.error("token is error");
-		}
-    	String salt = "shgc";
-    	String userKey = restore.substring(salt.length());
-    	
-    	//Object obj = myRedisUtil.get(userKey);
-    	//log.info("my redis:" + obj);
-    	String obj = RedisUtil.getString(userKey);
-    	log.info("master redis:" + obj);
-    	
-    	if (obj == null) {
-    		return ResponseData.error("not in redis");
-    	}
-    	List<Map<String, String>> userRoles = JSON.parseObject(obj.toString(), new TypeReference<List<Map<String, String>>>(){});
-    	
-    	log.info("userRoles:" + userRoles);
-    	return ResponseData.success();
-    }
+//    @ApiOperation("存redis 用户权限信息")
+//    @PostMapping("/redis/user/role")
+//    public ResponseData<?> saveUser() throws Exception {
+//    	List<ScopeEnum> scopes = EnumUtils.getEnumList(ScopeEnum.class);
+//    	List<Map<String, String>> userRoles = new ArrayList<>();
+//    	for (ScopeEnum se : scopes) {
+//    		String pinyin = HanyuPinyinUtil.toHanyuPinyin(se.getDesc());
+//    		Map<String, String> map = new HashMap<>();
+//    		map.put("authority", pinyin);
+//    		userRoles.add(map);
+//    	}
+//    	String json = JSON.toJSONString(userRoles);
+//    	String result = RedisUtil.putString("shgcadmin", json);
+//    	log.info("add redis result:" + result);
+//    	return ResponseData.success();
+//    }
+//    @ApiOperation("取token信息，base64解码，得到user-key,到redis中取数据")
+//    @GetMapping("/redis/user/role/{userKeyBase64}")
+//    public ResponseData<?> getUser(@PathVariable("userKeyBase64") String userKeyBase64) {
+//    	
+//    	String restore = "";
+//		try {
+//			restore = new String(decoder.decode(userKeyBase64), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			return ResponseData.error("token is error");
+//		}
+//    	String salt = "shgc";
+//    	String userKey = restore.substring(salt.length());
+//    	
+//    	//Object obj = myRedisUtil.get(userKey);
+//    	//log.info("my redis:" + obj);
+//    	String obj = RedisUtil.getString(userKey);
+//    	log.info("master redis:" + obj);
+//    	
+//    	if (obj == null) {
+//    		return ResponseData.error("not in redis");
+//    	}
+//    	List<Map<String, String>> userRoles = JSON.parseObject(obj.toString(), new TypeReference<List<Map<String, String>>>(){});
+//    	
+//    	log.info("userRoles:" + userRoles);
+//    	return ResponseData.success();
+//    }
     public static void main(String[] args) throws UnsupportedEncodingException {
     	final Base64.Decoder decoder = Base64.getDecoder();
     	final Base64.Encoder encoder = Base64.getEncoder();
