@@ -140,7 +140,7 @@
     <select id="costDetails"  parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
         t.prj_code,
-        t.build_prj_id,t.prj_name,t.consultation_type,t.prj_leader,
+        t2.BUILD_PRJ_NAME as build_prj_id,t.prj_name,t.consultation_type,t.prj_leader,
         DATE_FORMAT(t.prj_begin_time,'%Y-%m-%d')   prj_begin_time,
         t.contract_id, t.consultation_method,t.dept3_name,
         DATE_FORMAT(t.prj_end_time,'%Y-%m-%d')   prj_end_time,
@@ -149,6 +149,7 @@
          DATE_FORMAT(t.entrust_time,'%Y-%m-%d')   entrust_time
          from D_PRJ_MANUFACTUR_COST t
         left join D_CUST t1 on t1.cust_document_code = t.document_code
+        left join I_PRJ_BUILD_MANUFACTUR t2 on t2.BUILD_PRJ_ID = t.build_prj_id
         where t.prj_code = #{prjCode}
     </select>
 </mapper>
