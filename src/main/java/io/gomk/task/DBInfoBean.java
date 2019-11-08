@@ -48,5 +48,7 @@ public class DBInfoBean {
 	private String ext;
 	//备注 取标识为成果文件 的造价文件
 	private String bz;
+	//入库时间
+	private String STOREDATETIME;
 		
 }

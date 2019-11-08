@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 
@@ -15,8 +16,8 @@ public interface DB2ESMapper {
 	@Insert("insert into biz_z_dfile_sign values(#{uuid})")
 	public void insertFileSign(String uuid);
 	
-	@Select("select uuid from biz_z_dfile_sign")
-	List<String> selectIDS();
+	@Select("select uuid from biz_z_dfile_sign limit 1")
+	String selectStoredDateTImeSTOREDATETIME();
 
 	@Select({
 		"<script>",
@@ -45,5 +46,8 @@ public interface DB2ESMapper {
 		"</script>"
 	})
 	List<DBInfoBean> getTestALLDBInfo(@Param("ids") List<String> ids);
+
+	@Update("update into biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
+	public void updateTimeSign(@Param("timeSign") String timeSign, @Param("storedatetime") String storedatetime);
 	
 }

@@ -257,19 +257,16 @@ public class EsUtil {
 	 * 下截文件--抽取内容--存储es索引
 	 */
 	public void parseAndSaveEs() {
-		int i = 1;
+		
+		String timeSign = "";
 		while(true) {
-			//查询已索引uuid
-			List<String> ids = db2esMapper.selectIDS();
-			List<DBInfoBean> list = new ArrayList<>();
-			if (ids.size() == 0) {
-				list = masterDBMapper.getTestALLDBInfo(ids);
-			} else {
-				//临时库
-				//list = db2esMapper.getTestDBInfo(ids);
-				//正式库
-				list = masterDBMapper.getDBInfo(ids);
-			}
+			//查询已索引时间戳
+			timeSign = db2esMapper.selectStoredDateTImeSTOREDATETIME();
+			if (StringUtils.isBlank(timeSign)) {
+				timeSign = "1970-01-01 19:19:14.0";
+			} 
+			List<DBInfoBean> list = masterDBMapper.getDBInfo(timeSign);
+			
 			//暂时切到自己库
 			log.info("===size====" + list.size());
 			if (list.size() == 0) break;
@@ -277,7 +274,10 @@ public class EsUtil {
 //			if (i >1) break;
 //			i++;
 			// 1. 下载文件 分页查询未处理的纪录
-			list.forEach(bean -> {
+			for (DBInfoBean bean : list) {
+				//更新时间戳
+				db2esMapper.updateTimeSign(timeSign, bean.getSTOREDATETIME());
+				timeSign = bean.getSTOREDATETIME();
 				log.info(bean.getUuid() + "==========wjtm=======" + bean.getWjtm());
 				//log.info( "==========detail======" + bean.toString());
 				switch (bean.getFileType()) {
@@ -333,12 +333,10 @@ public class EsUtil {
 				default:
 					break;
 				}
-				db2esMapper.insertFileSign(bean.getUuid());
-			});
+			}
 		}
 		
 	}
-
 
 	private InputStream getInputStream(DBInfoBean bean) {
 		String storeType = bean.getStoreType();
@@ -555,8 +553,6 @@ public class EsUtil {
 						e.printStackTrace();
 					}
 			}
-			
-				
 	}
 	
 

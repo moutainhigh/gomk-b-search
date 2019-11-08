@@ -165,6 +165,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
 			if (formulaList != null && formulaList.size() > 0) {
 				vo.setFixedRules(formulaList);
+				vo.setUpdate(false);
 			}
 		} else if (TagRuleTypeEnum.FORMULA.getValue().equals(tag.getTagRule())) {
 			QueryWrapper<GTagFormula> query = new QueryWrapper<>();

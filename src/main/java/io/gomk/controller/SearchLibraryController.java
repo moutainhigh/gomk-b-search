@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/library")
-@Api(description = "专家、造价项目、招标项目、招标人库")
+@Api(description = "专家、造价项目、招标项目、客户库")
 public class SearchLibraryController {
     @Autowired
     private DZbPkgService dZbPkgService;
@@ -48,7 +48,7 @@ public class SearchLibraryController {
         IPage<Map<String,String>> pageResult = dZbPkgService.biddingProject(pageParam,keyWord);
         return  ResponseData.success(pageResult);
     }
-    @ApiOperation(value = "造价列表")
+    @ApiOperation(value = "造价项目列表")
     @GetMapping("/costProject")
     public ResponseData<IPage<Map<String,String>>> costProject(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
@@ -57,7 +57,7 @@ public class SearchLibraryController {
         IPage<Map<String,String>> pageResult = dZbPkgService.costProject(pageParam,keyWord);
         return  ResponseData.success(pageResult);
     }
-    @ApiOperation(value = "招标人列表")
+    @ApiOperation(value = "客户列表")
     @GetMapping("/bindPerson")
     public ResponseData<IPage<Map<String,String>>> bindPerson(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数

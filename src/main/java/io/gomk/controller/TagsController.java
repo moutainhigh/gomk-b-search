@@ -151,8 +151,8 @@ public class TagsController extends SuperController {
 		List<ScopeEnum> list = EnumUtils.getEnumList(ScopeEnum.class);
 		for (ScopeEnum em : list) {
 			if (em != ScopeEnum.TBR && em != ScopeEnum.ZBXM 
-					&& em != ScopeEnum.CPJG && em != ScopeEnum.CGSCTC 
-					&& em != ScopeEnum.KH && em != ScopeEnum.ZJK) {
+					&& em != ScopeEnum.CPJG && em != ScopeEnum.ZJXM 
+					&& em != ScopeEnum.KH && em != ScopeEnum.ZJK && em != ScopeEnum.BDW) {
 				EnumVO vo = new EnumVO();
 				vo.setId(em.getValue());
 				vo.setDesc(em.getDesc());

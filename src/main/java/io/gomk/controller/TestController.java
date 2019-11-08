@@ -2,7 +2,6 @@ package io.gomk.controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -28,9 +27,8 @@ import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
-import io.gomk.framework.redis.RedisUtil;
+import io.gomk.framework.jedis.RedisUtil;
 import io.gomk.framework.utils.HanyuPinyinUtil;
-import io.gomk.task.DBInfoBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +48,9 @@ public class TestController {
     HBaseClient hbaseClient;
     @Autowired
     EsUtil esUtil;
-    @Autowired
-    private RedisUtil redisUtil;
+   // @Autowired
+    //private MyRedisUtil myRedisUtil;
+  
    // @Autowired
 	//HBaseService hbaseService; 
    
@@ -98,7 +97,12 @@ public class TestController {
     	esUtil.parseRarAndZip();
     	return ResponseData.success();
     }
-    
+//    @ApiOperation("内置标签入库")
+//    @PostMapping("/3")
+//    public ResponseData<?> test3() throws Exception {
+//    	esUtil.in
+//    	return ResponseData.success();
+//    }
 
     @ApiOperation("存redis 用户权限信息")
     @PostMapping("/redis/user/role")
@@ -112,8 +116,8 @@ public class TestController {
     		userRoles.add(map);
     	}
     	String json = JSON.toJSONString(userRoles);
-    	boolean bl = redisUtil.set("shgcadmin", json);
-    	log.info("add redis result:" + bl);
+    	String result = RedisUtil.putString("shgcadmin", json);
+    	log.info("add redis result:" + result);
     	return ResponseData.success();
     }
     @ApiOperation("取token信息，base64解码，得到user-key,到redis中取数据")
@@ -128,7 +132,12 @@ public class TestController {
 		}
     	String salt = "shgc";
     	String userKey = restore.substring(salt.length());
-    	Object obj = redisUtil.get(userKey);
+    	
+    	//Object obj = myRedisUtil.get(userKey);
+    	//log.info("my redis:" + obj);
+    	String obj = RedisUtil.getString(userKey);
+    	log.info("master redis:" + obj);
+    	
     	if (obj == null) {
     		return ResponseData.error("not in redis");
     	}
