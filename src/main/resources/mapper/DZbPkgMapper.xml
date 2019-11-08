@@ -146,7 +146,8 @@
         DATE_FORMAT(t.prj_end_time,'%Y-%m-%d')   prj_end_time,
         t. organization_amt,t.report_amt,t.approve_amt,
         t.prj_code,t1.cust_name,t.prj_state,t.industry_name,t.prj_type,
-         DATE_FORMAT(t.entrust_time,'%Y-%m-%d')   entrust_time
+         DATE_FORMAT(t.entrust_time,'%Y-%m-%d')   entrust_time,
+         t.DOCUMENT_NAME
          from D_PRJ_MANUFACTUR_COST t
         left join D_CUST t1 on t1.cust_document_code = t.document_code
         left join I_PRJ_BUILD_MANUFACTUR t2 on t2.BUILD_PRJ_ID = t.build_prj_id
