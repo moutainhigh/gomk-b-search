@@ -26,7 +26,7 @@ import io.gomk.enums.DateRangeEnum;
 import io.gomk.enums.FixedTagRuleEnum;
 import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.es6.EsUtil;
-import io.gomk.mapper.DB2ESMapper;
+import io.gomk.mapper.OneselfMapper;
 import io.gomk.mapper.GTagClassifyScopeMapper;
 import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
@@ -53,7 +53,7 @@ public class SchedulerService {
 	EsUtil esUtil;
 	
 	@Autowired
-	DB2ESMapper db2esMapper;
+	OneselfMapper db2esMapper;
 	@Autowired
 	MasterDBMapper masterDBMapper;
 	
@@ -69,17 +69,6 @@ public class SchedulerService {
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
 	
-	//@Scheduled(fixedRate = 111150300)
-	public void insertEsFromLocalTask() {
-		String path="d:/doc/";
-		//String path="/Users/vko/Documents/my-code/testDOC/";
-		try {
-			esUtil.parseLocalFileSaveEs(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	@Scheduled(cron = "0 0 1 * * ?")
 	//@Scheduled(fixedRate = 111150300)
@@ -166,7 +155,7 @@ public class SchedulerService {
 		}
 	}
 	
-	//@Scheduled(cron = "0 0 1 * * ?")
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs();
 	}

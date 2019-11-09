@@ -12,7 +12,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import io.gomk.task.DBInfoBean;
 
 @DS("oneself")
-public interface DB2ESMapper {
+public interface OneselfMapper {
 	@Insert("insert into biz_z_dfile_sign values(#{uuid})")
 	public void insertFileSign(String uuid);
 	
@@ -49,5 +49,6 @@ public interface DB2ESMapper {
 
 	@Update("update into biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
 	public void updateTimeSign(@Param("timeSign") String timeSign, @Param("storedatetime") String storedatetime);
+
 	
 }

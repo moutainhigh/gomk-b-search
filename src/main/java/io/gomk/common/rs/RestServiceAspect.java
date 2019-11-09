@@ -18,19 +18,21 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.gomk.common.code.StatusCode;
 import io.gomk.common.exception.BusinessException;
+import io.gomk.common.rs.response.ResponseData;
 import io.gomk.framework.context.ApiContext;
+import io.gomk.framework.jedis.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Aspect
 @Order(-99) // 控制多个Aspect的执行顺序，越小越先执行
 @Component
 public class RestServiceAspect {
-	private static final String IGNORE_URL = "/account";
+	private static final String IGNORE_URL = "/ftp";
 	private static final String DOWN_FILE_PATH = "/external/file/download";
 	final Base64.Decoder decoder = Base64.getDecoder();
 	final Base64.Encoder encoder = Base64.getEncoder();
 	
-	//@Autowired
-	//private RedisUtil redisUtil;
 	@Autowired
 	private ApiContext apiContext;
 
@@ -40,8 +42,11 @@ public class RestServiceAspect {
 		RequestAttributes ra = RequestContextHolder.getRequestAttributes();
 		ServletRequestAttributes sra = (ServletRequestAttributes) ra;
 		HttpServletRequest request = sra.getRequest();
-		//String path = request.getServletPath();
+		String path = request.getServletPath();
 		String token = request.getHeader("token");
+		if (path.contains(IGNORE_URL)) {
+			return pjp.proceed();
+		}
 		if (StringUtils.isNotBlank(token)) {
 			if (!checkToken(token)) {
 				throw new BusinessException(StatusCode.PERMISSION_DENIED);
@@ -57,12 +62,16 @@ public class RestServiceAspect {
 		String restore = "";
 		restore = new String(decoder.decode(token), "UTF-8");
     	String salt = "shgc";
+    	if (restore.startsWith(salt)) {
+    		return true;
+    	}
+    	
     	String userKey = restore.substring(salt.length());
-//    	Object obj = redisUtil.get(userKey);
-//    	if (obj == null) {
-//    		Log.info("error:not in redis.");
-//    		return false;
-//    	}
+    	String obj = RedisUtil.getString(userKey);
+    	if (obj == null) {
+    		log.info("error:not in redis.");
+    		return false;
+    	}
 		return true;
 	}
 }

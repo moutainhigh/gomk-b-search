@@ -28,7 +28,7 @@ public interface MasterDBMapper {
 	@Select({
 		"<script>",
 		"SELECT ",
-			"	a.uuid, a.syscode as fileType,a.wjtm,a.xmbh as pkjCode, a.xmmc as pkjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.uuid, a.syscode as fileType,a.wjtm,a.xmbh as pkjCode, a.xmmc as pkjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
 			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
 		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,

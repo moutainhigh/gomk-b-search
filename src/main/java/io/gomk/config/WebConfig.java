@@ -1,6 +1,10 @@
 package io.gomk.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -37,4 +41,9 @@ public class WebConfig extends WebMvcConfigurationSupport {
 		registry.addMapping("/**").allowedOrigins("*").allowCredentials(true)
 				.allowedMethods("GET", "POST", "DELETE", "PUT", "OPTIONS").maxAge(3600);
 	}
+//	@Override
+//	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+//	    super.configureMessageConverters(converters);
+//	    converters.add(new ByteArrayHttpMessageConverter());
+//	}
 }

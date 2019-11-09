@@ -4,6 +4,10 @@ server:
 cookie:
   domain: 39.105.18.142
 
+util:
+  idcardtool:
+    path: http://58.119.224.26:8080
+    
 elasticsearch:
   #ip: 39.105.192.98:29200
   ip: 58.119.224.27:29200

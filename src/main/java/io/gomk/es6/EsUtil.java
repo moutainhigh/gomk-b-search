@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
@@ -40,10 +41,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.hankcs.hanlp.HanLP;
+import com.itextpdf.text.DocumentException;
 
 import io.gomk.enums.ScopeEnum;
 import io.gomk.framework.hbase.HBaseClient;
@@ -52,13 +56,15 @@ import io.gomk.framework.hdfs.HdfsOperator;
 import io.gomk.framework.utils.FileListUtil;
 import io.gomk.framework.utils.RandomUtil;
 import io.gomk.framework.utils.parse.PDF;
+import io.gomk.framework.utils.parse.PDF2Image;
 import io.gomk.framework.utils.parse.Word2003;
 import io.gomk.framework.utils.parse.Word2007;
 import io.gomk.framework.utils.parse.ZipAndRarTools;
 import io.gomk.framework.utils.parsefile.ParseFile;
-import io.gomk.mapper.DB2ESMapper;
+import io.gomk.mapper.OneselfMapper;
 import io.gomk.mapper.DZbPrjMapper;
 import io.gomk.mapper.MasterDBMapper;
+import io.gomk.model.GTbIdcardExtract;
 import io.gomk.model.GZgyq;
 import io.gomk.model.entity.DZbPrj;
 import io.gomk.service.IGWordsService;
@@ -77,7 +83,7 @@ public class EsUtil {
 	@Autowired
 	HBaseClient hbaseClient;
 	@Autowired
-	DB2ESMapper db2esMapper;
+	OneselfMapper db2esMapper;
 	@Autowired
 	MasterDBMapper masterDBMapper;
 	@Autowired
@@ -86,6 +92,9 @@ public class EsUtil {
 	IGWordsService wordsService;
 	@Autowired
 	DZbPrjMapper prjMapper;
+	
+	@Autowired
+	private IdcardOcrUtil idcardOcr;
 	
 	@Value("${elasticsearch.index.zbName}")
 	protected String zbIndex;
@@ -297,12 +306,32 @@ public class EsUtil {
 					} else if ("投标文件".equals(bean.getWjtm())) {
 						log.info("====投标文件 ====");
 						InputStream in = getInputStream(bean);
+						
 						if (in != null) {
 							try {
-								disposeTB(bean, in);
+								ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+								byte[] buffer = new byte[1024];  
+								int len;  
+								while ((len = in.read(buffer)) > -1 ) {  
+									baos.write(buffer, 0, len);  
+								}  
+								baos.flush(); 
+							
+								saveTB(bean, in);
+								if (bean.getExt().contains("pdf")) {
+									GTbIdcardExtract entity = new GTbIdcardExtract();
+									entity.setPrjCode(bean.getPrjCode());
+									entity.setPrjName(bean.getPrjName());
+									entity.setUuid(bean.getUuid());
+									entity.setTitle(bean.getTitle());
+									//存储身份证信息
+									idcardOcr.insertIdcardInfo(new ByteArrayInputStream(baos.toByteArray()), new ByteArrayInputStream(baos.toByteArray()), entity);
+								}
 							} catch (IOException e) {
-								log.error("error" +e.getMessage());
+								log.error("io error" +e.getMessage());
 								break;
+							} catch (DocumentException e) {
+								log.error("document error" +e.getMessage());
 							}
 						}
 					}
@@ -341,7 +370,12 @@ public class EsUtil {
 	private InputStream getInputStream(DBInfoBean bean) {
 		String storeType = bean.getStoreType();
 		String storeUrl = bean.getStoreUrl();
+		String ext = bean.getExt();
 		log.info("===get inputStream====" + storeType);
+		return getInputStreams(storeType, storeUrl, ext); 
+	}
+
+	public InputStream getInputStreams(String storeType, String storeUrl, String ext) {
 		if (storeType.equals(STORE_HBASE)) {
 			log.info("===save type:hbase====");
 			HBaseService hbaseService = hbaseClient.getService();
@@ -354,38 +388,28 @@ public class EsUtil {
 			System.setProperty("HADOOP_USER_NAME","hdfs");
 			Configuration configuration = new Configuration();
 	        configuration.set("fs.defaultFS", HBASE_SERVER);
-	        String target= "/temp/" + RandomUtil.getGlobalUniqueId() + "." + bean.getExt();
+	        String target= "/temp/" + RandomUtil.getGlobalUniqueId() + "." + ext;
 	        //HdfsOperator.getFromHDFS(storeUrl, target, configuration);
 	       return  HdfsOperator.getInputStreamFromHDFS(storeUrl, target, configuration);
 	        
-//	        log.info("===hdfs InputStream====");
-//	        File temp = new File(target);
-//	        try {
-//				return new FileInputStream(temp);
-//			} catch (FileNotFoundException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} finally {
-//				//temp.delete();
-//			}
-	        
-		} 
+		}
 		return null;
 	}
 
 	private void saveZB(DBInfoBean bean, InputStream in) throws IOException {
 		String extensionName = bean.getExt();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
-		byte[] buffer = new byte[1024];  
-		int len;  
-		while ((len = in.read(buffer)) > -1 ) {  
-		    baos.write(buffer, 0, len);  
-		}  
-		baos.flush(); 
 
 		ESInfoBean esBean = new ESInfoBean();
 		BeanUtils.copyProperties(bean, esBean);
 		esBean.setAddDate(new Date());
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+		byte[] buffer = new byte[1024];  
+		int len;  
+		while ((len = in.read(buffer)) > -1 ) {  
+			baos.write(buffer, 0, len);  
+		}  
+		baos.flush(); 
 		//全文
 		String content = getContent(new ByteArrayInputStream(baos.toByteArray()), extensionName);
 		
@@ -458,7 +482,7 @@ public class EsUtil {
 	 * @param in 
 	 * @throws IOException 
 	 */
-	private void disposeTB(DBInfoBean bean, InputStream in) throws IOException {
+	private void saveTB(DBInfoBean bean, InputStream in) throws IOException {
 		//全文
 		String content = getContent(in, bean.getExt());
 		if (StringUtils.isNotBlank(content)) {
@@ -603,100 +627,6 @@ public class EsUtil {
 		log.info("==="+fileName.substring(fileName.lastIndexOf(".")+1, fileName.length()));
 	}
 
-	public void parseLocalFileSaveEs(String directoryPath) throws IOException {
-		List<File> files = new ArrayList<>();
-		FileListUtil.getFiles(directoryPath, 3, files);
-		for (File f : files) {
-			if (f.isFile()) {
-				InputStream in = new FileInputStream(f);
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();  
-				byte[] buffer = new byte[1024];  
-				int len;  
-				while ((len = in.read(buffer)) > -1 ) {  
-				    baos.write(buffer, 0, len);  
-				}  
-				baos.flush(); 
-				
-				String fileName = f.getName();
-				//System.out.println(fileName);
-				String content = "";
-				if (fileName.endsWith(".doc")) {
-					content = Word2003.read(f.getAbsolutePath());
-				} else if (fileName.endsWith(".docx")) {
-					content = Word2007.read(f.getAbsolutePath());
-				} else if (fileName.endsWith(".pdf")) {
-					content = PDF.read(f.getAbsolutePath());
-				}
-				ESInfoBean esBean = new ESInfoBean();
-				if (StringUtils.isNotBlank(content)) {
-					String extensionName = fileName.substring(fileName.lastIndexOf(".")+1, fileName.length());
-					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-					esBean.setTitle(fileName);
-					esBean.setContent(content);
-					esBean.setAddDate(new Date());
-					List<String> phraseList = HanLP.extractPhrase(content, 2);
-					//保存新词
-					wordsService.saveByList(phraseList);					
-					saveES(zbIndex, esBean);
-				
-					//招标范围
-					String zbfw = parseFileUtil.parseTenderScope(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-					//资格要求
-					List<String> zgyqList = parseFileUtil.parseTenderQualification(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-					//评标办法
-					String pbbf = parseFileUtil.parseTenderMethod(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-					//技术要求
-					String jsyq = parseFileUtil.parseTechnicalRequirement(new ByteArrayInputStream(baos.toByteArray()), extensionName);
-					
-					//log.info("zbfw====" + zbfw);
-					log.info("zgyqList=======" + zgyqList.toString());
-//					log.info("pbbf=====" + pbbf);
-//					log.info("jsyq=====" + jsyq);
-					
-//					
-					esBean.setZbfw(zbfw);
-					//==========存索引-资格要求及按条存数据库=======
-					if (zgyqList != null && zgyqList.size() > 0) {
-						
-						
-						esBean.setContent(zgyqList.toString());
-						saveES(zgyqIndex, esBean);
-						zgyqList.forEach(str ->{
-							if (StringUtils.isNotBlank(str)) {
-								QueryWrapper<GZgyq> query = new QueryWrapper<>();
-								query.lambda()
-								.eq(GZgyq::getContent, str);
-								GZgyq zgyqItem = zgyqService.getOne(query);
-								if (zgyqItem != null) {
-									zgyqItem.setAmount(zgyqItem.getAmount() + 1);
-									zgyqService.updateById(zgyqItem);
-								} else {
-									zgyqItem = new GZgyq();
-									zgyqItem.setAmount(0);
-									zgyqItem.setContent(str);
-									zgyqService.save(zgyqItem);
-								}
-							}
-						});
-						
-					}
-					//=====存索引-评标办法===========
-					if (StringUtils.isNotBlank(pbbf)) {
-						esBean.setContent(pbbf);
-						saveES(pbbfIndex, esBean);
-					}
-					//=======存索引-技术要求=========
-					if (StringUtils.isNotBlank(jsyq)) {
-						esBean.setContent(jsyq);
-						saveES(jsyqIndex, esBean);
-					}
-				}
-				
-			}
-		}
-		
-	}
-
 	public void updateWeightById(String indexName, String id, int num) throws IOException {
 		RestHighLevelClient client = esClient.getClient();
 		GetRequest getRequest = new GetRequest(indexName, "_doc", id);
@@ -747,5 +677,50 @@ public class EsUtil {
 		return null;
 	}
 	
+	public void parseLocalZBFileSaveEs(String directoryPath) throws IOException {
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		for (File f : files) {
+			if (f.isFile()) {
+				InputStream in = new FileInputStream(f);
+				DBInfoBean bean = new DBInfoBean();
+				bean.setTitle(f.getName());
+				bean.setPrjCode(IdWorker.get32UUID());
+				bean.setPrjName("项目名称-" + bean.getPrjCode());
+				bean.setUuid("uuid");
+				saveZB(bean, in);
+			}
+		}
+	}
+	public void parseLocalTBFileSaveEs(String directoryPath) throws IOException, DocumentException {
+		List<File> files = new ArrayList<>();
+		FileListUtil.getFiles(directoryPath, 3, files);
+		for (File f : files) {
+			if (f.isFile() && f.getName().endsWith("pdf")) {
+				InputStream in = new FileInputStream(f);
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+				byte[] buffer = new byte[1024];  
+				int len;  
+				while ((len = in.read(buffer)) > -1 ) {  
+					baos.write(buffer, 0, len);  
+				}  
+				baos.flush(); 
+				DBInfoBean bean = new DBInfoBean();
+				bean.setTitle(f.getName());
+				bean.setPrjCode(IdWorker.get32UUID());
+				bean.setPrjName("项目名称-" + bean.getPrjCode());
+				bean.setUuid("uuid");
+				
+				GTbIdcardExtract entity = new GTbIdcardExtract();
+				entity.setPrjCode(bean.getPrjCode());
+				entity.setPrjName(bean.getPrjName());
+				entity.setUuid(bean.getUuid());
+				entity.setTitle(bean.getTitle());
+				//存储身份证信息
+				idcardOcr.insertIdcardInfo(new ByteArrayInputStream(baos.toByteArray()), new ByteArrayInputStream(baos.toByteArray()), entity);
+				//saveTB(bean, in);
+			}
+		}
+	}
 	
 }
