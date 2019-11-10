@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
@@ -41,7 +40,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -56,17 +54,18 @@ import io.gomk.framework.hdfs.HdfsOperator;
 import io.gomk.framework.utils.FileListUtil;
 import io.gomk.framework.utils.RandomUtil;
 import io.gomk.framework.utils.parse.PDF;
-import io.gomk.framework.utils.parse.PDF2Image;
 import io.gomk.framework.utils.parse.Word2003;
 import io.gomk.framework.utils.parse.Word2007;
 import io.gomk.framework.utils.parse.ZipAndRarTools;
 import io.gomk.framework.utils.parsefile.ParseFile;
-import io.gomk.mapper.OneselfMapper;
 import io.gomk.mapper.DZbPrjMapper;
 import io.gomk.mapper.MasterDBMapper;
+import io.gomk.mapper.OneselfMapper;
 import io.gomk.model.GTbIdcardExtract;
+import io.gomk.model.GTbQuoteExtract;
 import io.gomk.model.GZgyq;
 import io.gomk.model.entity.DZbPrj;
+import io.gomk.service.IGTbQuoteExtractService;
 import io.gomk.service.IGWordsService;
 import io.gomk.service.IGZgyqService;
 import io.gomk.task.DBInfoBean;
@@ -90,6 +89,8 @@ public class EsUtil {
 	IGZgyqService zgyqService;
 	@Autowired
 	IGWordsService wordsService;
+	@Autowired
+	IGTbQuoteExtractService tbQuoteExtractService;
 	@Autowired
 	DZbPrjMapper prjMapper;
 	
@@ -319,6 +320,15 @@ public class EsUtil {
 							
 								saveTB(bean, in);
 								if (bean.getExt().contains("pdf")) {
+									
+									GTbQuoteExtract qe = new GTbQuoteExtract();
+									qe.setPrjCode(bean.getPrjCode());
+									qe.setPrjName(bean.getPrjName());
+									qe.setUuid(bean.getUuid());
+									qe.setTitle(bean.getTitle());
+									//存分项报价
+									tbQuoteExtractService.insertPrice(new ByteArrayInputStream(baos.toByteArray()), qe);
+									
 									GTbIdcardExtract entity = new GTbIdcardExtract();
 									entity.setPrjCode(bean.getPrjCode());
 									entity.setPrjName(bean.getPrjName());

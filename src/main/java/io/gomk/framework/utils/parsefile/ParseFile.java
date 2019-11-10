@@ -636,7 +636,7 @@ public class ParseFile {
 		FileUtils.copyInputStreamToFile(initialStream, targetFile);
 		FileUtils.copyInputStreamToFile(byteArrayInputStream, tempPDF);
 		
-        String[] args1 = new String[]{"PYTHONIOENCODING=utf-8 /usr/bin/python", targetFile.getAbsolutePath(), tempPDF.getAbsolutePath(), page};
+        String[] args1 = new String[]{"python", targetFile.getAbsolutePath(), tempPDF.getAbsolutePath(), page};
         Process proc = Runtime.getRuntime().exec(args1);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));

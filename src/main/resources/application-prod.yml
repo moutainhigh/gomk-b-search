@@ -26,6 +26,24 @@ elasticsearch:
   replicas: 2
   analyzer: ik_smart
   
+graph:
+  query:
+    TimeLimit: 8000
+    fastProperty: true
+  storage:
+    backend: cql
+    keyspace: graph_1102
+    hostname: 101.201.77.122
+    batchLoading: true
+  search:
+    backend: elasticsearch
+    hostname: 58.119.224.27:29200
+  cache:
+    enable: true
+    #秒
+    time: 300
+    size: 0.25
+  
     
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**Mapper.xml

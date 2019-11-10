@@ -3,11 +3,13 @@ package io.gomk.service.impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import io.gomk.common.code.StatusCode;
 import io.gomk.common.exception.BusinessException;
+import io.gomk.es6.EsUtil;
 import io.gomk.model.entity.TGAttachment;
 import io.gomk.mapper.TGAttachmentMapper;
 import io.gomk.service.TGAttachmentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,13 +31,14 @@ import java.time.LocalDateTime;
 @DS("oneself")
 public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGAttachment> implements TGAttachmentService {
 
-
+	@Autowired
+	EsUtil esUtil;
     @Override
     public String downloadById(String id,HttpServletResponse response,HttpServletRequest request) {
         TGAttachment atta = baseMapper.selectById(id);
         if (atta != null) {
-
-            return downloadAttachment(atta.getFtpPath(), atta.getAttaName(),response,request);
+        	InputStream is = esUtil.getInputStreams(atta.getFtpType(), atta.getFtpPath(), atta.getFileExt());
+            return downloadAttachment(is, atta.getAttaName(),response,request);
         } else {
             throw new BusinessException(StatusCode.DOWNLOAD_ERROR);
         }
@@ -48,6 +51,8 @@ public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGA
 
         attachment.setFtpType(null);
         attachment.setFtpPath(null);
+        String originalFilename = attafile.getOriginalFilename();
+        attachment.setFileExt(originalFilename.substring(originalFilename.lastIndexOf(".") + 1));
 
         attachment.setAttaName(attaName);
         attachment.setAttaDecs(attaDecs);
@@ -65,12 +70,11 @@ public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGA
      * @param request
      * @return
      */
-    private String downloadAttachment(String downloadurl, String fileName, HttpServletResponse response,HttpServletRequest request) {
+    private String downloadAttachment(InputStream is, String fileName, HttpServletResponse response,HttpServletRequest request) {
         // TODO path需要根据实际情况定义,
         String path ="";
         BufferedOutputStream out = null;
-        InputStream is = null;
-        String filepath = path + "/" + downloadurl;
+
         String downloadMode = "attachment";
 
         try {
@@ -86,7 +90,7 @@ public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGA
                         downloadMode + ";filename=" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
             }
             out = new BufferedOutputStream(response.getOutputStream());
-            is = new BufferedInputStream(new FileInputStream(new File(filepath)));
+           // is = new BufferedInputStream(new FileInputStream(new File(filepath)));
             byte[] content = new byte[1024];
             int len = 0;
             while ((len = is.read(content)) > 0) {

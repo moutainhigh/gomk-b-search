@@ -47,6 +47,9 @@ public class TGAttachment implements Serializable {
 
     @TableField("ftp_path")
     private String ftpPath;
+    
+    @TableField("file_ext")
+    private String fileExt;
 
     @TableField("created_time")
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -10,6 +10,8 @@
         <result column="atta_type" property="attaType" />
         <result column="ftp_type" property="ftpType" />
         <result column="ftp_path" property="ftpPath" />
+        <result column="file_ext" property="fileExt" />
+        
         <result column="created_time" property="createdTime" />
     </resultMap>
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.GTbQuoteExtractMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.GTbQuoteExtract">
+        <id column="id" property="id" />
+        <result column="prj_code" property="prjCode" />
+        <result column="prj_name" property="prjName" />
+        <result column="materials_name" property="materialsName" />
+        <result column="specifications" property="specifications" />
+        <result column="uuid" property="uuid" />
+        <result column="title" property="title" />
+        <result column="vendor" property="vendor" />
+        <result column="amount" property="amount" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="total_price" property="totalPrice" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, prj_code, prj_name, materials_name, specifications, uuid, title, vendor, amount, unit_price, total_price
+    </sql>
+
+</mapper>

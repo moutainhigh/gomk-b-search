@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,18 +136,14 @@ public class RuntimeUtils {
 
 	public static void main(String[] args) throws IOException {
 		//InputStream in  = Thread.currentThread().getContextClassLoader().getResourceAsStream("python/t1.py");
-		InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/t1.py");
+		InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/read_table.py");
 		//log.info(in.toString());
+		StringBuilder sb = new StringBuilder();
+		String rootPath = System.getProperty("user.dir");
 		
-		String projectPath = System.getProperty("user.dir");
-		File targetFile = new File(projectPath + "/diff.py");
+		File targetFile = new File(rootPath + "/dd.py");
 		FileUtils.copyInputStreamToFile(initialStream, targetFile);
 		
-		
-//		StringBuilder sb = new StringBuilder();
-//		String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
-//		String filePath = rootPath + "t1.py";
-//		// String filePath = "/root/python/difflib/diffString.py";
 //		String str1 = "对比nginx配置文件的差异34343";
 //		String str2 = "对比nginx配置文件的差异";
 //		String str1Path = rootPath + "1.txt";
@@ -154,44 +151,51 @@ public class RuntimeUtils {
 //		string2File(str1, str1Path);
 //		string2File(str2, str2Path);
 //		
-//		String[] args1 = new String[] { "python", filePath, str1Path, str2Path };
-//		Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
-//
-//		BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-//		String line = null;
-//		int i = 0;
-//		while ((line = in.readLine()) != null) {
-//			if (i == 0 && StringUtils.isNotBlank(line)) {
-//				NumberFormat format = NumberFormat.getPercentInstance();
-//				format.setMaximumFractionDigits(2);// 设置保留几位小数
-//				System.out.println("=====" + format.format(Double.parseDouble(line)));
-//			} else {
-//				//System.out.println("=====" + line);
-//				sb.append(line);
-//			}
-//			i++;
-//		}
-//		// 获取异常输出流
-//
-//		BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-//
-//		String linee = null;
-//
-//		while ((linee = ine.readLine()) != null) {
-//
-//			System.out.println(linee);
-//
-//		}
-//
-//		in.close();
-//		try {
-//			proc.waitFor();
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		System.out.println(sb.toString());
+//		String[] args1 = new String[] { "python", targetFile.getAbsolutePath(), str1Path, str2Path };
+//		
+		File file1 = new File("/Users/vko/Documents/my-code/testPDF/tb.pdf");
+		File tempPDF = new File(rootPath + "/test.pdf");
+		FileUtils.copyInputStreamToFile(new FileInputStream(file1), tempPDF);
+		
+        String[] args1 = new String[]{"python", targetFile.getAbsolutePath(), tempPDF.getAbsolutePath(), "9"};
+		
+		
+		Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
+		BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+		String line = null;
+		int i = 1;
+		while ((line = in.readLine()) != null) {
+			if (i == 0 && StringUtils.isNotBlank(line)) {
+				NumberFormat format = NumberFormat.getPercentInstance();
+				format.setMaximumFractionDigits(2);// 设置保留几位小数
+				System.out.println("=====" + format.format(Double.parseDouble(line)));
+			} else {
+				System.out.println("=====" + line);
+				sb.append(line);
+			}
+			i++;
+		}
+		// 获取异常输出流
+
+		BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+
+		String linee = null;
+
+		while ((linee = ine.readLine()) != null) {
+
+			System.out.println(linee);
+
+		}
+
+		in.close();
+		try {
+			proc.waitFor();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(sb.toString());
 	}
 	
 

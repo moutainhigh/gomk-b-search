@@ -35,7 +35,7 @@ public class MysqlGenerator_oneTalbe extends SuperGenerator {
      */
 	 @Test
     public void generator() {
-		String tableName = "t_g_tb_idcard_extract";
+		String tableName = "t_g_tb_quote_extract";
         // 代码生成器
         AutoGenerator mpg = getAutoGenerator(tableName);
         mpg.execute();
