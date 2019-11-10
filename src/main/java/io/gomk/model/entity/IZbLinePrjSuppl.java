@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
  * 行项目_供应商报价数据
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 @Data

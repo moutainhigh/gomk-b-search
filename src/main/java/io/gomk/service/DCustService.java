@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 业主维度表 服务类
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 public interface DCustService extends IService<DCust> {

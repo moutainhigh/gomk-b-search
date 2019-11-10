@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 业主维度表 Mapper 接口
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 public interface DCustMapper extends BaseMapper<DCust> {

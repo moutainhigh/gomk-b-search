@@ -13,7 +13,7 @@ import java.util.Map;
  * 招投标标段维度表 服务类
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-10-13
  */
 public interface DZbPkgService extends IService<DZbPkg> {

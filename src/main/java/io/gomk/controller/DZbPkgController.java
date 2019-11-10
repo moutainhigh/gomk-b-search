@@ -17,7 +17,7 @@ import java.util.Map;
  * 招投标标段维度表 前端控制器
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-10-13
  */
 @RestController

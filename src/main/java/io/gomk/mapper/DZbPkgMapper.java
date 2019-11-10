@@ -15,7 +15,7 @@ import java.util.Map;
  * 招投标标段维度表 Mapper 接口
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-10-13
  */
 @Repository
