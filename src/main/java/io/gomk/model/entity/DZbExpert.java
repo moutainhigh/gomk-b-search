@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * 专家维度表
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 @Data
