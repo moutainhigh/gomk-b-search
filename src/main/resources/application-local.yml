@@ -38,6 +38,24 @@ mybatis-plus:
   typeEnumsPackage: io.gomk.enums
   type-aliases-package: io.gomk.model.entity
 
+graph:
+  query:
+    TimeLimit: 8000
+    fastProperty: true
+  storage:
+    backend: cql
+    keyspace: graph_1102
+    hostname: 101.201.77.122
+    batchLoading: true
+  search:
+    backend: elasticsearch
+    hostname: 58.119.224.27:29200
+  cache:
+    enable: true
+    #秒
+    time: 300
+    size: 0.25
+
 spring:
   autoconfigure.exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
   datasource:
@@ -54,6 +72,12 @@ spring:
           url: jdbc:mysql://39.105.192.98:33306/t_g_parse_info?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
           username: root
           password: Abcd1234!
+#  jackson:
+#    date-format: com.fasterxml.jackson.databind.util.StdDateFormat
+#    default-property-inclusion: always
+#    property-naming-strategy: SNAKE_CASE
+#    time-zone: GMT+8
+#    open-in-view: false
   data:
     hbase:
       master: 10.212.169.158:60000
