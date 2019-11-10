@@ -22,7 +22,8 @@ public enum StatusCode implements IExceptionEnum {
     SQL_ERROR(-1004, "SQL错误"),
     NOT_EMPTY_VALIDATION_ERROR(-1007, "非空参数格式错误"),
     NOT_NULL_VALIDATION_ERROR(-1008, "无效参数格式错误"),
-	OLD_PASS_ERROR(-1009, "旧密码错误，请重新输入！");
+	OLD_PASS_ERROR(-1009, "旧密码错误，请重新输入！"),
+    DOWNLOAD_ERROR(400, "下载错误");
 	
    
     private static final Map<Integer, StatusCode> code2StatusCode;

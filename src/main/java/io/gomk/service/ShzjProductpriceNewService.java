@@ -14,7 +14,7 @@ import java.util.Map;
  *  服务类
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-04
  */
 public interface ShzjProductpriceNewService extends IService<ShzjProductpriceNew> {

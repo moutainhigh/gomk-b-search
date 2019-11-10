@@ -25,6 +25,9 @@ public class TagDetailVO {
 	@ApiModelProperty(value = "公式集合")
     private List<GTagFormula> formulas;
 	
+	@ApiModelProperty(value = "内置规则集合")
+    private List<GTagFormula> fixedRules;
+	
 	@ApiModelProperty(value = "关键词规则")
     private List<GTagKeyword> keywords;
 	

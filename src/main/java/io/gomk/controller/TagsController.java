@@ -150,10 +150,14 @@ public class TagsController extends SuperController {
 		List<EnumVO> response = new ArrayList<>();
 		List<ScopeEnum> list = EnumUtils.getEnumList(ScopeEnum.class);
 		for (ScopeEnum em : list) {
-			EnumVO vo = new EnumVO();
-			vo.setId(em.getValue());
-			vo.setDesc(em.getDesc());
-			response.add(vo);
+			if (em != ScopeEnum.TBR && em != ScopeEnum.ZBXM 
+					&& em != ScopeEnum.CPJG && em != ScopeEnum.ZJXM 
+					&& em != ScopeEnum.KH && em != ScopeEnum.ZJK && em != ScopeEnum.BDW) {
+				EnumVO vo = new EnumVO();
+				vo.setId(em.getValue());
+				vo.setDesc(em.getDesc());
+				response.add(vo);
+			}
 		}
 		return ResponseData.success(response);
 	}
@@ -166,7 +170,8 @@ public class TagsController extends SuperController {
 		TagListResponse response = new TagListResponse();
 		response.setEdit(true);
 		GTagClassify classify = tagClassifyService.getById(classifyId);
-		if (classify.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_FIRST_ID)) {
+		if (classify.getParentId().equals(CommonConstants.TAG_CUSTOM_CLASSIFY_FIRST_ID)
+				|| classify.getParentId().equals(CommonConstants.TAG_FIXED_CLASSIFY_ID)) {
 			response.setEdit(false);
 		}
 		response.setTags(list);
@@ -263,8 +268,8 @@ public class TagsController extends SuperController {
 				&& StringUtils.isBlank(anyone)) {
 			return ResponseData.error("前三项至少有一项不能空！");
 		}
-		
-		GTagClassify dbEntity = tagClassifyService.getById(request.getClassifyId());
+		Integer classifyId = request.getClassifyId();
+		GTagClassify dbEntity = tagClassifyService.getById(classifyId);
 		if (dbEntity == null) {
 			return ResponseData.error("id is not exist.");
 		}
@@ -272,7 +277,8 @@ public class TagsController extends SuperController {
 		String name = request.getName();
 		QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
 		queryWrapper.lambda()
-    		.eq(GTag::getTagName, name);
+    		.eq(GTag::getTagName, name)
+    		.eq(GTag::getClassifyId, classifyId);
 		GTag tag = tagService.getOne(queryWrapper);
 		if (tag != null) {
 			return ResponseData.error("name is exist..");

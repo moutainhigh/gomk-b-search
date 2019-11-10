@@ -2,7 +2,11 @@ package io.gomk.task;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -13,20 +17,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import io.gomk.common.constants.CommonConstants;
 import io.gomk.enums.DateRangeEnum;
+import io.gomk.enums.FixedTagRuleEnum;
 import io.gomk.enums.TagRuleTypeEnum;
 import io.gomk.es6.EsUtil;
+import io.gomk.mapper.OneselfMapper;
 import io.gomk.mapper.GTagClassifyScopeMapper;
 import io.gomk.mapper.GTagFormulaMapper;
 import io.gomk.mapper.GTagKeywordMapper;
 import io.gomk.mapper.GTagMapper;
+import io.gomk.mapper.MasterDBMapper;
 import io.gomk.model.GTag;
 import io.gomk.model.GTagClassifyScope;
 import io.gomk.model.GTagFormula;
 import io.gomk.model.GTagKeyword;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * gomk-b-search
@@ -34,12 +44,18 @@ import io.gomk.model.GTagKeyword;
  * @author chen
  * @Date 2019/10/1
  */
+@Slf4j
 @Component
 @EnableScheduling
 public class SchedulerService {
 
 	@Autowired
 	EsUtil esUtil;
+	
+	@Autowired
+	OneselfMapper db2esMapper;
+	@Autowired
+	MasterDBMapper masterDBMapper;
 	
 	@Autowired
 	GTagMapper tagMapper;
@@ -53,161 +69,222 @@ public class SchedulerService {
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
 	
+	
+	@Scheduled(cron = "0 0 1 * * ?")
 	//@Scheduled(fixedRate = 111150300)
-	public void insertEsFromLocalTask() {
-		String path="d:/doc/";
-		//String path="/Users/vko/Documents/my-code/testDOC/";
-		try {
-			esUtil.parseLocalFileSaveEs(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void insertFixedTag() {
+		Set<String> classify11 = new HashSet<>();
+		Set<String> classify12 = new HashSet<>();
+		Set<String> classify13 = new HashSet<>();
+		Set<String> classify14 = new HashSet<>();
+		Set<String> classify15 = new HashSet<>();
+		Set<String> classify16 = new HashSet<>();
+		//内置标签
+		List<GTag> tags = tagMapper.getAllFixedTag(TagRuleTypeEnum.FIXED.getValue());
+		tags.forEach(tag -> {
+			Integer classifyId = tag.getClassifyId();
+			if (classifyId == FixedTagRuleEnum.F11.getValue()) {
+				classify11.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F12.getValue()) {
+				classify12.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F13.getValue()) {
+				classify13.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F14.getValue()) {
+				classify14.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F15.getValue()) {
+				classify15.add(tag.getTagName());
+			} else if (classifyId == FixedTagRuleEnum.F16.getValue()) {
+				classify16.add(tag.getTagName());
+			}
+		});
+		
+		//Set<String> masterTag11 = masterDBMapper.getTagByClassify11();
+		Set<String> masterTag12 = masterDBMapper.getTagByClassify12();
+		Set<String> masterTag13 = masterDBMapper.getTagByClassify13();
+		Set<String> masterTag14 = masterDBMapper.getTagByClassify14();
+		Set<String> masterTag15 = masterDBMapper.getTagByClassify15();
+		Set<String> masterTag16 = masterDBMapper.getTagByClassify16();
+		
+		//masterTag11.removeAll(classify11);
+		masterTag12.removeAll(classify12);
+		masterTag13.removeAll(classify13);
+		masterTag14.removeAll(classify14);
+		masterTag15.removeAll(classify15);
+		masterTag16.removeAll(classify16);
+//		masterTag11.forEach(masterTag -> {
+//			insertTag(masterTag, CommonConstants.TAG_CLASSIFY_11);
+//		});
+		
+		
+		masterTag12.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F12);
+		});
+		
+		masterTag13.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F13);
+		});
+		masterTag14.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F14);
+		});
+		masterTag15.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F15);
+		});
+		masterTag16.forEach(masterTag -> {
+			insertTag(masterTag, FixedTagRuleEnum.F16);
+		});
+		
+	}
+
+	@Transactional
+	private void insertTag(String masterTag, FixedTagRuleEnum fenum) {
+		if (StringUtils.isNotBlank(masterTag)) {
+			GTag entity = new GTag();
+			entity.setClassifyId(fenum.getValue());
+			entity.setTagName(masterTag);
+			entity.setTaskFinished(true);
+			entity.setTagRule(TagRuleTypeEnum.FIXED.getValue());
+			tagMapper.insert(entity);
+			
+			GTagFormula fa = new GTagFormula();
+			fa.setFField(fenum.getField());
+			fa.setFFieldCn(fenum.getFieldCN());
+			fa.setFMark("=");
+			fa.setFValue(masterTag);
+			fa.setTagId(entity.getId());
+			tagFormulaMapper.insert(fa);
 		}
 	}
-	//@Scheduled(fixedRate = 111150300)
+	
+	@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs();
 	}
 	
     //晚上1点 执行自动打标签
 	@Scheduled(cron = "0 0 1 * * ?")
-    public void task1() throws Exception{
-        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
+	//@Scheduled(fixedRate = 111150300)
+    public void task1() throws Exception {
+		log.info("定时任务：1点自动给文档打内置标签");
         QueryWrapper<GTag> queryWrapper = new QueryWrapper<>();
 		queryWrapper.lambda()
     		.eq(GTag::getTaskFinished, false);
         List<GTag> tagList = tagMapper.selectList(queryWrapper);
-        
         for (GTag tag : tagList) {
+        	BoolQueryBuilder query = QueryBuilders.boolQuery();
+        	//查询标签应用的库范围
         	QueryWrapper<GTagClassifyScope> scopeWrapper = new QueryWrapper<>();
     		scopeWrapper.lambda()
         		.eq(GTagClassifyScope::getClassifyId, tag.getClassifyId());
     		List<GTagClassifyScope> scopeList = tagClassifyScopeMapper.selectList(scopeWrapper);
-    		BoolQueryBuilder query = QueryBuilders.boolQuery();
-        	if (tag.getTagRule().equals(TagRuleTypeEnum.KEYWORD.getValue())) {
-        		QueryWrapper<GTagKeyword> keywordWrapper = new QueryWrapper<>();
-        		keywordWrapper.lambda()
-            		.eq(GTagKeyword::getTagId, tag.getId());
-        		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(keywordWrapper);
-        		for (GTagKeyword keyword : keywordList) {
-        			if (StringUtils.isNotBlank(keyword.getMustAll())) {
-        				String []str = keyword.getMustAll().split(",");
-        				for (String s : str) {
-        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
-                			query.must(queryBuilder);
-        				}
-        			}
-        			if (StringUtils.isNotBlank(keyword.getAnyone())) {
-        				String []str = keyword.getAnyone().split(",");
-        				for (String s : str) {
-        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
-        					query.should(queryBuilder);
-        				}
-        			}
-        			if (StringUtils.isNotBlank(keyword.getMustNo())) {
-        				String []str = keyword.getMustNo().split(",");
-        				for (String s : str) {
-        					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
-        					query.mustNot(queryBuilder);
-        				}
-        			}
-        			if (StringUtils.isNotBlank(keyword.getMustFull())) {
-        				QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", keyword);
-            			query.must(queryBuilder);
-        			}
-        			
-        			if (keyword.getDateRange() != null && keyword.getDateRange() != 0) {
-        				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("noticeDate");
-        				switch (DateRangeEnum.fromValue(keyword.getDateRange())) {
-						case BEFORE_THREE_MONTH:
-							rangeQueryBuilder.gte("now-3M/M");
-							break;
-						case BEFORE_HALF_YEAR:
-							rangeQueryBuilder.gte("now-6M/M");
-							break;
-						case BEFORE_ONE_YEAR:
-							rangeQueryBuilder.gte("now-1y/y");
-							break;
-						case BEFORE_THREE_YEAR:
-							rangeQueryBuilder.gte("now-3y/y");
-							break;
-						case AFTER_THREE_YEAR:
-							rangeQueryBuilder.lt("now-3y/y");
-							break;
-
-						default:
-							break;
-						}
-            			query.must(rangeQueryBuilder);
-        			}
-        			
-        		}
-        		
-        	} else if (tag.getTagRule().equals(TagRuleTypeEnum.FORMULA.getValue())) {
-        		List<GTagFormula> tagFormulas = tagFormulaMapper.selectByTagId(tag.getId());
-        		
-        		for (GTagFormula formula : tagFormulas) {
-        			String mark = formula.getFMark();
-        			String value = formula.getFValue();
-        			String field = formula.getFField();
-        			if ("=".equals(mark)) {
-        				QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery(field, value);
-        				query.must(queryBuilder);
-        			} else {
-        				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(field);
-        				if (">".equals(mark)) {
-        					rangeQueryBuilder.gt(value);
-        				} else if (">=".equals(mark)) {
-        					rangeQueryBuilder.gte(value);
-        				}  else if ("<".equals(mark)) {
-        					rangeQueryBuilder.lt(value);
-        				}  else if ("<=".equals(mark)) {
-        					rangeQueryBuilder.lte(value);
-        				}  
-        				query.must(rangeQueryBuilder);
-        			}
-        		}
+    		
+    		Integer tagRule = tag.getTagRule();
+        	if (tagRule.equals(TagRuleTypeEnum.KEYWORD.getValue())) {
+        		updateIndexByKeyword(query, tag.getId());
+        	} else if (tagRule.equals(TagRuleTypeEnum.FORMULA.getValue())) {
+        		updateIndexByFixed(query, tag.getId());
+        	} else {
+        		break;
         	}
-        	for (GTagClassifyScope classifyScope : scopeList) {
+
+    		for (GTagClassifyScope classifyScope : scopeList) {
     			String index = esUtil.getIndexname(classifyScope.getScopes());
     			List<String> ids = esUtil.getIDsByKeyword(index, query);
-        		System.out.println("ids size:" + ids.size());
-        		esUtil.updateTagByIds(index, tag.getTagName(), ids, true, true);
+    			Set<String> set = new HashSet<String>();
+    			set.add(tag.getTagName());
+    			esUtil.updateTagByIds(index, set, ids, true, true);
     		}
-        	
         	//标签库标记，已执行完打标签任务
         	tag.setTaskFinished(Boolean.TRUE);
         	tagMapper.updateById(tag);
         }
         
     }
+	private void updateIndexByFixed(BoolQueryBuilder query, Integer tagId) {
+		List<GTagFormula> tagFormulas = tagFormulaMapper.selectByTagId(tagId);
+		for (GTagFormula formula : tagFormulas) {
+			String mark = formula.getFMark();
+			String value = formula.getFValue();
+			String field = formula.getFField();
+			if ("=".equals(mark)) {
+				QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery(field, value);
+				query.must(queryBuilder);
+			} else {
+				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(field);
+				if (">".equals(mark)) {
+					rangeQueryBuilder.gt(value);
+				} else if (">=".equals(mark)) {
+					rangeQueryBuilder.gte(value);
+				}  else if ("<".equals(mark)) {
+					rangeQueryBuilder.lt(value);
+				}  else if ("<=".equals(mark)) {
+					rangeQueryBuilder.lte(value);
+				}  
+				query.must(rangeQueryBuilder);
+			}
+		}
+	}
+	
+	private void updateIndexByKeyword(BoolQueryBuilder query, Integer tagId) throws Exception, IOException {
+		//查询关键字规则
+		QueryWrapper<GTagKeyword> keywordWrapper = new QueryWrapper<>();
+		keywordWrapper.lambda()
+			.eq(GTagKeyword::getTagId, tagId);
+		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(keywordWrapper);
+		for (GTagKeyword keyword : keywordList) {
+			if (StringUtils.isNotBlank(keyword.getMustAll())) {
+				String []str = keyword.getMustAll().split(",");
+				for (String s : str) {
+					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+					query.must(queryBuilder);
+				}
+			}
+			if (StringUtils.isNotBlank(keyword.getAnyone())) {
+				String []str = keyword.getAnyone().split(",");
+				for (String s : str) {
+					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+					query.should(queryBuilder);
+				}
+			}
+			if (StringUtils.isNotBlank(keyword.getMustNo())) {
+				String []str = keyword.getMustNo().split(",");
+				for (String s : str) {
+					QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", s);
+					query.mustNot(queryBuilder);
+				}
+			}
+			if (StringUtils.isNotBlank(keyword.getMustFull())) {
+				QueryBuilder queryBuilder = QueryBuilders.matchPhraseQuery("content", keyword);
+				query.must(queryBuilder);
+			}
+			
+			if (keyword.getDateRange() != null && keyword.getDateRange() != 0) {
+				RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("noticeDate");
+				switch (DateRangeEnum.fromValue(keyword.getDateRange())) {
+				case BEFORE_THREE_MONTH:
+					rangeQueryBuilder.gte("now-3M/M");
+					break;
+				case BEFORE_HALF_YEAR:
+					rangeQueryBuilder.gte("now-6M/M");
+					break;
+				case BEFORE_ONE_YEAR:
+					rangeQueryBuilder.gte("now-1y/y");
+					break;
+				case BEFORE_THREE_YEAR:
+					rangeQueryBuilder.gte("now-3y/y");
+					break;
+				case AFTER_THREE_YEAR:
+					rangeQueryBuilder.lt("now-3y/y");
+					break;
 
-    
-//    /**默认是fixedDelay 上一次执行完毕时间后执行下一轮*/
-//    @Scheduled(cron = "0/5 * * * * *")
-//    public void run() throws InterruptedException {
-//        Thread.sleep(6000);
-//        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用cron  {}"+(System.currentTimeMillis()/1000));
-//    }
-//
-//    /**fixedRate:上一次开始执行时间点之后5秒再执行*/
-//    @Scheduled(fixedRate = 5000)
-//    public void run1() throws InterruptedException {
-//        Thread.sleep(6000);
-//        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedRate  {}"+(System.currentTimeMillis()/1000));
-//    }
-//
-//    /**fixedDelay:上一次执行完毕时间点之后5秒再执行*/
-//    @Scheduled(fixedDelay = 5000)
-//    public void run2() throws InterruptedException {
-//        Thread.sleep(7000);
-//        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用fixedDelay  {}"+(System.currentTimeMillis()/1000));
-//    }
-//
-//    /**第一次延迟2秒后执行，之后按fixedDelay的规则每5秒执行一次*/
-//    @Scheduled(initialDelay = 2000, fixedDelay = 5000)
-//    public void run3(){
-//        System.out.println(Thread.currentThread().getName()+"=====>>>>>使用initialDelay  {}"+(System.currentTimeMillis()/1000));
-//    }
+				default:
+					break;
+				}
+				query.must(rangeQueryBuilder);
+			}
+			
+		}
+		
+	}
+
     
 }

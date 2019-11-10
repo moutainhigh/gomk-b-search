@@ -103,7 +103,8 @@ public class IndexService extends EsBaseService implements IIndexService {
             "          \"type\": \"keyword\"\n" +
             "        },\n" +
             "        \"directoryTree\": {\n" +
-            "          \"type\": \"keyword\"\n" +
+            "          \"type\": \"keyword\",\n" +
+            "          \"ignore_above\": 10922 \n" +
             "        },\n" +
             "        \"currentPath\": {\n" +
             "          \"type\": \"keyword\"\n" +

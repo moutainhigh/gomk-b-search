@@ -1,22 +1,17 @@
 package io.gomk.framework.utils.parse;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 
-import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.events.IndexEvents.Entry;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
-import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
-import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
+
+import io.gomk.framework.utils.parsefile.ParseFile;
 
 /**
  * 提取PDF中的图片
@@ -61,6 +56,27 @@ public class PDF2Image {
 //        String t = PdfTextExtractor.getTextFromPage(reader, 1, text);
 //        Rectangle rec = reader.getBoxSize(1, "trim");
     }
+    
+ // 获取PDF文本内容和图片及坐标
+    public static void getImage(InputStream src, String target, int start, int end) throws IOException, DocumentException {
+        PdfReader reader = new PdfReader(src);
+        PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+        // 新建一个TestRenderListener对象，该对象实现了RenderListener接口，作为处理PDF的主要类
+        HlhTextRenderListener listener = new HlhTextRenderListener();
+        // 解析PDF，并处理里面的文字
+        for (int i = start; i <= end; i++) {
+            parser.processContent(i, listener);
+            List<byte[]> arraysByte = listener.arraysByte;
+            // 图片
+            for (int j = 0; j < arraysByte.size(); j++) {
+            	byte[] by = arraysByte.get(j);
+                FileOutputStream out = new FileOutputStream(target + j + ".jpg");
+                out.write(by);
+                out.flush();
+                out.close();
+            }
+        }
+    }
     public static void main(String[] args) throws IOException, DocumentException {
     	String filePath = "/Users/vko/Documents/my-code/testDOC/tb/（259第一包电力电缆）投标文件—1.pdf";
     	String targetDir = "/Users/vko/Documents/my-code/testDOC/img/";
@@ -68,7 +84,10 @@ public class PDF2Image {
     	if (!f.exists()) {
     		f.mkdir();
     	}
-        parse(filePath, targetDir);
+    	File pdf = new File(filePath);
+    	 int page = ParseFile.getPageIdCardContent(new FileInputStream(pdf));
+       // parse(filePath, targetDir);
+    	 getImage(new FileInputStream(pdf), targetDir, page, page+1);
     }
 
 }

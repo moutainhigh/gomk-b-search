@@ -103,6 +103,10 @@ public class Word2003 {
 		}catch (IOException e) {
 			return "";
 		}
+		catch (Exception e) {
+			log.error("=========================word2003 error:=========" + e.getMessage());
+			return "";
+		}
 //		HWPFDocument doc;
 //		try {
 //			doc = new HWPFDocument(in);

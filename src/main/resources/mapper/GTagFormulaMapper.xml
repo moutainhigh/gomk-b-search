@@ -6,13 +6,14 @@
     <resultMap id="BaseResultMap" type="io.gomk.model.GTagFormula">
         <result column="tag_id" property="tagId" />
         <result column="f_field" property="fField" />
+        <result column="f_field_cn" property="fFieldCn" />
         <result column="f_mark" property="fMark" />
         <result column="f_value" property="fValue" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        tag_id, f_field, f_mark, f_value
+        tag_id, f_field, f_field_cn, f_mark, f_value
     </sql>
 
 </mapper>

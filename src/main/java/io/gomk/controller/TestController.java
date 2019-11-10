@@ -1,36 +1,24 @@
 package io.gomk.controller;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-
 import io.gomk.common.rs.response.ResponseData;
-import io.gomk.enums.ScopeEnum;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
-import io.gomk.framework.redis.RedisUtil;
-import io.gomk.framework.utils.HanyuPinyinUtil;
-import io.gomk.task.DBInfoBean;
+import io.gomk.framework.utils.parsefile.ParseFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +39,10 @@ public class TestController {
     @Autowired
     EsUtil esUtil;
     @Autowired
-    private RedisUtil redisUtil;
+    ParseFile parseFile;
+   // @Autowired
+    //private MyRedisUtil myRedisUtil;
+  
    // @Autowired
 	//HBaseService hbaseService; 
    
@@ -98,45 +89,62 @@ public class TestController {
     	esUtil.parseRarAndZip();
     	return ResponseData.success();
     }
-    
+    @ApiOperation("分项报价抽取")
+    @PostMapping("/3")
+    public ResponseData<?> test3(String filePath) throws Exception {
+    	File file = new File(filePath);
+    	return ResponseData.success(parseFile.parsePdfTable(new FileInputStream(file)));
+	
+    }
+//    @ApiOperation("内置标签入库")
+//    @PostMapping("/3")
+//    public ResponseData<?> test3() throws Exception {
+//    	esUtil.in
+//    	return ResponseData.success();
+//    }
 
-    @ApiOperation("存redis 用户权限信息")
-    @PostMapping("/redis/user/role")
-    public ResponseData<?> saveUser() throws Exception {
-    	List<ScopeEnum> scopes = EnumUtils.getEnumList(ScopeEnum.class);
-    	List<Map<String, String>> userRoles = new ArrayList<>();
-    	for (ScopeEnum se : scopes) {
-    		String pinyin = HanyuPinyinUtil.toHanyuPinyin(se.getDesc());
-    		Map<String, String> map = new HashMap<>();
-    		map.put("authority", pinyin);
-    		userRoles.add(map);
-    	}
-    	String json = JSON.toJSONString(userRoles);
-    	boolean bl = redisUtil.set("shgcadmin", json);
-    	log.info("add redis result:" + bl);
-    	return ResponseData.success();
-    }
-    @ApiOperation("取token信息，base64解码，得到user-key,到redis中取数据")
-    @GetMapping("/redis/user/role/{userKeyBase64}")
-    public ResponseData<?> getUser(@PathVariable("userKeyBase64") String userKeyBase64) {
-    	
-    	String restore = "";
-		try {
-			restore = new String(decoder.decode(userKeyBase64), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			return ResponseData.error("token is error");
-		}
-    	String salt = "shgc";
-    	String userKey = restore.substring(salt.length());
-    	Object obj = redisUtil.get(userKey);
-    	if (obj == null) {
-    		return ResponseData.error("not in redis");
-    	}
-    	List<Map<String, String>> userRoles = JSON.parseObject(obj.toString(), new TypeReference<List<Map<String, String>>>(){});
-    	
-    	log.info("userRoles:" + userRoles);
-    	return ResponseData.success();
-    }
+//    @ApiOperation("存redis 用户权限信息")
+//    @PostMapping("/redis/user/role")
+//    public ResponseData<?> saveUser() throws Exception {
+//    	List<ScopeEnum> scopes = EnumUtils.getEnumList(ScopeEnum.class);
+//    	List<Map<String, String>> userRoles = new ArrayList<>();
+//    	for (ScopeEnum se : scopes) {
+//    		String pinyin = HanyuPinyinUtil.toHanyuPinyin(se.getDesc());
+//    		Map<String, String> map = new HashMap<>();
+//    		map.put("authority", pinyin);
+//    		userRoles.add(map);
+//    	}
+//    	String json = JSON.toJSONString(userRoles);
+//    	String result = RedisUtil.putString("shgcadmin", json);
+//    	log.info("add redis result:" + result);
+//    	return ResponseData.success();
+//    }
+//    @ApiOperation("取token信息，base64解码，得到user-key,到redis中取数据")
+//    @GetMapping("/redis/user/role/{userKeyBase64}")
+//    public ResponseData<?> getUser(@PathVariable("userKeyBase64") String userKeyBase64) {
+//    	
+//    	String restore = "";
+//		try {
+//			restore = new String(decoder.decode(userKeyBase64), "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			return ResponseData.error("token is error");
+//		}
+//    	String salt = "shgc";
+//    	String userKey = restore.substring(salt.length());
+//    	
+//    	//Object obj = myRedisUtil.get(userKey);
+//    	//log.info("my redis:" + obj);
+//    	String obj = RedisUtil.getString(userKey);
+//    	log.info("master redis:" + obj);
+//    	
+//    	if (obj == null) {
+//    		return ResponseData.error("not in redis");
+//    	}
+//    	List<Map<String, String>> userRoles = JSON.parseObject(obj.toString(), new TypeReference<List<Map<String, String>>>(){});
+//    	
+//    	log.info("userRoles:" + userRoles);
+//    	return ResponseData.success();
+//    }
     public static void main(String[] args) throws UnsupportedEncodingException {
     	final Base64.Decoder decoder = Base64.getDecoder();
     	final Base64.Encoder encoder = Base64.getEncoder();

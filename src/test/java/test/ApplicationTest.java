@@ -1,33 +1,58 @@
 package test;
 
-import javax.sql.DataSource;
+import java.io.File;
 
+import org.junit.Test;
 //import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.alibaba.fastjson.JSONObject;
 
-import io.gomk.mapper.DictMapper;
+import io.gomk.Application;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RunWith(SpringRunner.class)
-@MybatisTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest(classes = Application.class )
 public class ApplicationTest {
 	
+
 	@Autowired
-	private DictMapper orgMapper;
-	@Bean
-	@ConfigurationProperties("spring.datasource.druid")
-	public DataSource dataSource() {
-		return DruidDataSourceBuilder.create().build();
-	}
+    private RestTemplate restTemplate;
 	
+	@Test
+	public void testParseImg() {
+        String filePath = "/Users/vko/Documents/my-code/testDOC/img/4.jpg";
+      //设置请求头
+        HttpHeaders headers = new HttpHeaders();
+        MediaType type = MediaType.parseMediaType("multipart/form-data");
+        headers.setContentType(type);
+        
+      //设置请求体，注意是LinkedMultiValueMap
+        FileSystemResource fileSystemResource = new FileSystemResource(filePath);
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        form.add("pic", fileSystemResource);
+        //form.add("filename",fileName);
+
+        //用HttpEntity封装整个请求报文
+        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers);
+        
+        JSONObject postData = new JSONObject();
+        // 调用接口即可
+        JSONObject json = restTemplate.postForEntity("http://58.119.224.26:8080", files,JSONObject.class).getBody();
+        log.info(json.toJSONString());
+        log.info(json.getString("name"));
+        log.info("end.");
+	}
 	
 }

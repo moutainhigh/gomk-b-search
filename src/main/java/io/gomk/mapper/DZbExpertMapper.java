@@ -14,7 +14,7 @@ import java.util.Map;
  * 专家维度表 Mapper 接口
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 @Repository

@@ -15,7 +15,7 @@ import java.util.Map;
  * 行项目_供应商报价数据 Mapper 接口
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-11-02
  */
 @Repository

@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
  * 招投标标段维度表
  * </p>
  *
- * @author guanhua
+ * @author nick
  * @since 2019-10-13
  */
 @Data

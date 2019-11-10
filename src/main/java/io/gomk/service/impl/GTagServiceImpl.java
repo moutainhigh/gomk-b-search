@@ -76,7 +76,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	@Transactional
 	public void addDocTag(int scope, String tagName, List<String> ids) throws Exception {
 		// ? 检查数据库中是否存在 tagName
-		int count = tagMapper.getCountByTagName(tagName);
+		int count = tagMapper.getCountByTagName(tagName, CommonConstants.TAG_CUSTOM_CLASSIFY_SECOND_ID);
 		if (count == 0) {
 			GTag tag = new GTag();
 			tag.setClassifyId(CommonConstants.TAG_CUSTOM_CLASSIFY_SECOND_ID);
@@ -85,13 +85,10 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			tag.setTaskFinished(true);
 			tagMapper.insert(tag);
 		}
-		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, true);
+		Set<String> tagSet = new HashSet<>();
+		tagSet.add(tagName);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagSet, ids, false, true);
 		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, 1);
-	}
-
-	@Override
-	public int getCountByTagName(String name) {
-		return tagMapper.getCountByTagName(name);
 	}
 
 	@Override
@@ -145,6 +142,7 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 			bean.setFMark(formula.getMark());
 			bean.setFValue(formula.getValue());
 			bean.setTagId(entity.getId());
+			bean.setFFieldCn(formula.getFieldCn());
 			tagFormulaMapper.insert(bean);
 		}
 	}
@@ -161,20 +159,27 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 		if (tag.getTaskFinished()) {
 			vo.setUpdate(false);
 		}
-
-		QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
-		queryWrapper.lambda().eq(GTagKeyword::getTagId, tag.getId());
-		List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
-		if (keywordList != null && keywordList.size() > 0) {
-			vo.setRule(TagRuleTypeEnum.KEYWORD.getValue());
-			vo.setKeywords(keywordList);
-		} else {
+		if (TagRuleTypeEnum.FIXED.getValue().equals(tag.getTagRule())) {
 			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
 			query.lambda().eq(GTagFormula::getTagId, tag.getId());
 			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
 			if (formulaList != null && formulaList.size() > 0) {
-				vo.setRule(TagRuleTypeEnum.FORMULA.getValue());
+				vo.setFixedRules(formulaList);
+				vo.setUpdate(false);
+			}
+		} else if (TagRuleTypeEnum.FORMULA.getValue().equals(tag.getTagRule())) {
+			QueryWrapper<GTagFormula> query = new QueryWrapper<>();
+			query.lambda().eq(GTagFormula::getTagId, tag.getId());
+			List<GTagFormula> formulaList = tagFormulaMapper.selectList(query);
+			if (formulaList != null && formulaList.size() > 0) {
 				vo.setFormulas(formulaList);
+			}
+		} else if (TagRuleTypeEnum.KEYWORD.getValue().equals(tag.getTagRule())) {
+			QueryWrapper<GTagKeyword> queryWrapper = new QueryWrapper<>();
+			queryWrapper.lambda().eq(GTagKeyword::getTagId, tag.getId());
+			List<GTagKeyword> keywordList = tagKeywordMapper.selectList(queryWrapper);
+			if (keywordList != null && keywordList.size() > 0) {
+				vo.setKeywords(keywordList);
 			}
 		}
 
@@ -190,7 +195,9 @@ public class GTagServiceImpl extends ServiceImpl<GTagMapper, GTag> implements IG
 	public void deleteDocTag(int scope, String tagName, String id) throws Exception {
 		List<String> ids = new ArrayList<>();
 		ids.add(id);
-		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagName, ids, false, false);
+		Set<String> tagSet = new HashSet<>();
+		tagSet.add(tagName);
+		esUtil.updateTagByIds(esUtil.getIndexname(scope), tagSet, ids, false, false);
 		esUtil.updateWeightByIds(esUtil.getIndexname(scope), ids, -1);
 
 	}

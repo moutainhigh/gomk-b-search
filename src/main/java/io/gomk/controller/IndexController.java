@@ -1,8 +1,6 @@
 package io.gomk.controller;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +12,6 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESRestClient;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.controller.SuperController;
-import io.gomk.framework.utils.parse.ImportFile;
 import io.gomk.service.IIndexService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,21 +41,6 @@ public class IndexController extends SuperController {
 	protected String zgyqIndex;
 	@Value("${elasticsearch.index.zjName}")
 	protected String zjIndex;
-	
-	@ApiOperation("加本地招标文件--招标库、资格要求、技术要求、评标办法")
-	@PostMapping("/localFile/zb")
-	public ResponseData<?> addLocalDoc() throws IOException {
-		//String path="/soft/doc/";
-		String path="/Users/vko/Documents/my-code/testDOC/";
-		try {
-			esUtil.parseLocalFileSaveEs(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ResponseData.success();
-	}
-	
 	
 	
 	@ApiOperation("创建索引-搜索补全")

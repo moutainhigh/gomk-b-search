@@ -4,20 +4,26 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 
 public enum ScopeEnum implements IEnum<Integer> {
+	TBR(0, "投标人库"),
+	
 	ZBWJ(1, "招标文件库"),
-    ZGYQ(2, "投标人资格要求库"),
+    ZGYQ(2, "资格要求库"),
     PBBF(3, "评标办法库"),
 	JSYQ(4, "技术要求库"),
-	ZJCG(5, "造价成果文件库"),
+	ZJCG(5, "造价成果库"),
 	ZCFG(6, "政策法规库"),
 	ZBFB(7, "招标范本库"),
 	TBWJ(8, "投标文件库"),
-	TBR(9, "投标人库"),
-	ZBXM(10, "招标项目库"),
-	CPJG(11, "产品价格库"),
-	CGSCTC(12, "采购市场探查"),
-	KH(13, "客户库"),
+	
+	ZBXM(9, "招标项目"),
+	ZJXM(10, "造价项目"),
+	KH(11, "客户库"),
+	
+	CPJG(12, "产品价格库"),
+	BDW(13, "标的物"),
+	
 	ZJK(14, "专家库");
+	
     
 	ScopeEnum(int value, String desc) {
         this.value = value;

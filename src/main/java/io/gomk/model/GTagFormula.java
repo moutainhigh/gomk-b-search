@@ -28,6 +28,8 @@ public class GTagFormula implements Serializable {
     private Integer tagId;
 
     private String fField;
+    
+    private String fFieldCn;
 
     private String fMark;
 

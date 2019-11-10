@@ -2,6 +2,7 @@ package io.gomk.task;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 import lombok.Data;
 
@@ -46,12 +47,14 @@ public class ESInfoBean {
 	//添加日期
 	private Date addDate;
 	//权重
-	private String weight;
+	private Integer weight;
 	//文件存储地址 
 	private String storeUrl;
 	//存储类型
 	private String storeType;
 	//扩展名
 	private String ext;
+	//标签
+	private Set<String> tags;
 	
 }
