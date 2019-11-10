@@ -4,7 +4,11 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
+
+import io.gomk.framework.utils.jython.RuntimeUtils;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -12,6 +16,8 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -380,16 +386,16 @@ public class ParseFile {
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
 //        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
 //        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
-         File file1 = new File("/Users/baibing6/Desktop/file/招标文件正文.pdf");
+        // File file1 = new File("/Users/baibing6/Desktop/file/招标文件正文.pdf");
 //        File file1 = new File("/Users/baibing6/Desktop/file/tb5.pdf");
-//        File file1 = new File("/Users/vko/Documents/my-code/testDOC/tb/1月份第一批电缆采购投标文件第1包—2.pdf");
+        File file1 = new File("/Users/vko/Documents/my-code/testPDF/投标文件.pdf");
 //        File file1 = new File("/Users/baibing6/Desktop/file/pdf/第二批电缆采购投标文件—5.pdf");
         try (
              InputStream in1 = new FileInputStream(file1);
              InputStream in2 = new FileInputStream(file1);
              InputStream in3 = new FileInputStream(file1);
              InputStream in4 = new FileInputStream(file1);
-//                InputStream in5 = new FileInputStream(file1);
+        	 InputStream in5 = new FileInputStream(file1);
         ) {
 //            Map<String, StringBuilder> map = new ParseFile().parseText(in1, DOC);
 //            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
@@ -398,11 +404,13 @@ public class ParseFile {
 //            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
             List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
             String a0 = new ParseFile().parseTenderScope(in2, PDF);
-            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
-            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
+           // String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
+            //String a2 = new ParseFile().parseTenderMethod(in4, PDF);
 //            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
 //            String a = "[['序号', '材料名称', '规格型号', '生产厂家', '数量', '单价', '总价'], ['1', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用通信电缆', 'MHYV\\n4×2×7/0.37mm', '天津万博', '5000.0', '5.0', '25200.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×7/0.52mm', '天津万博', '170200.\\n0', '6.8', '1159062.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×1/1.38mm', '天津万博', '76800.0', '5.9', '453888.0'], ['', '矿用通信软线', 'MHYV\\n10×2×0.75mm\\n10×2×1/0.97m\\nm', '天津万博', '90200.0', '11.0', '989494.0'], ['', '矿用通信软线', 'MHYV\\n5×2×0.75mm\\nMHYV\\n5×2×1/0.97mm', '天津万博', '99000.0', '6.0', '593010.0'], ['', '矿用聚乙烯绝缘\\n铝聚乙烯粘结护\\n层通信电缆', 'MHYAV\\n10×2×0.8mm', '天津万博', '800.0', '11.0', '8808.0'], ['2', '运输至最终目的地运杂费、保险费、卸车费等', '', '', '', '', '0.0'], ['3', '其它', '', '', '', '', '0.0'], ['4', '投标总价\\n3299062.0', '', '', '', '', '']]";
 //            new ParseFile().parsePythonCmd(a);
+            
+            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
             log.info("");
         } catch (Exception e) {
             e.printStackTrace();
@@ -533,38 +541,31 @@ public class ParseFile {
         return result.get("4").toString();
     }
 
-    public List<LinkedHashMap<Integer, String>> parsePdfTable(InputStream inputStream) {
-
-        FileOutputStream outputStream = null;
+    public List<LinkedHashMap<Integer, String>> parsePdfTable(InputStream in) throws IOException {
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+		byte[] buffer = new byte[1024];  
+		int len;  
+		while ((len = in.read(buffer)) > -1 ) {  
+			baos.write(buffer, 0, len);  
+		}  
+		baos.flush(); 
         List<LinkedHashMap<Integer, String>> list = null;
         try {
-            String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-            String pdfPath = DIR + uuid + ".pdf";
-            outputStream = new FileOutputStream(pdfPath);
-
-            byte[] bytes = new byte[1024];
-            int len = 0;
-            while ((len = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, len);
-            }
-            outputStream.close();
-            int page = getPdfContent(pdfPath);
-            list = readByPython(pdfPath, page + "");
-            File file = new File(pdfPath);
-            if (file.exists()) {
-                file.delete();
-            }
+           
+            int page = getPdfContent(new ByteArrayInputStream(baos.toByteArray()));
+            list = readByPython(new ByteArrayInputStream(baos.toByteArray()), page + "");
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
         return list;
     }
 
-    private int getPdfContent(String path) {
+    private int getPdfContent(ByteArrayInputStream byteArrayInputStream) {
         int page = 0;
         PdfReader reader = null;
         try {
-            reader = new PdfReader(path);
+            reader = new PdfReader(byteArrayInputStream);
             PdfReaderContentParser parser = new PdfReaderContentParser(reader);
             int num = reader.getNumberOfPages();
 
@@ -621,14 +622,21 @@ public class ParseFile {
     /**
      * 调用python文件
      *
-     * @param path pdf文件地址
+     * @param byteArrayInputStream pdf文件地址
      * @param page 要解析的页数
      */
-    private List<LinkedHashMap<Integer, String>> readByPython(String path, String page) throws IOException {
+    private List<LinkedHashMap<Integer, String>> readByPython(ByteArrayInputStream byteArrayInputStream, String page) throws IOException {
         StringBuilder sb = new StringBuilder();
-        String filePath = DIR + "read_table.py";
-
-        String[] args1 = new String[]{"python", filePath, path, page};
+        //String filePath = DIR + "read_table.py";
+        
+        InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/read_table.py");
+		String projectPath = System.getProperty("user.dir");
+		File targetFile = new File(projectPath + "/read_table.py");
+		File tempPDF = new File(projectPath + "/test.pdf");
+		FileUtils.copyInputStreamToFile(initialStream, targetFile);
+		FileUtils.copyInputStreamToFile(byteArrayInputStream, tempPDF);
+		
+        String[] args1 = new String[]{"PYTHONIOENCODING=utf-8 /usr/bin/python", targetFile.getAbsolutePath(), tempPDF.getAbsolutePath(), page};
         Process proc = Runtime.getRuntime().exec(args1);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
@@ -636,6 +644,19 @@ public class ParseFile {
         while ((line = in.readLine()) != null && StringUtils.isNotBlank(line)) {
             sb.append(line);
         }
+     // 获取异常输出流
+
+		BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+
+		String linee = null;
+
+		while ((linee = ine.readLine()) != null) {
+
+			log.error("===Contrast proc error===" +linee);
+
+		}
+		
+		in.close();
         return parsePythonCmd(sb.toString());
     }
 

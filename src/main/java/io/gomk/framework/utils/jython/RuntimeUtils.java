@@ -30,15 +30,15 @@ public class RuntimeUtils {
 		ContrastVO vo = new ContrastVO();
 		StringBuilder sb = new StringBuilder();
 		//String rootPath = System.getProperty("user.dir") + "/src/main/resources/python/";
+		String projectPath = System.getProperty("user.dir");
+		File temp1 = new File(projectPath + "/1.txt");
+		File temp2 = new File(projectPath + "/2.txt");
+		
 		
 		try {
 			InputStream initialStream  = RuntimeUtils.class.getClassLoader().getResourceAsStream("python/t1.py");
-			String projectPath = System.getProperty("user.dir");
 			File targetFile = new File(projectPath + "/diff.py");
 			FileUtils.copyInputStreamToFile(initialStream, targetFile);
-			File temp1 = new File(projectPath + "/1.txt");
-			File temp2 = new File(projectPath + "/2.txt");
-			
 			log.info("projectPath:" + projectPath);
 			
 			InputStream txt1Stream = new ByteArrayInputStream(str1.getBytes());
@@ -82,8 +82,8 @@ public class RuntimeUtils {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
-			// file1.delete();
-			// file2.delete();
+			temp1.delete();
+			temp1.delete();
 		}
 		
 		// System.out.println(sb.toString());

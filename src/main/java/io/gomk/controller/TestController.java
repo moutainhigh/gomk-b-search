@@ -1,33 +1,24 @@
 package io.gomk.controller;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-
 import io.gomk.common.rs.response.ResponseData;
-import io.gomk.enums.ScopeEnum;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
-import io.gomk.framework.utils.HanyuPinyinUtil;
+import io.gomk.framework.utils.parsefile.ParseFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +38,8 @@ public class TestController {
     HBaseClient hbaseClient;
     @Autowired
     EsUtil esUtil;
+    @Autowired
+    ParseFile parseFile;
    // @Autowired
     //private MyRedisUtil myRedisUtil;
   
@@ -95,6 +88,13 @@ public class TestController {
     public ResponseData<?> test2() throws Exception {
     	esUtil.parseRarAndZip();
     	return ResponseData.success();
+    }
+    @ApiOperation("分项报价抽取")
+    @PostMapping("/3")
+    public ResponseData<?> test3(String filePath) throws Exception {
+    	File file = new File(filePath);
+    	return ResponseData.success(parseFile.parsePdfTable(new FileInputStream(file)));
+	
     }
 //    @ApiOperation("内置标签入库")
 //    @PostMapping("/3")

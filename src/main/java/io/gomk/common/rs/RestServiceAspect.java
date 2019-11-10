@@ -60,7 +60,9 @@ public class RestServiceAspect {
 	}
 	private Boolean checkToken(String token) throws UnsupportedEncodingException {
 		String restore = "";
+	//	log.info("token:" +token);
 		restore = new String(decoder.decode(token), "UTF-8");
+	//	log.info("key :" + restore);
     	String salt = "shgc";
     	if (restore.startsWith(salt)) {
     		return true;
