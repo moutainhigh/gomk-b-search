@@ -39,12 +39,14 @@ public class TGAttachmentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="page", value="当前页", required=true, paramType="query", dataType="int", defaultValue="1"),
             @ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
-            @ApiImplicitParam(name="attaType", value="6政策法规、7招标范本", required=true, paramType="query", dataType="int", defaultValue="6")
+            @ApiImplicitParam(name="attaType", value="6政策法规、7招标范本", required=true, paramType="query", dataType="int", defaultValue="6"),
+            @ApiImplicitParam(name="attaName", value="模糊查询文件名", required=false, paramType="query", dataType="String", defaultValue="法律")
     })
-    public ResponseData<IPage<TGAttachment>> attamentlist(int page, int pageSize, int attaType) throws Exception {
+    public ResponseData<IPage<TGAttachment>> attamentlist(int page, int pageSize, int attaType,String attaName) throws Exception {
 
         QueryWrapper<TGAttachment> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(TGAttachment::getAttaType,attaType);
+        queryWrapper.lambda().like(TGAttachment::getAttaName,attaName);
 
         // 当前页码，每页条数
         Page<TGAttachment> pageParam = new Page<>(page, pageSize);
@@ -59,12 +61,8 @@ public class TGAttachmentController {
                                @ApiParam(name="attaDecs",value="附件描述")@RequestParam(required = false) String attaDecs,
                                @ApiParam(name="attaType",value="附件描述")@RequestParam(required = true) int attaType,
                                @ApiParam(name="attafile",value="附件")@RequestParam(required = true) MultipartFile attafile) throws Exception {
-        TGAttachment attachment  = new TGAttachment();
-        attachment.setAttaName(attaName);
-        attachment.setAttaDecs(attaDecs);
-        attachment.setAttaType(attaType);
-        attachment.setCreatedTime(LocalDateTime.now());
-        attachmentService.save(attachment);
+
+        attachmentService.uploadAtta(attaName,attaDecs,attaType,attafile);
         return ResponseData.success();
     }
 

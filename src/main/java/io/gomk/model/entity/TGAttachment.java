@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -46,6 +49,7 @@ public class TGAttachment implements Serializable {
     private String ftpPath;
 
     @TableField("created_time")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdTime;
 
 

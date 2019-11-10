@@ -9,11 +9,13 @@ import io.gomk.service.TGAttachmentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -37,6 +39,22 @@ public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGA
         } else {
             throw new BusinessException(StatusCode.DOWNLOAD_ERROR);
         }
+    }
+
+    @Override
+    public void uploadAtta(String attaName, String attaDecs, int attaType, MultipartFile attafile) {
+        //TODO 需要加入上传文件实现
+        TGAttachment attachment  = new TGAttachment();
+
+        attachment.setFtpType(null);
+        attachment.setFtpPath(null);
+
+        attachment.setAttaName(attaName);
+        attachment.setAttaDecs(attaDecs);
+        attachment.setAttaType(attaType);
+        attachment.setCreatedTime(LocalDateTime.now());
+        baseMapper.insert(attachment);
+
     }
 
     /**

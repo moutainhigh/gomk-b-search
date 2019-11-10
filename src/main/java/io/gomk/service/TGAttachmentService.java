@@ -2,6 +2,7 @@ package io.gomk.service;
 
 import io.gomk.model.entity.TGAttachment;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,4 +22,13 @@ public interface TGAttachmentService extends IService<TGAttachment> {
      * @return
      */
     String downloadById( String id, HttpServletResponse response, HttpServletRequest request);
+
+    /**
+     * 上传
+     * @param attaName
+     * @param attaDecs
+     * @param attaType
+     * @param attafile
+     */
+    void uploadAtta(String attaName, String attaDecs, int attaType,  MultipartFile attafile);
 }
