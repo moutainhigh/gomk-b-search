@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.gomk.model.entity.DZbExpert;
 import io.gomk.model.entity.ShzjProductpriceNew;
-import io.gomk.service.IZbLinePrjSupplService;
-import io.gomk.service.ShzjProductpriceNewService;
+import io.gomk.model.entity.TGTbQuoteExtract;
+import io.gomk.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.get.GetResponse;
 import org.slf4j.Logger;
@@ -33,8 +33,6 @@ import io.gomk.es6.EsUtil;
 import io.gomk.framework.controller.SuperController;
 import io.gomk.framework.utils.jython.RuntimeUtils;
 import io.gomk.framework.utils.tree.TreeDto;
-import io.gomk.service.IGCompletionService;
-import io.gomk.service.ISearchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -82,6 +80,8 @@ public class SearchContentController extends SuperController {
 	private IZbLinePrjSupplService supplService;
 	@Autowired
 	private ShzjProductpriceNewService productpriceNewService;
+	@Autowired
+	private TGTbQuoteExtractService extractService;
 	
 	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
 	@ApiImplicitParams({
@@ -439,6 +439,22 @@ public class SearchContentController extends SuperController {
 		// 当前页码，每页条数
 
 		return  ResponseData.success(productpriceNewService.selectPriceCharts(productName));
+	}
+
+	@ApiOperation("抽取的分项报价-分页")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name="page", value="第几页", required=true, paramType="query", dataType="int", defaultValue="1"),
+			@ApiImplicitParam(name="pageSize", value="每页条数", required=true, paramType="query", dataType="int", defaultValue="10"),
+			@ApiImplicitParam(name="keyWord", value="关键字", required=true, paramType="query", dataType="String", defaultValue="采煤机-通用")
+	})
+	@GetMapping("/quotePrice")
+	public ResponseData<IPage<TGTbQuoteExtract>> quotePrice(int page, int pageSize, String keyWord) throws Exception {
+		// 当前页码，每页条数
+		QueryWrapper<TGTbQuoteExtract> queryWrapper = new QueryWrapper<>();
+		queryWrapper.lambda().eq(TGTbQuoteExtract::getMaterialsName,keyWord);
+
+		IPage<TGTbQuoteExtract> pages = extractService.page(new Page<>(page, pageSize),queryWrapper);
+		return ResponseData.success(pages);
 	}
 	
 }
