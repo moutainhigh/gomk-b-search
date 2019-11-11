@@ -1,8 +1,9 @@
-#!/usr/bin/python3
-# -*- coding: UTF-8 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import camelot
 import sys
-
+import codecs
+sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
 def parse():  # 解析表格数据内容
     try:

@@ -639,9 +639,10 @@ public class ParseFile {
         String[] args1 = new String[]{"python", targetFile.getAbsolutePath(), tempPDF.getAbsolutePath(), page};
         Process proc = Runtime.getRuntime().exec(args1);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "utf-8"));
         String line;
         while ((line = in.readLine()) != null && StringUtils.isNotBlank(line)) {
+        	//log.info("decodeUnicode:" + decodeUnicode(line));
             sb.append(line);
         }
      // 获取异常输出流
@@ -657,6 +658,7 @@ public class ParseFile {
 		}
 		
 		in.close();
+		
         return parsePythonCmd(sb.toString());
     }
 

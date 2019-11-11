@@ -47,7 +47,7 @@ public interface OneselfMapper {
 	})
 	List<DBInfoBean> getTestALLDBInfo(@Param("ids") List<String> ids);
 
-	@Update("update into biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
+	@Update("update biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
 	public void updateTimeSign(@Param("timeSign") String timeSign, @Param("storedatetime") String storedatetime);
 
 	
