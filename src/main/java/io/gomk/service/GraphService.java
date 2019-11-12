@@ -54,7 +54,7 @@ public class GraphService implements GraphConstant {
         Map<Object, Map<String, Object>> edgeMap = new HashMap<>();
         Map<Object, Map<String, Object>> vertexMap = new HashMap<>();
         Page<TargetProjection> targetProjections = repository.queryByTargetName(targetName, PageRequest.of(0, 10));
-        if(targetProjections.hasContent() && targetProjections.getContent().size()==1) {
+        if(targetProjections.hasContent() && targetProjections.getContent().size() > 0) {
             String targetId = targetProjections.getContent().get(0).getMetaCode();
             Set<Path> pathSet =
                     graph.traversal().V().has(V_NODE_ID, targetId).bothE().otherV().simplePath()
