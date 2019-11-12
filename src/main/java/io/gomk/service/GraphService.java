@@ -19,6 +19,7 @@ import org.janusgraph.graphdb.database.management.ManagementSystem;
 import org.janusgraph.graphdb.relations.CacheEdge;
 import org.janusgraph.graphdb.relations.RelationIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,15 +34,23 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 @Slf4j
 public class GraphService implements GraphConstant {
 
-    @Autowired
+//    @Autowired
     JanusGraph graph;
+
+    @Autowired
+    ApplicationContext context;
 
     @Autowired
     GraphRepository repository;
 
     private static final int pageSize = 10;
 
+    private void prepareJanusGraphBean(){
+        graph = (JanusGraph) context.getBean("janusGraph");
+    }
+
     public TargetMapDTO queryTargetMap(String targetName) {
+        prepareJanusGraphBean();
         Map<Object, Map<String, Object>> edgeMap = new HashMap<>();
         Map<Object, Map<String, Object>> vertexMap = new HashMap<>();
         Page<TargetProjection> targetProjections = repository.queryByTargetName(targetName, PageRequest.of(0, 10));
@@ -103,6 +112,7 @@ public class GraphService implements GraphConstant {
     }
 
     public void insertData() {
+        prepareJanusGraphBean();
         Integer pageNum = 0;
         Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "guid")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
@@ -115,6 +125,7 @@ public class GraphService implements GraphConstant {
     }
 
     public void insertData(LocalDate localDate) {
+        prepareJanusGraphBean();
         Integer pageNum = 0;
         Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize,
                 Sort.by(Sort.Direction.DESC, "guid")));
@@ -276,6 +287,7 @@ public class GraphService implements GraphConstant {
 
 
     public void buildGraph() {
+        prepareJanusGraphBean();
         JanusGraphManagement mgmt = graph.openManagement();
 
         //创建顶点Label
