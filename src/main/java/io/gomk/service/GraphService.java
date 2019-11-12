@@ -47,6 +47,7 @@ public class GraphService implements GraphConstant {
 
     private void prepareJanusGraphBean(){
         graph = (JanusGraph) context.getBean("janusGraph");
+        graph.tx().commit();
     }
 
     public TargetMapDTO queryTargetMap(String targetName) {
@@ -140,7 +141,7 @@ public class GraphService implements GraphConstant {
 
 
     private void dealTarget(Page<TargetProjection> targetProjectionPage) {
-        if (!targetProjectionPage.hasContent()) {
+        if (targetProjectionPage.hasContent()) {
             for (TargetProjection targetProjection : targetProjectionPage.getContent()) {
                 String targetCode = targetProjection.getMetaCode();
 //                System.out.println("************" + targetProjection.getMetaName() + "************");
