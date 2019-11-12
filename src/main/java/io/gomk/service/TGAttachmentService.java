@@ -4,6 +4,8 @@ import io.gomk.model.entity.TGAttachment;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,6 +31,8 @@ public interface TGAttachmentService extends IService<TGAttachment> {
      * @param attaDecs
      * @param attaType
      * @param attafile
+     * @throws IOException 
+     * @throws IllegalStateException 
      */
-    void uploadAtta(String attaName, String attaDecs, int attaType,  MultipartFile attafile);
+    void uploadAtta(String attaName, String attaDecs, int attaType,  MultipartFile attafile) throws IllegalStateException, IOException;
 }

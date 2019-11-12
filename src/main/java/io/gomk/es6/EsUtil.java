@@ -118,11 +118,14 @@ public class EsUtil {
 
 	private final static String STORE_HBASE = "HBASE";
 	private final static String STORE_HDFS = "HDFS";
-	private final static String HBASE_SERVER = "hdfs://10.212.169.158:8020";
-	private final static String HBASE_TABLE_NAME = "FileStore";
-	private final static String HBASE_COLUMN_NAME = "a";
 	private final static String ZJCG_CODE = "成果文件"; //造价
 	
+	@Value("${spring.data.hdfs.server}")
+	protected String hdfsServer;
+	@Value("${spring.data.hdfs.tableName}")
+	protected String hdfsTableName;
+	@Value("${spring.data.hdfs.columnName}")
+	protected String hdfscolumnName;
 	
 	/*
 	 * 条件更新
@@ -389,7 +392,7 @@ public class EsUtil {
 		if (storeType.equals(STORE_HBASE)) {
 			log.info("===save type:hbase====");
 			HBaseService hbaseService = hbaseClient.getService();
-			InputStream in = hbaseService.getInputStream(HBASE_TABLE_NAME, storeUrl);
+			InputStream in = hbaseService.getInputStream(hdfsTableName, storeUrl);
 			//log.info("=====hbase inputstream:" + in.toString());
 			return in;
 			
@@ -397,7 +400,7 @@ public class EsUtil {
 			log.info("===save type:hdfs====");
 			System.setProperty("HADOOP_USER_NAME","hdfs");
 			Configuration configuration = new Configuration();
-	        configuration.set("fs.defaultFS", HBASE_SERVER);
+	        configuration.set("fs.defaultFS", hdfsServer);
 	        String target= "/temp/" + RandomUtil.getGlobalUniqueId() + "." + ext;
 	        //HdfsOperator.getFromHDFS(storeUrl, target, configuration);
 	       return  HdfsOperator.getInputStreamFromHDFS(storeUrl, target, configuration);

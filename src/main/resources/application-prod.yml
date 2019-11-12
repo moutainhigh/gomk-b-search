@@ -79,7 +79,12 @@ spring:
         quorum: 10.212.169.158,10.212.169.166,10.212.169.167
         port: 2181
         znode: /hbase-unsecure
-        maxsize: 1572864000   
+        maxsize: 1572864000  
+    hdfs:
+      server: hdfs://10.212.169.158:8020
+      zbfbDst: /ibs/zbfb/
+      tableName: FileStore
+      columnName: a 
   redis:
       password: GCGSredis123! #密码 默认为空
       timeout: 6000 #连接超时时常（毫秒）
@@ -95,6 +100,4 @@ spring:
              
 swagger:
    host: 
-   
-hdfs.path: hdfs://localhost:9000
-hdfs.username: root
+ 
