@@ -42,9 +42,16 @@ public interface GraphRepository extends JpaRepository<SupplyDO, String>, JpaSpe
             nativeQuery = true)
     List<ProjectProjection> queryProjectByMetaName(String metaName);
 
-    @Query(value = "select distinct document_name as subjectName, document_code as subjectCode from i_zb_line_prj_suppl where mate_name= " +
-            ":metaName",
-            nativeQuery = true)
+//    @Query(value = "select distinct document_name as subjectName, document_code as subjectCode from i_zb_line_prj_suppl where mate_name= " +
+//            ":metaName",
+//            nativeQuery = true)
+    @Query(value = "select distinct \n" +
+            "        t2.DANWEINAME\n" +
+            "        from  F_ZB_WIN_BID_DETAIL t\n" +
+            "        inner join d_zb_pkg t1 on t1.pkg_code=t.pkg_code\n" +
+            "        inner join D_ZB_SUPPL t2 on t2.SUPPL_DOCUMENT_CODE  = t.document_code\n" +
+            "         inner join i_zb_line_prj_suppl t3 on t3.pkg_code=t1.pkg_code\n" +
+            "     where t3.mate_name=:metaName", nativeQuery = true)
     List<BidSubjectProjection> queryToubiaoByMetaName(String metaName);
 
     @Query(value = "select distinct t.cust_name as subjectName, t.cust_document_code as subjectCode\n" +
