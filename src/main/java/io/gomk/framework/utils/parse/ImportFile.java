@@ -227,8 +227,8 @@ public class ImportFile {
 
 	public static List<Map<String, Object>> getCompletionMap() throws IOException {
 		List<Map<String, Object>> list = new ArrayList<>();
-		String filePath = "/Users/vko/Documents/my-code/DOC/bdw/t_g_completion.xls";
-		//String filePath = "/soft/t_g_completion.xls";
+		//String filePath = "/Users/vko/Documents/my-code/DOC/bdw/t_g_completion.xls";
+		String filePath = "/soft/t_g_completion.xls";
 		String now = format.format(new Date());
 		Map<String, NumberVO> tmp = new HashMap<>();
 		Map<Integer, Map<Integer, Object>> content;

@@ -6,7 +6,7 @@ cookie:
   
 util:
   idcardtool:
-    path: http://58.119.224.26:8080
+    path: localhost:8080
     
 elasticsearch:
   #ip: 39.105.192.98:29200
@@ -33,11 +33,11 @@ graph:
   storage:
     backend: cql
     keyspace: graph_1102
-    hostname: 101.201.77.122
+    hostname: 127.0.0.1
     batchLoading: true
   search:
     backend: elasticsearch
-    hostname: 58.119.224.27:29200
+    hostname: 10.212.169.154:9200
   cache:
     enable: true
     #秒
@@ -75,6 +75,8 @@ spring:
   data:
     hbase:
       master: 10.212.169.158:60000
+      tableName: FileStore
+      columnName: a 
       zookeeper:
         quorum: 10.212.169.158,10.212.169.166,10.212.169.167
         port: 2181
@@ -83,8 +85,6 @@ spring:
     hdfs:
       server: hdfs://10.212.169.158:8020
       zbfbDst: /ibs/zbfb/
-      tableName: FileStore
-      columnName: a 
   redis:
       password: GCGSredis123! #密码 默认为空
       timeout: 6000 #连接超时时常（毫秒）

@@ -361,7 +361,7 @@ public class HBaseService {
 		try {
 			table = getTable(tableName);
 			Result hTableResult = table.get(get);
-			//System.out.println("表获取成功" + table.);
+		//	System.out.println("表获取成功" + hTableResult.toString());
 
 			NavigableMap<byte[], byte[]> familyMap = hTableResult.getFamilyMap("a".getBytes());
 			System.out.println("文件获取完成： " + familyMap.keySet().size());
@@ -372,7 +372,9 @@ public class HBaseService {
 			}
 			table.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
+			return null;
+			//e.printStackTrace();
 		}
 
 		return null;

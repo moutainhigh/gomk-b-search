@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Update;
 import com.baomidou.dynamic.datasource.annotation.DS;
 
 import io.gomk.task.DBInfoBean;
+import io.gomk.task.ESInfoBean;
 
 @DS("oneself")
 public interface OneselfMapper {
@@ -49,6 +50,9 @@ public interface OneselfMapper {
 
 	@Update("update biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
 	public void updateTimeSign(@Param("timeSign") String timeSign, @Param("storedatetime") String storedatetime);
+
+	@Select("select product_name as title from t_g_product")
+	public List<String> selectCompletion();
 
 	
 }

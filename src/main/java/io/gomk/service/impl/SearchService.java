@@ -460,8 +460,8 @@ public class SearchService extends EsBaseService implements ISearchService {
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
             NumberVO vo = new NumberVO();
             vo.setWords(sourceAsMap.get("words").toString());
-            vo.setPkgCode(new HashSet<String>((List<String>)sourceAsMap.get("pkg_code")));
-            vo.setSupplDocumentCode(new HashSet<String>((List<String>)sourceAsMap.get("suppl_document_code")));
+           // vo.setPkgCode(new HashSet<String>((List<String>)sourceAsMap.get("pkg_code")));
+            //vo.setSupplDocumentCode(new HashSet<String>((List<String>)sourceAsMap.get("suppl_document_code")));
             result.add(vo);
         }
         

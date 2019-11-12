@@ -56,6 +56,9 @@ public class TGAttachmentServiceImpl extends ServiceImpl<TGAttachmentMapper, TGA
         TGAttachment atta = baseMapper.selectById(id);
         if (atta != null) {
         	InputStream is = esUtil.getInputStreams(atta.getFtpType(), atta.getFtpPath(), atta.getFileExt());
+        	if (is == null) {
+        		 throw new BusinessException(StatusCode.DOWNLOAD_ERROR);
+        	}
             return downloadAttachment(is, atta.getAttaName(),response,request);
         } else {
             throw new BusinessException(StatusCode.DOWNLOAD_ERROR);

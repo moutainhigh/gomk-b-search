@@ -1,4 +1,5 @@
 package io.gomk.controller;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,6 +10,7 @@ import java.util.Base64;
 
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,12 +20,12 @@ import io.gomk.es6.EsUtil;
 import io.gomk.framework.hbase.HBaseClient;
 import io.gomk.framework.hbase.HBaseService;
 import io.gomk.framework.hdfs.HdfsOperator;
+import io.gomk.framework.utils.RandomUtil;
 import io.gomk.framework.utils.parsefile.ParseFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import sun.misc.BASE64Decoder;
-
 
 @RestController
 @RequestMapping("/test")
@@ -33,69 +35,97 @@ public class TestController {
 
 	final Base64.Decoder decoder = Base64.getDecoder();
 	final Base64.Encoder encoder = Base64.getEncoder();
-	
-    @Autowired
-    HBaseClient hbaseClient;
-    @Autowired
-    EsUtil esUtil;
-    @Autowired
-    ParseFile parseFile;
-   // @Autowired
-    //private MyRedisUtil myRedisUtil;
-  
-   // @Autowired
-	//HBaseService hbaseService; 
-   
-    @ApiOperation("hbase操作")
-    @PostMapping("/hbase")
-    public ResponseData<?> hbase() throws Exception {
-    	HBaseService hbaseService = hbaseClient.getService();
-    	log.info("tableNames:" + hbaseService.getAllTableNames().toString());
-    	String rowKey = "003fdbc71fd347cebd19340fc9470218";
-    	String tableName = "FileStore";
-    	hbaseService.GetData(tableName, rowKey);
-    	return ResponseData.success();
-    }
-    @ApiOperation("hdfs操作")
-    @PostMapping("/hdfs")
-    public ResponseData<?> hdfs() throws Exception {
-    	System.setProperty("HADOOP_USER_NAME","hdfs");
-    	Configuration configuration = new Configuration();
-        configuration.set("fs.default.name", "hdfs://10.212.169.158:8020");
-        String pathName = "/ibs/AttachStorage/201712/J134/5693490d-ad46-4679-812f-42b0067a6ed3/a51358bc-8d21-466e-98b1-776a1ed0cf87.doc";
-        HdfsOperator.getFromHDFS(pathName, "/temp/d0cf87.doc",  configuration);
-        log.info("===hdfs InputStream====");
-    	
-    	return ResponseData.success();
-    }
-    
-    public void down(String text) throws IOException{
+
+	@Autowired
+	HBaseClient hbaseClient;
+	@Autowired
+	EsUtil esUtil;
+	@Autowired
+	ParseFile parseFile;
+	private final static String STORE_HDFS = "HDFS";
+
+	@Value("${spring.data.hdfs.server}")
+	protected String hdfsServer;
+	@Value("${spring.data.hdfs.zbfbDst}")
+	protected String zbfbDst;
+	// @Autowired
+	// private MyRedisUtil myRedisUtil;
+
+	// @Autowired
+	// HBaseService hbaseService;
+
+	@ApiOperation("hbase操作")
+	@PostMapping("/hbase")
+	public ResponseData<?> hbase() throws Exception {
+		HBaseService hbaseService = hbaseClient.getService();
+		log.info("tableNames:" + hbaseService.getAllTableNames().toString());
+		String rowKey = "00024cf4b7084a9ebda0e4b8610045d4";
+		String tableName = "FileStore";
+		hbaseService.GetData(tableName, rowKey);
+		return ResponseData.success();
+	}
+
+	@ApiOperation("hdfs操作")
+	@PostMapping("/hdfs")
+	public ResponseData<?> hdfs() throws Exception {
+		System.setProperty("HADOOP_USER_NAME", "hdfs");
+		Configuration configuration = new Configuration();
+		configuration.set("fs.default.name", "hdfs://10.212.169.158:8020");
+		String pathName = "/ibs/AttachStorage/201712/J134/5693490d-ad46-4679-812f-42b0067a6ed3/a51358bc-8d21-466e-98b1-776a1ed0cf87.doc";
+		HdfsOperator.getFromHDFS(pathName, "/temp/d0cf87.doc", configuration);
+		log.info("===hdfs InputStream====");
+
+		return ResponseData.success();
+	}
+
+	public void down(String text) throws IOException {
 		BASE64Decoder be = new BASE64Decoder();
-		byte []c = 	be.decodeBuffer(text);
+		byte[] c = be.decodeBuffer(text);
 		FileOutputStream out = new FileOutputStream(new File("/temp/t2.pdf"));
 		out.write(c);
 		out.close();
 	}
-    
-    @ApiOperation("入库测试")
-    @PostMapping("/1")
-    public ResponseData<?> test1() throws Exception {
-    	esUtil.parseAndSaveEs();
-    	return ResponseData.success();
-    }
-    @ApiOperation("压缩文件处理")
-    @PostMapping("/2")
-    public ResponseData<?> test2() throws Exception {
-    	esUtil.parseRarAndZip();
-    	return ResponseData.success();
-    }
-    @ApiOperation("分项报价抽取")
-    @PostMapping("/3")
-    public ResponseData<?> test3(String filePath) throws Exception {
-    	File file = new File(filePath);
-    	return ResponseData.success(parseFile.parsePdfTable(new FileInputStream(file)));
-	
-    }
+
+	@ApiOperation("入库测试")
+	@PostMapping("/1")
+	public ResponseData<?> test1() throws Exception {
+		esUtil.parseAndSaveEs();
+		return ResponseData.success();
+	}
+
+	@ApiOperation("压缩文件处理")
+	@PostMapping("/2")
+	public ResponseData<?> test2() throws Exception {
+		esUtil.parseRarAndZip();
+		return ResponseData.success();
+	}
+
+	@ApiOperation("分项报价抽取")
+	@PostMapping("/3")
+	public ResponseData<?> test3(String filePath) throws Exception {
+		File file = new File(filePath);
+		return ResponseData.success(parseFile.parsePdfTable(new FileInputStream(file)));
+	}
+
+	@ApiOperation("文件上传")
+	@PostMapping("/4")
+	public ResponseData<?> test4(String filePath) throws Exception {
+		File file = new File(filePath);
+		System.setProperty("HADOOP_USER_NAME", "hdfs");
+		Configuration configuration = new Configuration();
+		configuration.set("fs.defaultFS", hdfsServer);
+		String dst = zbfbDst + file.getName();
+		HdfsOperator.putToHDFS(file.getAbsolutePath(), dst, configuration);
+		file.delete();
+		return ResponseData.success();
+	}
+	@ApiOperation("hbase测试")
+	@PostMapping("/5")
+	public ResponseData<?> test5(String filePath) throws Exception {
+		HBaseService hbaseService = hbaseClient.getService();
+		log.info(hbaseService.getAllTableNames().toString());
+		return ResponseData.success();
+	}
 //    @ApiOperation("内置标签入库")
 //    @PostMapping("/3")
 //    public ResponseData<?> test3() throws Exception {
@@ -145,20 +175,19 @@ public class TestController {
 //    	log.info("userRoles:" + userRoles);
 //    	return ResponseData.success();
 //    }
-    public static void main(String[] args) throws UnsupportedEncodingException {
-    	final Base64.Decoder decoder = Base64.getDecoder();
-    	final Base64.Encoder encoder = Base64.getEncoder();
-    	String userKey = "shgcadmin";
-    	String salt = "shgc";
-    	String userKeyBase64 = encoder.encodeToString((salt + userKey).getBytes("UTF-8"));
-    	log.info("userKey:" + userKey);
-    	//c2hnY3NoZ2NhZG1pbg==
-    	log.info("base64:" + userKeyBase64);
-    	String restore = new String(decoder.decode(userKeyBase64), "UTF-8");
-    	log.info("restore:" + restore);
-    	log.info("userKey:" + restore.substring(salt.length()));
-    	
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		final Base64.Decoder decoder = Base64.getDecoder();
+		final Base64.Encoder encoder = Base64.getEncoder();
+		String userKey = "shgcadmin";
+		String salt = "shgc";
+		String userKeyBase64 = encoder.encodeToString((salt + userKey).getBytes("UTF-8"));
+		log.info("userKey:" + userKey);
+		// c2hnY3NoZ2NhZG1pbg==
+		log.info("base64:" + userKeyBase64);
+		String restore = new String(decoder.decode(userKeyBase64), "UTF-8");
+		log.info("restore:" + restore);
+		log.info("userKey:" + restore.substring(salt.length()));
+
 	}
-   
 
 }

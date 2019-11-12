@@ -1,6 +1,9 @@
 package io.gomk.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +22,7 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESClientFactory;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.parse.ImportFile;
+import io.gomk.mapper.OneselfMapper;
 import io.gomk.service.IIndexService;
 import io.gomk.task.ESInfoBean;
 
@@ -26,6 +30,8 @@ import io.gomk.task.ESInfoBean;
 public class IndexService extends EsBaseService implements IIndexService {
 	@Autowired
 	EsUtil esUtil;
+	@Autowired
+	OneselfMapper slefMapper;
 	
 	public String mapping = "  {\n" +
             "    \"_doc\": {\n" +
@@ -341,7 +347,14 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> BulkCompletionDoc() throws IOException {
-		List<Map<String, Object>> sourceList = ImportFile.getCompletionMap();
+		List<String> list = slefMapper.selectCompletion();
+		List<Map<String, Object>> sourceList = new ArrayList<>();
+		list.forEach(s -> {
+			Map<String, Object> map = new HashMap<>();
+			map.put("words", s);
+			map.put("add_date", new Date());
+			sourceList.add(map);
+		});
 		bulkDoc(completionIndex, sourceList);
 		return ResponseData.success();
 	}

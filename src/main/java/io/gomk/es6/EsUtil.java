@@ -122,10 +122,10 @@ public class EsUtil {
 	
 	@Value("${spring.data.hdfs.server}")
 	protected String hdfsServer;
-	@Value("${spring.data.hdfs.tableName}")
-	protected String hdfsTableName;
-	@Value("${spring.data.hdfs.columnName}")
-	protected String hdfscolumnName;
+	@Value("${spring.data.hbase.tableName}")
+	protected String hbaseTableName;
+	@Value("${spring.data.hbase.columnName}")
+	protected String hbasecolumnName;
 	
 	/*
 	 * 条件更新
@@ -259,7 +259,9 @@ public class EsUtil {
 		list.forEach(bean -> {
 			InputStream in = getInputStream(bean);
 			try {
-				disposeZJRARandZIP(bean, in);
+				if (in != null) {
+					disposeZJRARandZIP(bean, in);
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -392,7 +394,7 @@ public class EsUtil {
 		if (storeType.equals(STORE_HBASE)) {
 			log.info("===save type:hbase====");
 			HBaseService hbaseService = hbaseClient.getService();
-			InputStream in = hbaseService.getInputStream(hdfsTableName, storeUrl);
+			InputStream in = hbaseService.getInputStream(hbaseTableName, storeUrl);
 			//log.info("=====hbase inputstream:" + in.toString());
 			return in;
 			

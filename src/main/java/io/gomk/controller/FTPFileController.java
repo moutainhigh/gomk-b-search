@@ -58,47 +58,48 @@ public class FTPFileController {
 		Object title = getResponse.getSourceAsMap().get("title");
 		
 		InputStream is = esUtil.getInputStreams(storeType.toString(), storeUrl.toString(), ext.toString());
-		
-		String fileName = title + "." + ext;
-		BufferedOutputStream out = null;
-		//InputStream is = null;
-		//String filepath = "/Users/vko/Documents/my-code/testDOC/tb/1包投标文件.zip";
-		String downloadMode = "attachment";
-		try {
-			response.reset();
-			response.setCharacterEncoding("UTF-8");
-			String agent = request.getHeader("User-Agent");
-			boolean isMSIE = (agent != null && agent.indexOf("MSIE") != -1);
-			if (isMSIE) {
-				response.setHeader("Content-Disposition",
-						downloadMode + ";filename=" + URLEncoder.encode(fileName, "UTF-8"));
-			} else {
-				response.setHeader("Content-Disposition",
-						downloadMode + ";filename=" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
-			}
-			//response.setContentType("application/octet-stream"); 
-			out = new BufferedOutputStream(response.getOutputStream());
-			//is = new BufferedInputStream(new FileInputStream(new File(filepath)));
-			byte[] content = new byte[1024];
-			int len = 0;
-			while ((len = is.read(content)) > 0) {
-				out.write(content, 0, len);
-			}
-			out.flush();
-			//return "下载成功";
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
+		if (is != null) {
+			String fileName = title + "." + ext;
+			BufferedOutputStream out = null;
+			//InputStream is = null;
+			//String filepath = "/Users/vko/Documents/my-code/testDOC/tb/1包投标文件.zip";
+			String downloadMode = "attachment";
 			try {
-				if (is != null) {
-					is.close();
+				response.reset();
+				response.setCharacterEncoding("UTF-8");
+				String agent = request.getHeader("User-Agent");
+				boolean isMSIE = (agent != null && agent.indexOf("MSIE") != -1);
+				if (isMSIE) {
+					response.setHeader("Content-Disposition",
+							downloadMode + ";filename=" + URLEncoder.encode(fileName, "UTF-8"));
+				} else {
+					response.setHeader("Content-Disposition",
+							downloadMode + ";filename=" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
 				}
-				if (out != null) {
-					out.close();
+				//response.setContentType("application/octet-stream"); 
+				out = new BufferedOutputStream(response.getOutputStream());
+				//is = new BufferedInputStream(new FileInputStream(new File(filepath)));
+				byte[] content = new byte[1024];
+				int len = 0;
+				while ((len = is.read(content)) > 0) {
+					out.write(content, 0, len);
 				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
+				out.flush();
+				//return "下载成功";
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (is != null) {
+						is.close();
+					}
+					if (out != null) {
+						out.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 			}
 		}
 		//return "下载失败";

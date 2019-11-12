@@ -64,7 +64,7 @@ spring:
       datasource:
         master:
           driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:mysql://39.105.192.98:33306/bidata?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
+          url: jdbc:mysql://39.105.192.98:33306/gcgs_zb?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&serverTimezone=UTC&useSSL=false
           username: root
           password: Abcd1234!
         oneself:
@@ -76,16 +76,16 @@ spring:
   data:
     hbase:
       master: 10.212.169.158:60000
+      tableName: FileStore
+      columnName: a 
       zookeeper:
         quorum: 10.212.169.158,10.212.169.166,10.212.169.167
         port: 2181
         znode: /hbase-unsecure
-        maxsize: 1572864000
+        maxsize: 1572864000  
     hdfs:
       server: hdfs://10.212.169.158:8020
       zbfbDst: /ibs/zbfb/
-      tableName: FileStore
-      columnName: a
   redis:
       password: GCGSredis123! #密码 默认为空
       timeout: 6000 #连接超时时常（毫秒）
