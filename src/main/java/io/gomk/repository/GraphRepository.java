@@ -14,6 +14,7 @@ public interface GraphRepository extends JpaRepository<SupplyDO, String>, JpaSpe
 
 
     @Query(value = "SELECT s.mate_name AS metaName, s.mate_code AS metaCode FROM i_zb_line_prj_suppl s WHERE s.mate_name = :name",
+            countQuery = "select count(*) from i_zb_line_prj_suppl s WHERE s.mate_name = :name",
             nativeQuery = true)
     Page<TargetProjection> queryByTargetName(String name, Pageable pageable);
 
