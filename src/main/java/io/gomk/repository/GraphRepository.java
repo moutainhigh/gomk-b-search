@@ -15,7 +15,7 @@ public interface GraphRepository extends JpaRepository<SupplyDO, String>, JpaSpe
 
     @Query(value = "SELECT s.mate_name AS metaName, s.mate_code AS metaCode FROM i_zb_line_prj_suppl s WHERE s.mate_name = :name",
             nativeQuery = true)
-    Page<TargetProjection> queryByPersonNameIn(String name, Pageable pageable);
+    Page<TargetProjection> queryByTargetName(String name, Pageable pageable);
 
     @Query(value = "SELECT distinct mate_name AS metaName, mate_code AS metaCode FROM i_zb_line_prj_suppl",
             nativeQuery = true)

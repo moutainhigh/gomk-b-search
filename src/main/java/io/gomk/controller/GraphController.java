@@ -40,8 +40,8 @@ public class GraphController {
 
     @GetMapping("/query/map")
     @ApiOperation(value = "查询图谱",notes = "查询图谱")
-    public TargetMapDTO query(@RequestParam(name = "targetId") String targetId) {
-        return graphService.queryTargetMap(targetId);
+    public TargetMapDTO query(@RequestParam(name = "targetName") String targetName) {
+        return graphService.queryTargetMap(targetName);
     }
 
 
