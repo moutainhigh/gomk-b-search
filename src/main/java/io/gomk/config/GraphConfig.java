@@ -1,13 +1,16 @@
 package io.gomk.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
+@Slf4j
 public class GraphConfig {
 
     @Value("${graph.search.backend:elasticsearch}")
@@ -43,8 +46,10 @@ public class GraphConfig {
     Double cacheSize;
 
     @Bean(name = "janusGraph")
+    @Lazy
     public JanusGraph janusGraph() {
 
+        log.info("图库配置bean加载开始......");
         BaseConfiguration config = new BaseConfiguration();
         config.setProperty("storage.backend", storageBackend);
         config.setProperty("storage.cql.keyspace", keyspace);
@@ -61,6 +66,7 @@ public class GraphConfig {
         config.setProperty("storage.backend", storageBackend);
 
         JanusGraph graph = JanusGraphFactory.open(config);
+        log.info("图库配置bean加载完成......");
 
         return graph;
     }

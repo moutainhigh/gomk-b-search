@@ -19,6 +19,7 @@ import org.janusgraph.graphdb.database.management.ManagementSystem;
 import org.janusgraph.graphdb.relations.CacheEdge;
 import org.janusgraph.graphdb.relations.RelationIdentifier;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,65 +34,76 @@ import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.*;
 @Slf4j
 public class GraphService implements GraphConstant {
 
-    @Autowired
+//    @Autowired
     JanusGraph graph;
+
+    @Autowired
+    ApplicationContext context;
 
     @Autowired
     GraphRepository repository;
 
     private static final int pageSize = 10;
 
-    public TargetMapDTO queryTargetMap(String targetId) {
+    private void prepareJanusGraphBean(){
+        graph = (JanusGraph) context.getBean("janusGraph");
+    }
+
+    public TargetMapDTO queryTargetMap(String targetName) {
+        prepareJanusGraphBean();
         Map<Object, Map<String, Object>> edgeMap = new HashMap<>();
         Map<Object, Map<String, Object>> vertexMap = new HashMap<>();
+        Page<TargetProjection> targetProjections = repository.queryByTargetName(targetName, PageRequest.of(0, 10));
+        if(targetProjections.hasContent() && targetProjections.getContent().size()==1) {
+            String targetId = targetProjections.getContent().get(0).getMetaCode();
+            Set<Path> pathSet =
+                    graph.traversal().V().has(V_NODE_ID, targetId).bothE().otherV().simplePath()
+                            .path().by(valueMap(true)).by(valueMap().union(path())).toSet();
+            for (Path path : pathSet) {
+                for (int i = 0; i < path.size(); i++) {
+                    //处理边
+                    if ((i + 1) % 2 == 0) {
+                        ImmutablePath immutablePath = path.get(i);
+                        if (immutablePath != null && immutablePath.size() > 0) {
+                            CacheEdge edge = (CacheEdge) immutablePath.get(0);
+                            RelationIdentifier relationIdentifier = edge.id();
+                            String label = edge.getType().name();
+                            Map<String, Object> tempEdgeMap = new HashMap<>();
+                            tempEdgeMap.put(DATA_ID, relationIdentifier.getRelationId());
+                            tempEdgeMap.put(DATA_START_NODE, relationIdentifier.getOutVertexId());
+                            tempEdgeMap.put(DATA_END_NODE, relationIdentifier.getInVertexId());
+                            tempEdgeMap.put(LABEL, label);
 
-        Set<Path> pathSet =
-                graph.traversal().V().has(V_NODE_ID, targetId).bothE().otherV().simplePath()
-                        .path().by(valueMap(true)).by(valueMap().union(path())).toSet();
-        for (Path path : pathSet) {
-            for (int i = 0; i < path.size(); i++) {
-                //处理边
-                if ((i + 1) % 2 == 0) {
-                    ImmutablePath immutablePath = path.get(i);
-                    if (immutablePath != null && immutablePath.size() > 0) {
-                        CacheEdge edge = (CacheEdge) immutablePath.get(0);
-                        RelationIdentifier relationIdentifier = edge.id();
-                        String label = edge.getType().name();
-                        Map<String, Object> tempEdgeMap = new HashMap<>();
-                        tempEdgeMap.put(DATA_ID, relationIdentifier.getRelationId());
-                        tempEdgeMap.put(DATA_START_NODE, relationIdentifier.getOutVertexId());
-                        tempEdgeMap.put(DATA_END_NODE, relationIdentifier.getInVertexId());
-                        tempEdgeMap.put(LABEL, label);
-
-                        edgeMap.put(tempEdgeMap.get(DATA_ID), tempEdgeMap);
-                    }
-                } else {
-                    //处理点
-                    HashMap<Object, Object> originalMap = path.get(i);
-                    HashMap<String, Object> tempVertexMap = new HashMap<>();
-                    //将所有类型的key转为字符串key
-                    for (Object key : originalMap.keySet()) {
-                        tempVertexMap.put(key.toString(), originalMap.get(key));
-                    }
-                    if (tempVertexMap.containsKey(LABEL)) {
-                        Object nodeId = objectArrayToObject(tempVertexMap.getOrDefault(V_NODE_ID, ""));
-                        tempVertexMap.put(DATA_ID, tempVertexMap.getOrDefault(DATA_ID, ""));
-
-                        tempVertexMap.put(LABEL, tempVertexMap.getOrDefault(LABEL, ""));
-                        tempVertexMap.put(V_NODE_ID, nodeId);
-                        if (V_LABEL_TARGET.equals(tempVertexMap.getOrDefault(LABEL, ""))) {
-                            tempVertexMap.put(V_PRJ_CODE, objectArrayToObject(tempVertexMap.getOrDefault(V_PRJ_CODE, "")));
+                            edgeMap.put(tempEdgeMap.get(DATA_ID), tempEdgeMap);
                         }
-                        if (V_LABEL_PRICE.equals(tempVertexMap.getOrDefault(LABEL, ""))) {
-                            tempVertexMap.put(V_PRICE, objectArrayToObject(tempVertexMap.getOrDefault(V_PRICE, "")));
-                        } else {
-                            tempVertexMap.put(V_NAME, objectArrayToObject(tempVertexMap.getOrDefault(V_NAME, "")));
+                    } else {
+                        //处理点
+                        HashMap<Object, Object> originalMap = path.get(i);
+                        HashMap<String, Object> tempVertexMap = new HashMap<>();
+                        //将所有类型的key转为字符串key
+                        for (Object key : originalMap.keySet()) {
+                            tempVertexMap.put(key.toString(), originalMap.get(key));
                         }
-                        vertexMap.put(tempVertexMap.get(DATA_ID), tempVertexMap);
+                        if (tempVertexMap.containsKey(LABEL)) {
+                            Object nodeId = objectArrayToObject(tempVertexMap.getOrDefault(V_NODE_ID, ""));
+                            tempVertexMap.put(DATA_ID, tempVertexMap.getOrDefault(DATA_ID, ""));
+
+                            tempVertexMap.put(LABEL, tempVertexMap.getOrDefault(LABEL, ""));
+                            tempVertexMap.put(V_NODE_ID, nodeId);
+                            if (V_LABEL_TARGET.equals(tempVertexMap.getOrDefault(LABEL, ""))) {
+                                tempVertexMap.put(V_PRJ_CODE, objectArrayToObject(tempVertexMap.getOrDefault(V_PRJ_CODE, "")));
+                            }
+                            if (V_LABEL_PRICE.equals(tempVertexMap.getOrDefault(LABEL, ""))) {
+                                tempVertexMap.put(V_PRICE, objectArrayToObject(tempVertexMap.getOrDefault(V_PRICE, "")));
+                            } else {
+                                tempVertexMap.put(V_NAME, objectArrayToObject(tempVertexMap.getOrDefault(V_NAME, "")));
+                            }
+                            vertexMap.put(tempVertexMap.get(DATA_ID), tempVertexMap);
+                        }
                     }
                 }
-            }
 
+            }
         }
         TargetMapDTO targetMapDTO = new TargetMapDTO();
         targetMapDTO.setEdges(new ArrayList<>(edgeMap.values()));
@@ -100,6 +112,7 @@ public class GraphService implements GraphConstant {
     }
 
     public void insertData() {
+        prepareJanusGraphBean();
         Integer pageNum = 0;
         Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "guid")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
@@ -112,6 +125,7 @@ public class GraphService implements GraphConstant {
     }
 
     public void insertData(LocalDate localDate) {
+        prepareJanusGraphBean();
         Integer pageNum = 0;
         Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize,
                 Sort.by(Sort.Direction.DESC, "guid")));
@@ -273,6 +287,7 @@ public class GraphService implements GraphConstant {
 
 
     public void buildGraph() {
+        prepareJanusGraphBean();
         JanusGraphManagement mgmt = graph.openManagement();
 
         //创建顶点Label
