@@ -71,6 +71,7 @@
         left join F_ZB_SEL_BID_DETAIL t3 on t3.pkg_code=t.biaoduanbh
         left join D_ZB_SUPPL t4 on t4.suppl_document_code = t3.document_code
 		where substring_index(t.item_wlmc , '\\', 1) = #{mateName}
+		order by t.kaibiaodate desc
     </select>
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
         select distinct

@@ -35,6 +35,7 @@
     <select id="selectProductPrice" parameterType="java.lang.String" resultMap="BaseResultMap">
          select * from SHZJ_PRODUCTPRICE_NEW t
         where t.product_name = #{productName}
+        order by t.operatedate desc
     </select>
 
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
