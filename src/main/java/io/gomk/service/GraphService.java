@@ -1,6 +1,8 @@
 package io.gomk.service;
 
+import com.google.common.collect.Lists;
 import io.gomk.common.constants.GraphConstant;
+import io.gomk.common.utils.MD5Util;
 import io.gomk.model.entity.TargetMapDTO;
 import io.gomk.projection.*;
 import io.gomk.repository.GraphRepository;
@@ -43,7 +45,7 @@ public class GraphService implements GraphConstant {
     @Autowired
     GraphRepository repository;
 
-    private static final int pageSize = 10;
+    private static final int pageSize = 1000;
 
     private void prepareJanusGraphBean(){
         graph = (JanusGraph) context.getBean("janusGraph");
@@ -56,7 +58,7 @@ public class GraphService implements GraphConstant {
         Map<Object, Map<String, Object>> vertexMap = new HashMap<>();
         Page<TargetProjection> targetProjections = repository.queryByTargetName(targetName, PageRequest.of(0, 10));
         if(targetProjections.hasContent() && targetProjections.getContent().size() > 0) {
-            String targetId = targetProjections.getContent().get(0).getMetaCode();
+            String targetId = MD5Util.MD5(targetProjections.getContent().get(0).getMetaName());
             Set<Path> pathSet =
                     graph.traversal().V().has(V_NODE_ID, targetId).bothE().otherV().simplePath()
                             .path().by(valueMap(true)).by(valueMap().union(path())).toSet();
@@ -115,7 +117,8 @@ public class GraphService implements GraphConstant {
     public void insertData() {
         prepareJanusGraphBean();
         Integer pageNum = 0;
-        Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "guid")));
+        Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize,
+                Sort.by(Sort.Direction.DESC, "id")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
             dealTarget(targetProjectionPage);
             pageNum++;
@@ -129,7 +132,7 @@ public class GraphService implements GraphConstant {
         prepareJanusGraphBean();
         Integer pageNum = 0;
         Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize,
-                Sort.by(Sort.Direction.DESC, "guid")));
+                Sort.by(Sort.Direction.DESC, "id")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
             dealTarget(targetProjectionPage);
             pageNum++;
@@ -142,54 +145,56 @@ public class GraphService implements GraphConstant {
 
     private void dealTarget(Page<TargetProjection> targetProjectionPage) {
         if (targetProjectionPage.hasContent()) {
-            for (TargetProjection targetProjection : targetProjectionPage.getContent()) {
-                String targetCode = targetProjection.getMetaCode();
+//            for (TargetProjection targetProjection : targetProjectionPage.getContent()) {
+            Lists.partition(targetProjectionPage.getContent(),50).parallelStream().forEach(targetProjections -> {
+                for(TargetProjection targetProjection:targetProjections) {
+                    String targetCode = MD5Util.MD5(targetProjection.getMetaName());
 //                System.out.println("************" + targetProjection.getMetaName() + "************");
-                Vertex targetVertex = createTargetVertex(targetProjection);
-                List<PackageProjection> packageProjectionList = repository.queryPackageByMetaName(targetProjection.getMetaName());
-                packageProjectionList.stream().forEach(packageProjection -> {
-                    Vertex vertex = createPackageVertex(packageProjection);
-                    if (!hasEdge(targetCode, EDGE_LABEL_PACKAGE, packageProjection.getPackageCode())) {
-                        Edge edge = targetVertex.addEdge(EDGE_LABEL_PACKAGE, vertex);
-                    }
-                });
+                    Vertex targetVertex = createTargetVertex(targetProjection);
+                    List<PackageProjection> packageProjectionList = repository.queryPackageByMetaName(targetProjection.getMetaName());
+                    packageProjectionList.stream().forEach(packageProjection -> {
+                        Vertex vertex = createPackageVertex(packageProjection);
+                        if (!hasEdge(targetCode, EDGE_LABEL_PACKAGE, packageProjection.getPackageCode())) {
+                            Edge edge = targetVertex.addEdge(EDGE_LABEL_PACKAGE, vertex);
+                        }
+                    });
 //                System.out.println("标段包：" + packageProjectionList.size());
-                List<ProjectProjection> projectProjectionList = repository.queryProjectByMetaName(targetProjection.getMetaName());
-                projectProjectionList.stream().forEach(projectProjection -> {
-                    Vertex vertex = createProjectVertex(projectProjection);
-                    if (!hasEdge(targetCode, EDGE_LABEL_PROJECT, projectProjection.getPrjCode())) {
-                        Edge edge = targetVertex.addEdge(EDGE_LABEL_PROJECT, vertex);
-                    }
-                });
+                    List<ProjectProjection> projectProjectionList = repository.queryProjectByMetaName(targetProjection.getMetaName());
+                    projectProjectionList.stream().forEach(projectProjection -> {
+                        Vertex vertex = createProjectVertex(projectProjection);
+                        if (!hasEdge(targetCode, EDGE_LABEL_PROJECT, projectProjection.getPrjCode())) {
+                            Edge edge = targetVertex.addEdge(EDGE_LABEL_PROJECT, vertex);
+                        }
+                    });
 //                System.out.println("项目：" + projectProjectionList.size());
-                List<BidSubjectProjection> toubiaos = repository.queryToubiaoByMetaName(targetProjection.getMetaName());
-                toubiaos.stream().forEach(toubiao -> {
-                    Vertex vertex = createBidSubjectVertex(toubiao);
-                    if (!hasEdge(targetCode, EDGE_LABEL_BID_IN, toubiao.getSubjectCode())) {
-                        Edge edge = targetVertex.addEdge(EDGE_LABEL_BID_IN, vertex);
-                    }
-                });
+                    List<BidSubjectProjection> toubiaos = repository.queryToubiaoByMetaName(targetProjection.getMetaName());
+                    toubiaos.stream().forEach(toubiao -> {
+                        Vertex vertex = createBidSubjectVertex(toubiao);
+                        if (!hasEdge(targetCode, EDGE_LABEL_BID_IN, toubiao.getSubjectCode())) {
+                            Edge edge = targetVertex.addEdge(EDGE_LABEL_BID_IN, vertex);
+                        }
+                    });
 //                System.out.println("投标：" + toubiaos.size());
-                List<BidSubjectProjection> zhaobiaos = repository.queryZhaobiaoByMetaName(targetProjection.getMetaName());
-                zhaobiaos.stream().forEach(zhaobiao -> {
-                    Vertex vertex = createBidSubjectVertex(zhaobiao);
-                    if (!hasEdge(zhaobiao.getSubjectCode(), EDGE_LABEL_BID_OUT, targetCode)) {
-                        Edge edge = vertex.addEdge(EDGE_LABEL_BID_OUT, targetVertex);
-                    }
-                });
+                    List<BidSubjectProjection> zhaobiaos = repository.queryZhaobiaoByMetaName(targetProjection.getMetaName());
+                    zhaobiaos.stream().forEach(zhaobiao -> {
+                        Vertex vertex = createBidSubjectVertex(zhaobiao);
+                        if (!hasEdge(zhaobiao.getSubjectCode(), EDGE_LABEL_BID_OUT, targetCode)) {
+                            Edge edge = vertex.addEdge(EDGE_LABEL_BID_OUT, targetVertex);
+                        }
+                    });
 //                System.out.println("招标：" + zhaobiaos.size());
-                List<PriceProjection> priceProjectionList = repository.queryPriceByMetaName(targetProjection.getMetaName());
-                priceProjectionList.stream().forEach(priceProjection -> {
-                    Vertex vertex = createPriceVertex(priceProjection, targetProjection.getMetaCode());
-                    if (!hasEdge(targetCode, EDGE_LABEL_PRICE, vertex.value(V_NODE_ID).toString())) {
-                        Edge edge = targetVertex.addEdge(EDGE_LABEL_PRICE, vertex);
-                    }
-                });
+                    List<PriceProjection> priceProjectionList = repository.queryPriceByMetaName(targetProjection.getMetaName());
+                    priceProjectionList.stream().forEach(priceProjection -> {
+                        Vertex vertex = createPriceVertex(priceProjection, MD5Util.MD5(targetProjection.getMetaName()));
+                        if (!hasEdge(targetCode, EDGE_LABEL_PRICE, vertex.value(V_NODE_ID).toString())) {
+                            Edge edge = targetVertex.addEdge(EDGE_LABEL_PRICE, vertex);
+                        }
+                    });
 //                System.out.println("价格：" + priceProjectionList.size());
+                }
                 graph.tx().commit();
+            });
             }
-        }
-
     }
 
     public Boolean hasEdge(String startId, String label, String endId) {
@@ -202,7 +207,7 @@ public class GraphService implements GraphConstant {
     }
 
     public Vertex createTargetVertex(TargetProjection object) {
-        String id = object.getMetaCode();
+        String id = MD5Util.MD5(object.getMetaName());
         if (graph.traversal().V().has(V_NODE_ID, id).hasNext()) {
             return graph.traversal().V().has(V_NODE_ID, id).next();
         }
