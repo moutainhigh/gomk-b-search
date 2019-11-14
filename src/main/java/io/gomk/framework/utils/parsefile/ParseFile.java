@@ -4,10 +4,8 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
-
 import io.gomk.framework.utils.jython.RuntimeUtils;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hwpf.extractor.WordExtractor;
@@ -20,7 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 解析文件生成es需要的信息
@@ -47,7 +43,6 @@ public class ParseFile {
     private final static String DOC = "doc";
     private final static String DOCX = "docx";
     private final static String PDF = "pdf";
-    private final static String DIR = System.getProperty("user.dir") + "/src/main/resources/python/";
 
     public final static List<String> ONE_TITLE = Arrays.asList(
             "第一章", "第二章", "第三章", "第四章", "第五章",
@@ -168,7 +163,7 @@ public class ParseFile {
         return contentByTitles;
     }
 
-    private Map<String, LinkedHashMap<Integer, String>> parseDocx(InputStream in, Map<String, StringBuilder> result) {
+    private Map<String, LinkedHashMap<Integer, String>> parseDocx(InputStream in, Map<String, StringBuilder> result, boolean readOne) {
         Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
         try (XWPFDocument doc = new XWPFDocument(in)) {
             List<XWPFParagraph> paras = doc.getParagraphs();
@@ -180,7 +175,10 @@ public class ParseFile {
                 styles[i] = style;
 //                System.out.println("第"+i+"段====>"+paragraph[i]);
             }
-            generateByWord(result, contentByTitles, paragraph, styles);
+            if (readOne) {
+            } else {
+                generateByWord(result, contentByTitles, paragraph, styles);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,13 +190,17 @@ public class ParseFile {
      *
      * @return map
      */
-    private Map<String, LinkedHashMap<Integer, String>> parseDoc(InputStream in, Map<String, StringBuilder> result) {
+    private Map<String, LinkedHashMap<Integer, String>> parseDoc(InputStream in, Map<String, StringBuilder> result, boolean readOne) {
         Map<String, LinkedHashMap<Integer, String>> contentByTitles = new LinkedHashMap<>(20);
         try {
             WordExtractor wordExtractor = new WordExtractor(in);
             String[] paragraph = wordExtractor.getParagraphText();
 
-            generateByWord(result, contentByTitles, paragraph, new String[0]);
+            if (readOne) {
+                generateResult(result, contentByTitles, paragraph, new String[0]);
+            } else {
+                generateByWord(result, contentByTitles, paragraph, new String[0]);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -297,6 +299,10 @@ public class ParseFile {
 //            }
 
             int tIndexListSize = tIndexList.size();
+            if (tIndexListSize == 1) {
+                tIndexList.add(oneEnd);
+                tIndexListSize++;
+            }
             int j = 0;
             while (j < tIndexListSize - 1 && j < totalParagraph) {
                 int twoStart = tIndexList.get(j);
@@ -383,12 +389,12 @@ public class ParseFile {
      * @param args
      */
     public static void main(String[] args) {
-//        File file1 = new File("/Users/baibing6/Desktop/CSIEZB16020090.docx");
-//        File file1 = new File("/Users/baibing6/Desktop/CSIEZB17020188.doc");
-//        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
-      //   File file1 = new File("/Users/baibing6/Desktop/file/招标文件正文.pdf");
+//        File file1 = new File("/Users/baibing6/Desktop/file/CSIEZB16020090.docx");
+        File file1 = new File("/Users/baibing6/Desktop/file/CSIEZB17020188.doc");
+//        File file1 = new File("/Users/baibing6/Desktop/file/2018.doc");
+//         File file1 = new File("/Users/baibing6/Desktop/file/招标文件正文.pdf");
 //        File file1 = new File("/Users/baibing6/Desktop/file/tb5.pdf");
-        File file1 = new File("/Users/vko/Documents/my-code/testPDF/招标文件正文.pdf");
+//        File file1 = new File("/Users/vko/Documents/my-code/testPDF/招标文件正文.pdf");
       // File file1 = new File("/Users/baibing6/Desktop/file/pdf/第二批电缆采购投标文件—5.pdf");
         try (
              InputStream in1 = new FileInputStream(file1);
@@ -400,17 +406,17 @@ public class ParseFile {
 //            Map<String, StringBuilder> map = new ParseFile().parseText(in1, DOC);
 //            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
 //            String a0 = new ParseFile().parseTenderScope(in2, DOC);
-//            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
+            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOC);
 //            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
            // List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
            // String a0 = new ParseFile().parseTenderScope(in2, PDF);
-            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
-            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
+//            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
+//            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
 //            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
 //            String a = "[['序号', '材料名称', '规格型号', '生产厂家', '数量', '单价', '总价'], ['1', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用通信电缆', 'MHYV\\n4×2×7/0.37mm', '天津万博', '5000.0', '5.0', '25200.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×7/0.52mm', '天津万博', '170200.\\n0', '6.8', '1159062.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×1/1.38mm', '天津万博', '76800.0', '5.9', '453888.0'], ['', '矿用通信软线', 'MHYV\\n10×2×0.75mm\\n10×2×1/0.97m\\nm', '天津万博', '90200.0', '11.0', '989494.0'], ['', '矿用通信软线', 'MHYV\\n5×2×0.75mm\\nMHYV\\n5×2×1/0.97mm', '天津万博', '99000.0', '6.0', '593010.0'], ['', '矿用聚乙烯绝缘\\n铝聚乙烯粘结护\\n层通信电缆', 'MHYAV\\n10×2×0.8mm', '天津万博', '800.0', '11.0', '8808.0'], ['2', '运输至最终目的地运杂费、保险费、卸车费等', '', '', '', '', '0.0'], ['3', '其它', '', '', '', '', '0.0'], ['4', '投标总价\\n3299062.0', '', '', '', '', '']]";
 //            new ParseFile().parsePythonCmd(a);
             
-            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
+//            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
             log.info("");
         } catch (Exception e) {
             e.printStackTrace();
@@ -489,9 +495,9 @@ public class ParseFile {
                                                                                   Map<String, LinkedHashMap<Integer, String>> linkedHashMap,
                                                                                   boolean readOne) {
         if (DOC.equalsIgnoreCase(extensionName)) {
-            linkedHashMap = parseDoc(in, result);
+            linkedHashMap = parseDoc(in, result, readOne);
         } else if (DOCX.equalsIgnoreCase(extensionName)) {
-            linkedHashMap = parseDocx(in, result);
+            linkedHashMap = parseDocx(in, result, readOne);
         } else if (PDF.equalsIgnoreCase(extensionName)) {
             linkedHashMap = parsePdf(in, result, readOne);
         }
@@ -508,7 +514,7 @@ public class ParseFile {
     public String parseTechnicalRequirement(InputStream in, String extensionName) {
         Map<String, StringBuilder> result = init();
         Map<String, LinkedHashMap<Integer, String>> linkedHashMap = new LinkedHashMap<>();
-        linkedHashMap = getStringLinkedHashMapMap(in, extensionName, result, linkedHashMap, false);
+        linkedHashMap = getStringLinkedHashMapMap(in, extensionName, result, linkedHashMap, true);
 
         linkedHashMap.forEach((k, v) -> {
             for (Map.Entry<Integer, String> entry : v.entrySet()) {
