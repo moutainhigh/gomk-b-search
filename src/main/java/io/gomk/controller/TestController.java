@@ -54,12 +54,12 @@ public class TestController {
 	// @Autowired
 	// HBaseService hbaseService;
 
-	@ApiOperation("hbase操作")
+	@ApiOperation("hbase--rowke查询")
 	@PostMapping("/hbase")
-	public ResponseData<?> hbase() throws Exception {
+	public ResponseData<?> hbase(String rowKey) throws Exception {
 		HBaseService hbaseService = hbaseClient.getService();
 		log.info("tableNames:" + hbaseService.getAllTableNames().toString());
-		String rowKey = "00024cf4b7084a9ebda0e4b8610045d4";
+		//String rowKey = "00024cf4b7084a9ebda0e4b8610045d4";
 		String tableName = "FileStore";
 		hbaseService.GetData(tableName, rowKey);
 		return ResponseData.success();
@@ -124,6 +124,12 @@ public class TestController {
 	public ResponseData<?> test5(String filePath) throws Exception {
 		HBaseService hbaseService = hbaseClient.getService();
 		log.info(hbaseService.getAllTableNames().toString());
+		return ResponseData.success();
+	}
+	@ApiOperation("test 投标文件 ")
+	@PostMapping("/6")
+	public ResponseData<?> test6() throws Exception {
+		esUtil.testTbFIle();
 		return ResponseData.success();
 	}
 //    @ApiOperation("内置标签入库")

@@ -249,6 +249,52 @@ public class EsUtil {
 		return indexName;
 	}
 	
+	/**
+	 * 测试投标文件
+	 */
+	public void testTbFIle() {
+		List<DBInfoBean> list = masterDBMapper.getToubiaoDBInfo();
+		list.forEach(bean -> {
+			InputStream in = getInputStream(bean);
+			if (in != null) {
+//				try {
+//					saveTB(bean, in);
+//				} catch (IOException e1) {
+//					log.error("error:"+e1.getMessage());
+//				}
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+					byte[] buffer = new byte[1024];  
+					int len;  
+					while ((len = in.read(buffer)) > -1 ) {  
+						baos.write(buffer, 0, len);  
+					}  
+					baos.flush(); 
+				
+					if (bean.getExt().contains("pdf")) {
+						
+						GTbQuoteExtract qe = new GTbQuoteExtract();
+						qe.setPrjCode(bean.getPrjCode());
+						qe.setPrjName(bean.getPrjName());
+						qe.setUuid(bean.getUuid());
+						qe.setTitle(bean.getTitle());
+						//存分项报价
+						tbQuoteExtractService.insertPrice(new ByteArrayInputStream(baos.toByteArray()), qe);
+						
+						GTbIdcardExtract entity = new GTbIdcardExtract();
+						entity.setPrjCode(bean.getPrjCode());
+						entity.setPrjName(bean.getPrjName());
+						entity.setUuid(bean.getUuid());
+						entity.setTitle(bean.getTitle());
+						//存储身份证信息
+						idcardOcr.insertIdcardInfo(new ByteArrayInputStream(baos.toByteArray()), new ByteArrayInputStream(baos.toByteArray()), entity);
+					}
+				} catch (IOException e) {
+					log.error("io error" +e.getMessage());
+				}
+			}
+		});
+	}
 	
 	/**
 	 * 处理造价压缩文件 
@@ -275,12 +321,21 @@ public class EsUtil {
 		
 		String timeSign = "";
 		while(true) {
-			//查询已索引时间戳
-			timeSign = db2esMapper.selectStoredDateTImeSTOREDATETIME();
-			if (StringUtils.isBlank(timeSign)) {
-				timeSign = "1970-01-01 19:19:14.0";
-			} 
-			List<DBInfoBean> list = masterDBMapper.getDBInfo(timeSign);
+//			//查询已索引时间戳
+//			timeSign = db2esMapper.selectStoredDateTImeSTOREDATETIME();
+//			if (StringUtils.isBlank(timeSign)) {
+//				timeSign = "1970-01-01 19:19:14.0";
+//			} 
+			//List<DBInfoBean> list = masterDBMapper.getDBInfo(timeSign);
+			
+			//List<String> ids = db2esMapper.selectIds();
+			//List<DBInfoBean> list = masterDBMapper.getTestALLDBInfo(ids);
+			
+			String numberSign = db2esMapper.selectSign();
+			if (StringUtils.isBlank(numberSign)) {
+				numberSign = "0";
+			}
+			List<DBInfoBean> list = masterDBMapper.getDBInfoByNumber(Integer.parseInt(numberSign));
 			
 			//暂时切到自己库
 			log.info("===size====" + list.size());
@@ -290,9 +345,15 @@ public class EsUtil {
 //			i++;
 			// 1. 下载文件 分页查询未处理的纪录
 			for (DBInfoBean bean : list) {
+				//db2esMapper.insertFileSign(bean.getUuid());
+				Integer k = Integer.parseInt(numberSign) + 1;
 				//更新时间戳
-				db2esMapper.updateTimeSign(timeSign, bean.getSTOREDATETIME());
-				timeSign = bean.getSTOREDATETIME();
+				if (numberSign.equals("0")) {
+					db2esMapper.insertFileSign(k + "");
+				} else {
+					db2esMapper.updateTimeSign(numberSign, k + "");
+				}
+				//timeSign = bean.getSTOREDATETIME();
 				log.info(bean.getUuid() + "==========wjtm=======" + bean.getWjtm());
 				//log.info( "==========detail======" + bean.toString());
 				switch (bean.getFileType()) {
@@ -323,7 +384,7 @@ public class EsUtil {
 								}  
 								baos.flush(); 
 							
-								saveTB(bean, in);
+								saveTB(bean, new ByteArrayInputStream(baos.toByteArray()));
 								if (bean.getExt().contains("pdf")) {
 									
 									GTbQuoteExtract qe = new GTbQuoteExtract();
@@ -345,8 +406,6 @@ public class EsUtil {
 							} catch (IOException e) {
 								log.error("io error" +e.getMessage());
 								break;
-							} catch (DocumentException e) {
-								log.error("document error" +e.getMessage());
 							}
 						}
 					}
@@ -440,7 +499,7 @@ public class EsUtil {
 //					log.info("zbfw====" + zbfw);
 //					log.info("zgyqList=======" + zgyqList.toString());
 //					log.info("pbbf=====" + pbbf);
-//					log.info("jsyq=====" + jsyq);
+					log.info("jsyq=====" + jsyq);
 		
 		esBean.setZbfw(zbfw);
 		//========存招标文件库=======
@@ -539,59 +598,60 @@ public class EsUtil {
 		String zipPath = "/temp/targetFile_zip.zip";
 		String rarPath = "/temp/targetFile_rar.rar";
 		String targetDir = "/temp/zip_rar";
-		
-		if ("zip".equals(ext)) {
-			File targetFile = new File(zipPath);
-			FileUtils.copyInputStreamToFile(initialStream, targetFile);
-			ZipAndRarTools.unZipFiles(zipPath, targetDir);
-		} else if ("rar".equals(ext)){
-//			File targetFile = new File(rarPath);
-//			FileUtils.copyInputStreamToFile(initialStream, targetFile);
-			try {
-				ZipAndRarTools.unRar(initialStream, targetDir);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-			try {
-				List<File> files = new ArrayList<>();
-				StringBuffer sb = new StringBuffer();
-				FileListUtil.findDir(targetDir, 3, files, sb);
-				
-				for (File f : files) {
-					if (f.isFile()) {
-						String fileName = f.getName();
-						String content = "";
-						if (fileName.endsWith(".doc")) {
-							content = Word2003.read(f.getAbsolutePath());
-						} else if (fileName.endsWith(".docx")) {
-							content = Word2007.read(f.getAbsolutePath());
-						} else if (fileName.endsWith(".pdf")) {
-							content = PDF.read(f.getAbsolutePath());
-						}
-						if (!"".equals(content)) {
-							ESInfoBean esBean = new ESInfoBean();
-							BeanUtils.copyProperties(bean, esBean);
-							esBean.setAddDate(new Date());
-							fileName = fileName.substring(0, fileName.lastIndexOf("."));
-							esBean.setTitle(fileName);
-							esBean.setContent(content);
-							esBean.setDirectoryTree(sb.toString());
-							saveES(zjcgIndex, esBean);
-						}
-					}
+		if (initialStream != null) {
+			if ("zip".equals(ext)) {
+				File targetFile = new File(zipPath);
+				FileUtils.copyInputStreamToFile(initialStream, targetFile);
+				ZipAndRarTools.unZipFiles(zipPath, targetDir);
+			} else if ("rar".equals(ext)){
+	//			File targetFile = new File(rarPath);
+	//			FileUtils.copyInputStreamToFile(initialStream, targetFile);
+				try {
+					ZipAndRarTools.unRar(initialStream, targetDir);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-					try {
-						ZipAndRarTools.delDir(targetDir);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 			}
+				try {
+					List<File> files = new ArrayList<>();
+					StringBuffer sb = new StringBuffer();
+					FileListUtil.findDir(targetDir, 3, files, sb);
+					
+					for (File f : files) {
+						if (f.isFile()) {
+							String fileName = f.getName();
+							String content = "";
+							if (fileName.endsWith(".doc")) {
+								content = Word2003.read(f.getAbsolutePath());
+							} else if (fileName.endsWith(".docx")) {
+								content = Word2007.read(f.getAbsolutePath());
+							} else if (fileName.endsWith(".pdf")) {
+								content = PDF.read(f.getAbsolutePath());
+							}
+							if (!"".equals(content)) {
+								ESInfoBean esBean = new ESInfoBean();
+								BeanUtils.copyProperties(bean, esBean);
+								esBean.setAddDate(new Date());
+								fileName = fileName.substring(0, fileName.lastIndexOf("."));
+								esBean.setTitle(fileName);
+								esBean.setContent(content);
+								esBean.setDirectoryTree(sb.toString());
+								saveES(zjcgIndex, esBean);
+							}
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+						try {
+							ZipAndRarTools.delDir(targetDir);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+				}
+		}
 	}
 	
 

@@ -18,6 +18,7 @@ import io.gomk.framework.utils.parsefile.ParseFile;
 import io.gomk.mapper.GTbQuoteExtractMapper;
 import io.gomk.model.GTbQuoteExtract;
 import io.gomk.service.IGTbQuoteExtractService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -27,6 +28,7 @@ import io.gomk.service.IGTbQuoteExtractService;
  * @author Robinxiao
  * @since 2019-11-10
  */
+@Slf4j
 @Service
 @DS("oneself")
 public class GTbQuoteExtractServiceImpl extends ServiceImpl<GTbQuoteExtractMapper, GTbQuoteExtract> implements IGTbQuoteExtractService {
@@ -38,6 +40,7 @@ public class GTbQuoteExtractServiceImpl extends ServiceImpl<GTbQuoteExtractMappe
 	@Transactional
 	public void insertPrice(ByteArrayInputStream byteArrayInputStream, GTbQuoteExtract qe) throws IOException {
 		List<LinkedHashMap<Integer, String>> list = parseFile.parsePdfTable(byteArrayInputStream);
+		log.info("存储分项报价。。。" +list.size());
 		for (LinkedHashMap<Integer, String> map : list) {
 			GTbQuoteExtract tbqe =  new GTbQuoteExtract();
 			BeanUtils.copyProperties(qe, tbqe);

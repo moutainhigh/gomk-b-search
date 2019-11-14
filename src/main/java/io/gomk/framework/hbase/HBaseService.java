@@ -361,14 +361,16 @@ public class HBaseService {
 		try {
 			table = getTable(tableName);
 			Result hTableResult = table.get(get);
-		//	System.out.println("表获取成功" + hTableResult.toString());
+			System.out.println("get table size:" + hTableResult.size());
 
 			NavigableMap<byte[], byte[]> familyMap = hTableResult.getFamilyMap("a".getBytes());
-			System.out.println("文件获取完成： " + familyMap.keySet().size());
-			for (byte[] bytes : familyMap.keySet()) {
-				byte[] bytes1 = bd.decodeBuffer(new String(familyMap.get(bytes)));
-				InputStream input = new ByteArrayInputStream(bytes1);
-				return input;
+			if (familyMap != null) {
+				System.out.println("file get finish： " + familyMap.keySet().size());
+				for (byte[] bytes : familyMap.keySet()) {
+					byte[] bytes1 = bd.decodeBuffer(new String(familyMap.get(bytes)));
+					InputStream input = new ByteArrayInputStream(bytes1);
+					return input;
+				}
 			}
 			table.close();
 		} catch (IOException e) {

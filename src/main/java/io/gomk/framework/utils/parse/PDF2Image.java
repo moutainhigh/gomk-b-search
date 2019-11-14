@@ -1,11 +1,15 @@
 package io.gomk.framework.utils.parse;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import org.apache.tinkerpop.shaded.minlog.Log;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
@@ -58,14 +62,24 @@ public class PDF2Image {
     }
     
  // 获取PDF文本内容和图片及坐标
-    public static void getImage(InputStream src, String target, int start, int end) throws IOException, DocumentException {
+    public static void getImage(InputStream src, String target, int start, int end) throws IOException {
         PdfReader reader = new PdfReader(src);
         PdfReaderContentParser parser = new PdfReaderContentParser(reader);
         // 新建一个TestRenderListener对象，该对象实现了RenderListener接口，作为处理PDF的主要类
         HlhTextRenderListener listener = new HlhTextRenderListener();
         // 解析PDF，并处理里面的文字
         for (int i = start; i <= end; i++) {
-            parser.processContent(i, listener);
+            try {
+				parser.processContent(i, listener);
+			} catch (NullPointerException e) {
+				Log.error("error :  pdf2img1" + e.getMessage());
+				break;
+				//e.printStackTrace();
+			} catch (IOException e) {
+				Log.error("error :  pdf2img2" + e.getMessage());
+				break;
+				//e.printStackTrace();
+			}
             List<byte[]> arraysByte = listener.arraysByte;
             // 图片
             for (int j = 0; j < arraysByte.size(); j++) {
@@ -85,9 +99,12 @@ public class PDF2Image {
     		f.mkdir();
     	}
     	File pdf = new File(filePath);
-    	 int page = ParseFile.getPageIdCardContent(new FileInputStream(pdf));
+    	getImage(new FileInputStream(pdf), targetDir, 176, 177);
+    	
+    	
+    	// int page = ParseFile.getPageIdCardContent(new FileInputStream(pdf));
        // parse(filePath, targetDir);
-    	 getImage(new FileInputStream(pdf), targetDir, page, page+1);
+    	// getImage(new FileInputStream(pdf), targetDir, page, page+1);
     }
 
 }

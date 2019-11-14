@@ -413,7 +413,7 @@ public class SearchService extends EsBaseService implements ISearchService {
 	@Override
 	public PageResult<Page<List<NumberVO>>> getBdw(int page, int pageSize, String keyWord) throws IOException {
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		QueryBuilder queryBuilder = QueryBuilders.matchQuery("words", keyWord);
+		QueryBuilder queryBuilder = QueryBuilders.matchQuery("words", keyWord).analyzer(analyzer);;
 		sourceBuilder.query(queryBuilder);
 		sourceBuilder.from((page-1)*pageSize); 
         sourceBuilder.size(pageSize); 

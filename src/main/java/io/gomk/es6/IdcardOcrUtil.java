@@ -3,6 +3,7 @@ package io.gomk.es6;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,8 @@ public class IdcardOcrUtil {
 	protected String idcardToolpath;
 	
 
-	public void insertIdcardInfo(ByteArrayInputStream in1, ByteArrayInputStream in2, GTbIdcardExtract entity) throws IOException, DocumentException {
+	public void insertIdcardInfo(ByteArrayInputStream in1, ByteArrayInputStream in2, GTbIdcardExtract entity) throws IOException  {
+		log.info("解析身份证信息.");
 		String targetDir = "/tmp/idcard-img/";
 		File dir = new File(targetDir);
 		if (!dir.exists()) {
@@ -60,7 +62,7 @@ public class IdcardOcrUtil {
 
 			// 用HttpEntity封装整个请求报文
 			HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers);
-
+try {
 			// 调用接口即可
 			JSONObject json = restTemplate.postForEntity(idcardToolpath, files, JSONObject.class)
 					.getBody();
@@ -70,6 +72,10 @@ public class IdcardOcrUtil {
 				entity.setIdcardNumber(json.getString("idnum"));
 				idcardExtractMapper.insert(entity);
 			}
+			
+}catch (Exception e) {
+	log.error("error.." + e.getMessage()) ;
+}
 		}
 		ZipAndRarTools.delDir(targetDir);
 	}

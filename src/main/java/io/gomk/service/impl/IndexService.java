@@ -22,7 +22,7 @@ import io.gomk.common.rs.response.ResponseData;
 import io.gomk.es6.ESClientFactory;
 import io.gomk.es6.EsUtil;
 import io.gomk.framework.utils.parse.ImportFile;
-import io.gomk.mapper.OneselfMapper;
+import io.gomk.mapper.MasterDBMapper;
 import io.gomk.service.IIndexService;
 import io.gomk.task.ESInfoBean;
 
@@ -31,7 +31,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 	@Autowired
 	EsUtil esUtil;
 	@Autowired
-	OneselfMapper slefMapper;
+	MasterDBMapper masterMapper;
 	
 	public String mapping = "  {\n" +
             "    \"_doc\": {\n" +
@@ -347,7 +347,7 @@ public class IndexService extends EsBaseService implements IIndexService {
 
 	@Override
 	public ResponseData<String> BulkCompletionDoc() throws IOException {
-		List<String> list = slefMapper.selectCompletion();
+		List<String> list = masterMapper.selectCompletion();
 		List<Map<String, Object>> sourceList = new ArrayList<>();
 		list.forEach(s -> {
 			Map<String, Object> map = new HashMap<>();

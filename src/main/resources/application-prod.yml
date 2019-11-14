@@ -6,7 +6,7 @@ cookie:
   
 util:
   idcardtool:
-    path: localhost:8080
+    path: http://127.0.0.1:10011
     
 elasticsearch:
   #ip: 39.105.192.98:29200
