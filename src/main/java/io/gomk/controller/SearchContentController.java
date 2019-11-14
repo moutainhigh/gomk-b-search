@@ -82,6 +82,8 @@ public class SearchContentController extends SuperController {
 	private ShzjProductpriceNewService productpriceNewService;
 	@Autowired
 	private TGTbQuoteExtractService extractService;
+	@Autowired
+	private IGxTPriceListService iGxTPriceListService;
 	
 	@ApiOperation("根据关键字得到查询结果中的所有top10标签")
 	@ApiImplicitParams({
@@ -408,7 +410,7 @@ public class SearchContentController extends SuperController {
 		// 当前页码，每页条数
 		Page<Map<String,String>> pageParam = new Page<>(page, pageSize);
 
-		IPage<Map<String,String>> pageResult = supplService.queryQuote(pageParam,keyWord);
+		IPage<Map<String,String>> pageResult = iGxTPriceListService.queryQuote(pageParam,keyWord);
 		return  ResponseData.success(pageResult);
 	}
 	@ApiOperation("行项目报价-中标价格-折线图")
@@ -416,7 +418,7 @@ public class SearchContentController extends SuperController {
 	public ResponseData<List<Map<String,Object>>> selectPriceCharts( String mateName) throws Exception {
 		// 当前页码，每页条数
 
-		return  ResponseData.success(supplService.selectPriceCharts(mateName));
+		return  ResponseData.success(iGxTPriceListService.selectPriceCharts(mateName));
 	}
 
 	@ApiOperation("材价网-价格")

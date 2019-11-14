@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.gomk.mapper.IGxTPriceListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="io.gomk.model.entity.IGxTPriceList">
+        <result column="DATA_GUID" property="dataGuid" />
+        <result column="DATA_SOURCE" property="dataSource" />
+        <result column="HDIBATCHNO" property="hdibatchno" />
+        <result column="ETL_TIME" property="etlTime" />
+        <result column="ETL_TIME1" property="etlTime1" />
+        <result column="BEGIN_DATE" property="beginDate" />
+        <result column="END_DATE" property="endDate" />
+        <result column="VAILD_FLAG" property="vaildFlag" />
+        <result column="PROJECTBH" property="projectbh" />
+        <result column="BIAODUANBH" property="biaoduanbh" />
+        <result column="KAIBIAODATE" property="kaibiaodate" />
+        <result column="ORDERNUM" property="ordernum" />
+        <result column="VENDORBH" property="vendorbh" />
+        <result column="VENDORNAME" property="vendorname" />
+        <result column="ITEM_GWC" property="itemGwc" />
+        <result column="ITEM_SXH" property="itemSxh" />
+        <result column="ITEM_WLBH" property="itemWlbh" />
+        <result column="ITEM_WLMC" property="itemWlmc" />
+        <result column="ITEM_LBBH" property="itemLbbh" />
+        <result column="ITEM_LBMC" property="itemLbmc" />
+        <result column="ITEM_DW" property="itemDw" />
+        <result column="ITEM_YSDJ" property="itemYsdj" />
+        <result column="ITEM_YSZE" property="itemYsze" />
+        <result column="ITEM_BZ" property="itemBz" />
+        <result column="ITEM_CGCL" property="itemCgcl" />
+        <result column="ITEM_NBZS" property="itemNbzs" />
+        <result column="ITEM_XQDW" property="itemXqdw" />
+        <result column="ITEM_TBDW" property="itemTbdw" />
+        <result column="ITEM_GCJK" property="itemGcjk" />
+        <result column="TOUBIAOBAOJIA" property="toubiaobaojia" />
+        <result column="TIJIAOSHULIANG" property="tijiaoshuliang" />
+        <result column="ITEM_JHQXY" property="itemJhqxy" />
+        <result column="ITEM_HTQDHTS" property="itemHtqdhts" />
+        <result column="ITEM_DJ1" property="itemDj1" />
+        <result column="ITEM_BZ1" property="itemBz1" />
+        <result column="ITEM_HL1" property="itemHl1" />
+        <result column="ITEM_JGTJ1" property="itemJgtj1" />
+        <result column="ITEM_DJ2" property="itemDj2" />
+        <result column="ITEM_BZ2" property="itemBz2" />
+        <result column="ITEM_HL2" property="itemHl2" />
+        <result column="ITEM_JGTJ2" property="itemJgtj2" />
+        <result column="ITEM_DJ3" property="itemDj3" />
+        <result column="ITEM_BZ3" property="itemBz3" />
+        <result column="ITEM_HL3" property="itemHl3" />
+        <result column="ITEM_JGTJ3" property="itemJgtj3" />
+        <result column="JIAOHUOADDRESSXY" property="jiaohuoaddressxy" />
+        <result column="SFHANSHUI" property="sfhanshui" />
+        <result column="SHUILV" property="shuilv" />
+        <result column="DATAFROM" property="datafrom" />
+        <result column="ID" property="id" />
+        <result column="UPDATETIME" property="updatetime" />
+        <result column="SRM_PR" property="srmPr" />
+        <result column="SRM_PR_ITEM" property="srmPrItem" />
+    </resultMap>
+
+    <select id="queryQuote" parameterType="java.lang.String" resultType="java.util.Map">
+    select distinct
+        DATE_FORMAT(t.kaibiaodate,'%Y-%m-%d') as date_time,t2.prj_code,t2.prj_name,t1.pkg_code,t1.pkg_win_bid_amt,
+        t.item_wlbh as mate_code,substring_index(t.item_wlmc , '\\', 1)  as mate_name,
+        SUBSTRING(substring_index(t.item_wlmc , substring_index(t.item_wlmc , '\\', 1),-1),2)  as specification,
+        t.toubiaobaojia as price,t.tijiaoshuliang as qty,t4.danweiname
+        from I_GX_T_PRICE_LIST t
+        inner join D_ZB_PKG  t1 on t1.pkg_code=t.biaoduanbh
+        inner join D_ZB_PRJ t2 on t2.prj_code=t1.prj_code
+        left join F_ZB_SEL_BID_DETAIL t3 on t3.pkg_code=t.biaoduanbh
+        left join D_ZB_SUPPL t4 on t4.suppl_document_code = t3.document_code
+		where substring_index(t.item_wlmc , '\\', 1) = #{mateName}
+		order by t.kaibiaodate desc
+    </select>
+    <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
+        select distinct
+		DATE_FORMAT(t.kaibiaodate,'%Y-%m-%d') as date_time,AVG(t.toubiaobaojia)  price
+        from I_GX_T_PRICE_LIST t
+        where substring_index(t.item_wlmc , '\\', 1)= #{mateName}
+        and t.toubiaobaojia is not null
+        group by t.kaibiaodate
+        order by  t.kaibiaodate
+    </select>
+
+</mapper>

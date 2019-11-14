@@ -65,22 +65,25 @@
     </select>
     <!--标的物名称查询-->
     <select id="matename" parameterType="java.lang.String" resultType="java.lang.String">
-      select distinct mate_name from I_ZB_LINE_PRJ_SUPPL where mate_name = #{metaName}
+       select distinct substring_index(item_wlmc , '\\', 1) as mate_name
+       from I_GX_T_PRICE_LIST
+       where substring_index(item_wlmc , '\\', 1)  = #{metaName}
     </select>
     <!--基于标的物查询属于那个标段-->
     <select id="pkgname" parameterType="java.lang.String" resultType="java.util.Map">
-        select distinct
+    select distinct
          t.pkg_code,t.pkg_name
          from D_ZB_PKG t
-        inner join I_ZB_LINE_PRJ_SUPPL t1 on t1.pkg_code=t.pkg_code
-        where  t1.mate_name = #{metaName}
+        inner join I_GX_T_PRICE_LIST t1 on t1.biaoduanbh=t.pkg_code
+        where  substring_index(t1.item_wlmc , '\\', 1)  =  #{metaName}
     </select>
     <!--出现的项目-->
     <select id="prjname" parameterType="java.lang.String" resultType="java.util.Map">
-        select distinct t.prj_code,t.prj_name from D_ZB_PRJ t
+        select distinct t.prj_code,t.prj_name
+        from D_ZB_PRJ t
         inner join D_ZB_PKG t1 on t1.prj_code=t.prj_code
-        inner join I_ZB_LINE_PRJ_SUPPL t2 on t2.pkg_code=t1.pkg_code
-        where t2.mate_name = #{metaName}
+        inner join I_GX_T_PRICE_LIST t2 on t2.biaoduanbh=t1.pkg_code
+        where substring_index(t2.item_wlmc , '\\', 1)  = #{metaName}
     </select>
     <!--出现的投标人-->
     <select id="documentname" parameterType="java.lang.String" resultType="java.util.Map">
@@ -88,15 +91,17 @@
     </select>
     <!--出现的价格-->
     <select id="price" parameterType="java.lang.String" resultType="java.util.Map">
-      select distinct price from I_ZB_LINE_PRJ_SUPPL where  if_win_bid='1' and mate_name=#{metaName} and price is not null
+       select distinct TOUBIAOBAOJIA as price from I_GX_T_PRICE_LIST where
+               substring_index(item_wlmc , '\\', 1)  = #{metaName}
+                and TOUBIAOBAOJIA is not null
     </select>
     <!--招标人-->
     <select id="custname" parameterType="java.lang.String" resultType="java.util.Map">
-        select distinct t.cust_name
+      select distinct t.cust_name
         from D_ZB_PRJ t
         inner join D_ZB_PKG t1 on t1.prj_code=t.prj_code
-        inner join I_ZB_LINE_PRJ_SUPPL t2 on t2.pkg_code=t1.pkg_code
-        where t2.mate_name=#{metaName}
+        inner join I_GX_T_PRICE_LIST t2 on t2.biaoduanbh=t1.pkg_code
+        where substring_index(t2.item_wlmc , '\\', 1)  = #{metaName}
     </select>
     <select id="biddingProject" parameterType="java.lang.String" resultType="java.util.Map">
         SELECT
