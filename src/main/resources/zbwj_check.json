@@ -66,10 +66,4 @@
   "result": "",
   "scope": "ALL",
   "subcontext": "踏勘地址"
-}, {
-  "name": "保证金金额",
-  "type": "ALL",
-  "calculate": "CONTAIN",
-  "result": "",
-  "scope": "ALL"
 }]

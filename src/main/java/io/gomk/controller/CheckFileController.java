@@ -7,6 +7,7 @@ import io.gomk.common.utils.ReflectUtil;
 import io.gomk.controller.request.CheckVO;
 import io.gomk.enums.CheckScopeEnum;
 import io.gomk.enums.CheckTypeEnum;
+import io.gomk.enums.FileTypeEnum;
 import io.gomk.model.entity.DPrjManufacturCost;
 import io.gomk.model.entity.DZbPkg;
 import io.gomk.model.entity.DZbPrj;
@@ -31,8 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -63,10 +66,14 @@ public class CheckFileController {
 
     @PostMapping("/zbwjcheck")
     @ApiOperation(value = "招标文件自检",notes = "招标文件自检")
-    public ResponseData checkResult(@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
-                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") String fileType,
-                                    @ApiParam(name="type",value = "文件类型：工程类传2：其他传1",defaultValue = "1" ,required = true) @RequestParam("type") String type,
-                                    @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode){
+    public ResponseData checkResult(@ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
+                                    @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
+                                    @ApiParam(name="pkgCodes",value = "标段包编号,以英文,分割",required = false) @RequestParam(name = "pkgCodes",required = false) String pkgCodes,
+                                    @ApiParam(name="pkgNames",value = "标段包名称,以英文,分割",required = false) @RequestParam(name = "pkgNames",required = false) String pkgNames,
+                                    @ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
+                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
+                                    @ApiParam(name="type",value = "文件类型：工程类传2：其他传1",defaultValue = "1" ,required = true) @RequestParam("type") String type
+                                    ){
         ResponseData responseData = new ResponseData();
         List<String> result = new ArrayList<>();
 
@@ -75,12 +82,10 @@ public class CheckFileController {
             responseData.setMessage("please upload file");
             return responseData;
         }
-        DZbPrj prj = idZbPrjService.getPrjByPrjCode(prjCode);
-        if(prj == null){
-            responseData.setSuccess(false);
-            responseData.setMessage("项目不存在");
-            return responseData;
-        }
+        DZbPrj prj = new DZbPrj();
+        prj.setPrjCode(prjCode);
+        prj.setPrjName(prjName);
+
         String areaData = null;
         try {
             areaData = IOUtils.toString(areaRes.getInputStream(), Charset.forName("UTF-8"));
@@ -93,14 +98,19 @@ public class CheckFileController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if ("docx".equals(fileType)) {
+        if ("docx".equals(fileType.name())) {
             try {
                 List<String> contexts = getDocxContent(file);
                 for(String text : contexts){
                     checkText(prj,checkVOs, contexts,text);
                 }
-                checkZDBBH(prjCode,contexts,result);
-                checkZDB(prjCode,contexts,result);
+                if(StringUtils.isNotBlank(pkgCodes)) {
+                    checkZDBBH(prjCode, contexts, result, Arrays.asList(pkgCodes.split(",")));
+                }
+                if(StringUtils.isNotBlank(pkgNames)){
+                    checkZDB(prjCode,contexts,result, Arrays.asList(pkgNames.split(",")));
+                }
+
             } catch(IOException e){
                 responseData.setSuccess(false);
                 e.printStackTrace();
@@ -111,8 +121,12 @@ public class CheckFileController {
                 for(String text : resultList){
                     checkText(prj, checkVOs, resultList, text);
                 }
-                checkZDBBH(prjCode,resultList,result);
-                checkZDB(prjCode,resultList,result);
+                if(StringUtils.isNotEmpty(pkgCodes)) {
+                    checkZDBBH(prjCode, resultList, result, Arrays.asList(pkgCodes.split(",")));
+                }
+                if(StringUtils.isNotEmpty(pkgNames)) {
+                    checkZDB(prjCode, resultList, result, Arrays.asList(pkgNames.split(",")));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -143,8 +157,11 @@ public class CheckFileController {
     @PostMapping("/pbbgcheck")
     @ApiOperation(value = "评标报告自检",notes = "评标报告自检")
     public ResponseData checkResult(@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
-                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") String fileType,
-                                    @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode){
+                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
+                                    @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
+                                    @ApiParam(name="custName",value = "委托人信息",required = true) @RequestParam("custName") String custName,
+                                    @ApiParam(name="purchasingStrategy",value = "招标方式",required = true) @RequestParam("purchasingStrategy") String purchasingStrategy
+                                    ){
         ResponseData responseData = new ResponseData();
         List<String> result = new ArrayList<>();
         if(file.isEmpty()){
@@ -152,7 +169,10 @@ public class CheckFileController {
             responseData.setMessage("please upload file");
             return responseData;
         }
-        DZbPrj prj = idZbPrjService.getPrjByPrjCode(prjCode);
+        DZbPrj prj = new DZbPrj();
+        prj.setPrjCode(prjCode);
+        prj.setCustName(custName);
+        prj.setPurchasingStrategy(purchasingStrategy);
         if(prj == null){
             responseData.setSuccess(false);
             responseData.setMessage("项目不存在");
@@ -300,15 +320,23 @@ public class CheckFileController {
     public ResponseData checkResult(@ApiParam(name="file1",value = "封面、签署页（控制价审核）文件",required = true) @RequestParam("file1") MultipartFile file1,
                                     @ApiParam(name="file2",value = "目录（控制价审核）文件",required = true) @RequestParam("file2") MultipartFile file2,
                                     @ApiParam(name="file3",value = "审核说明（控制价审核）文件",required = true) @RequestParam("file3") MultipartFile file3,
-                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") String fileType,
-                                    @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode) {
+                                    @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
+                                    @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
+                                    @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
+                                    @ApiParam(name="contractCode",value = "成果编号",required = true) @RequestParam("contractCode") String contractCode,
+                                    @ApiParam(name="reportAmt",value = "估概预结中送审值",required = true) @RequestParam("reportAmt") double reportAmt
+                                    ) {
         ResponseData responseData = new ResponseData();
-        DPrjManufacturCost prj = idPrjManufacturCostService.getPrjCostByPrjCode(prjCode);
-        if(prj == null){
-            responseData.setSuccess(false);
-            responseData.setMessage("造价成果数据不存在");
-            return responseData;
-        }
+        DPrjManufacturCost prj = new DPrjManufacturCost();//idPrjManufacturCostService.getPrjCostByPrjCode(prjCode);
+        prj.setPrjCode(prjCode);
+        prj.setPrjName(prjName);
+        prj.setContractCode(contractCode);
+        prj.setReportAmt(BigDecimal.valueOf(reportAmt));
+//        if(prj == null){
+//            responseData.setSuccess(false);
+//            responseData.setMessage("造价成果数据不存在");
+//            return responseData;
+//        }
         List<String> result = new ArrayList<>();
         String pbbgDate = null;
         try {
@@ -322,7 +350,7 @@ public class CheckFileController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if ("docx".equals(fileType)) {
+        if ("docx".equals(fileType.toString())) {
             try {
                 List<String> contexts = getDocxContent(file1);
                 for(String text : contexts){
@@ -394,8 +422,14 @@ public class CheckFileController {
     }
 
 
-    private void checkZDBBH(String prjCode,List<String> contents,List<String> results){
-        List<DZbPkg> pkgs = dZbPkgService.findPkg(prjCode);
+    private void checkZDBBH(String prjCode, List<String> contents, List<String> results, List<String> pkgCodes){
+
+        List<DZbPkg> pkgs = new ArrayList<>();
+        for(String pkgCode : pkgCodes){
+            DZbPkg pkg = new DZbPkg();
+            pkg.setPkgCode(pkgCode);
+            pkgs.add(pkg);
+        }
         pkgs.forEach(dZbPkg -> {
             contents.forEach(content -> {
                 if(content.contains(dZbPkg.getPkgCode())){
@@ -409,8 +443,13 @@ public class CheckFileController {
         });
     }
 
-    private void checkZDB(String prjCode,List<String> contents,List<String> results){
-        List<DZbPkg> pkgs = dZbPkgService.findPkg(prjCode);
+    private void checkZDB(String prjCode, List<String> contents, List<String> results, List<String> pkgNames){
+        List<DZbPkg> pkgs = new ArrayList<>();
+        for(String pkgCode : pkgNames){
+            DZbPkg pkg = new DZbPkg();
+            pkg.setPkgName(pkgCode);
+            pkgs.add(pkg);
+        }
         pkgs.forEach(dZbPkg -> {
             contents.forEach(content -> {
                 if(content.contains(dZbPkg.getPkgName())){
@@ -519,7 +558,7 @@ public class CheckFileController {
                             checkVO.getPatterns().forEach(pattern -> {
                                 Matcher matcher = ConverCompile(t, pattern);
                                 System.out.println(t);
-                                boolean b = matcher.matches();
+                                boolean b = matcher.find();
                                 if (b) {
                                     checkVO.setResult(String.valueOf(b));
                                 }
@@ -555,6 +594,9 @@ public class CheckFileController {
 
                     }
                 }
+            }
+            if(CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
+
             }
         });
     }
