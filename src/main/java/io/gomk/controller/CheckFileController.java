@@ -325,6 +325,7 @@ public class CheckFileController {
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
                                     @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
                                     @ApiParam(name="contractCode",value = "成果编号",required = false) @RequestParam(name = "contractCode", required = false) String contractCode,
+                                    @ApiParam(name="dateTime",value = "封面日期,格式：yyyy年MM月dd日",required = true)@RequestParam("dateTime") String dateTime,
                                     @ApiParam(name="reportAmt",value = "估概预结中送审值",required = true) @RequestParam("reportAmt") double reportAmt
                                     ) {
         ResponseData responseData = new ResponseData();
@@ -333,6 +334,7 @@ public class CheckFileController {
         prj.setPrjName(prjName);
         prj.setContractCode(contractCode);
         prj.setReportAmt(BigDecimal.valueOf(reportAmt));
+        prj.setDateTime(dateTime);
 //        if(prj == null){
 //            responseData.setSuccess(false);
 //            responseData.setMessage("造价成果数据不存在");
