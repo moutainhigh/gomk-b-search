@@ -159,6 +159,7 @@ public class CheckFileController {
     public ResponseData checkResult(@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
                                     @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
+                                    @ApiParam(name="startDate",value = "开标日期,格式：yyyy年MM月dd日",required = true)@RequestParam("startDate") String startDate,
                                     @ApiParam(name="custName",value = "委托人信息",required = true) @RequestParam("custName") String custName,
                                     @ApiParam(name="purchasingStrategy",value = "招标方式",required = true) @RequestParam("purchasingStrategy") String purchasingStrategy
                                     ){
@@ -323,7 +324,7 @@ public class CheckFileController {
                                     @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
                                     @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
-                                    @ApiParam(name="contractCode",value = "成果编号",required = true) @RequestParam("contractCode") String contractCode,
+                                    @ApiParam(name="contractCode",value = "成果编号",required = false) @RequestParam(name = "contractCode", required = false) String contractCode,
                                     @ApiParam(name="reportAmt",value = "估概预结中送审值",required = true) @RequestParam("reportAmt") double reportAmt
                                     ) {
         ResponseData responseData = new ResponseData();
