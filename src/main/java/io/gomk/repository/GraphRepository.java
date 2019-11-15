@@ -30,7 +30,7 @@ public interface GraphRepository extends JpaRepository<SupplyDO, String>, JpaSpe
      * @param pageable
      * @return
      */
-    @Query(value = "SELECT distinct substring_index(item_wlmc , '\\\\', 1) AS metaName FROM I_GX_T_PRICE_LIST",
+    @Query(value = "SELECT distinct substring_index(item_wlmc , '\\\\', 1) AS metaName FROM I_GX_T_PRICE_LIST order by metaName ",
             nativeQuery = true)
     Page<TargetProjection> queryAllTarget(Pageable pageable);
 
