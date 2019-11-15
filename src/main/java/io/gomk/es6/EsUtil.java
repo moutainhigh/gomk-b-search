@@ -321,7 +321,7 @@ public class EsUtil {
 	 * @param i 1招标 2投标 3造价
 	 */
 	public void parseAndSaveEs(int type) {
-
+		int ss = 0;
 		String timeSign = "";
 		while (true) {
 //			//查询已索引时间戳
@@ -356,12 +356,12 @@ public class EsUtil {
 			log.info("===size====" + list.size());
 			if (list.size() == 0)
 				break;
-			
+			if (Integer.parseInt(numberSign) > 1000) break; 
 			// 1. 下载文件 分页查询未处理的纪录
 			for (DBInfoBean bean : list) {
 				// db2esMapper.insertFileSign(bean.getUuid());
 				Integer k = Integer.parseInt(numberSign) + 1;
-				db2esMapper.updateSign(numberSign, k);
+				db2esMapper.updateSign(k + "", type);
 				
 				// timeSign = bean.getSTOREDATETIME();
 				log.info(bean.getUuid() + "==========wjtm=======" + bean.getWjtm());

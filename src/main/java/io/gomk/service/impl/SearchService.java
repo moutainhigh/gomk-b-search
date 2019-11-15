@@ -351,6 +351,9 @@ public class SearchService extends EsBaseService implements ISearchService {
                 new HighlightBuilder.Field("words"); 
         highlightTitle.highlighterType("unified");  
         highlightBuilder.field(highlightTitle);  
+        highlightBuilder.requireFieldMatch(false);
+        highlightBuilder.preTags("<span style=\"color:red\"><b>");
+        highlightBuilder.postTags("</b></span>");
         sourceBuilder.highlighter(highlightBuilder);
         
         //3、发送请求        
@@ -373,7 +376,7 @@ public class SearchService extends EsBaseService implements ISearchService {
             //取_source字段值
             //String sourceAsString = hit.getSourceAsString(); //取成json串
             Map<String, Object> sourceAsMap = hit.getSourceAsMap(); // 取成map对象
-            result.add(sourceAsMap.get("words").toString());
+            //result.add(sourceAsMap.get("words").toString());
             //从map中取字段值
             /*
             String documentTitle = (String) sourceAsMap.get("title"); 
@@ -383,16 +386,16 @@ public class SearchService extends EsBaseService implements ISearchService {
             logger.info("index:" + index + "  type:" + type + "  id:" + id);
          //   logger.info(sourceAsString);
             
-//            //取高亮结果
-//            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-//            HighlightField highlight1 = highlightFields.get("words");
-//            if (highlight1 != null) {
-//            	Text[] fragments1 = highlight1.fragments();  
-//            	fragmentString = fragments1[0].string();
-//            	logger.info("fragments1 size:" + fragments1.length);
-//            	logger.info("fragmentString1:" + fragmentString);
-//            	result.add(fragmentString);
-//            }
+            //取高亮结果
+            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+            HighlightField highlight1 = highlightFields.get("words");
+            if (highlight1 != null) {
+            	Text[] fragments1 = highlight1.fragments();  
+            	fragmentString = fragments1[0].string();
+            	logger.info("fragments1 size:" + fragments1.length);
+            	logger.info("fragmentString1:" + fragmentString);
+            	result.add(fragmentString);
+            }
         
         }
         

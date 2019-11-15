@@ -24,7 +24,7 @@ elasticsearch:
     completionName: index_completion_test #搜索补全
   shards: 2
   replicas: 1
-  analyzer: hanlp
+  analyzer: ik_smart
   
     
 mybatis-plus:
