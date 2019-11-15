@@ -388,7 +388,7 @@ public class ParseFile {
 //        File file1 = new File("/Users/baibing6/Desktop/2018.doc");
       //   File file1 = new File("/Users/baibing6/Desktop/file/招标文件正文.pdf");
 //        File file1 = new File("/Users/baibing6/Desktop/file/tb5.pdf");
-        File file1 = new File("/Users/vko/Documents/my-code/testPDF/招标文件正文.pdf");
+        File file1 = new File("/Users/vko/Documents/my-code/testDOC/气化炉砖-招标文件-CSIEZB160400524.doc");
       // File file1 = new File("/Users/baibing6/Desktop/file/pdf/第二批电缆采购投标文件—5.pdf");
         try (
              InputStream in1 = new FileInputStream(file1);
