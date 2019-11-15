@@ -117,8 +117,8 @@ public class GraphService implements GraphConstant {
     public void insertData() {
         prepareJanusGraphBean();
         Integer pageNum = 0;
-        Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize));
-//                Sort.by(Sort.Direction.DESC, "id")));
+        Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize,
+                Sort.by(Sort.Direction.DESC, "metaName")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
             dealTarget(targetProjectionPage);
             pageNum++;
@@ -131,8 +131,8 @@ public class GraphService implements GraphConstant {
     public void insertData(LocalDate localDate) {
         prepareJanusGraphBean();
         Integer pageNum = 0;
-        Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize));
-//                Sort.by(Sort.Direction.DESC, "id")));
+        Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize,
+                Sort.by(Sort.Direction.DESC, "metaName")));
         while (targetProjectionPage.getNumberOfElements() > 0) {
             dealTarget(targetProjectionPage);
             pageNum++;
