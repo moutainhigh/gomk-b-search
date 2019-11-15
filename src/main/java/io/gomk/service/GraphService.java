@@ -48,8 +48,10 @@ public class GraphService implements GraphConstant {
     private static final int pageSize = 1000;
 
     private void prepareJanusGraphBean(){
-        graph = (JanusGraph) context.getBean("janusGraph");
-        graph.tx().commit();
+    	if (graph == null) {
+    		graph = (JanusGraph) context.getBean("janusGraph");
+    		graph.tx().commit();
+    	}
     }
 
     public TargetMapDTO queryTargetMap(String targetName) {
