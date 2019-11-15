@@ -336,15 +336,16 @@ public class EsUtil {
 
 			List<DBInfoBean> list = new ArrayList<>();
 			String numberSign = db2esMapper.selectSign(type);
+			Integer kkk = Integer.parseInt(numberSign);
 			switch (type) {
 			case 1:
-				list = masterDBMapper.getDBInfoByNumber1(Integer.parseInt(numberSign));
+				list = masterDBMapper.getDBInfoByNumber1(kkk);
 				break;
 			case 2:
-				list = masterDBMapper.getDBInfoByNumber2(Integer.parseInt(numberSign));
+				list = masterDBMapper.getDBInfoByNumber2(kkk);
 				break;
 			case 3:
-				list = masterDBMapper.getDBInfoByNumber3(Integer.parseInt(numberSign));
+				list = masterDBMapper.getDBInfoByNumber3(kkk);
 				break;
 
 			default:
@@ -356,12 +357,12 @@ public class EsUtil {
 			log.info("===size====" + list.size());
 			if (list.size() == 0)
 				break;
-			if (Integer.parseInt(numberSign) > 1000) break; 
+			//if (kkk > 1000) break; 
 			// 1. 下载文件 分页查询未处理的纪录
 			for (DBInfoBean bean : list) {
 				// db2esMapper.insertFileSign(bean.getUuid());
-				Integer k = Integer.parseInt(numberSign) + 1;
-				db2esMapper.updateSign(k + "", type);
+				++kkk;
+				db2esMapper.updateSign(kkk + "", type);
 				
 				// timeSign = bean.getSTOREDATETIME();
 				log.info(bean.getUuid() + "==========wjtm=======" + bean.getWjtm());
@@ -456,6 +457,10 @@ public class EsUtil {
 		String storeType = bean.getStoreType();
 		String storeUrl = bean.getStoreUrl();
 		String ext = bean.getExt();
+		if (!ext.contains("pdf") && !ext.contains("doc")
+				&& !ext.contains("docx") && !ext.contains("zip") && !ext.contains("rar") ){
+			return null;
+		}
 		log.info("===get inputStream====" + storeType);
 		return getInputStreams(storeType, storeUrl, ext);
 	}
@@ -555,6 +560,7 @@ public class EsUtil {
 		// =======存索引-技术要求=========
 		if (StringUtils.isNotBlank(jsyq)) {
 			esBean.setContent(jsyq);
+			log.info("========insert jsyqIndex=======" + esBean.getTitle());
 			saveES(jsyqIndex, esBean);
 		}
 	}

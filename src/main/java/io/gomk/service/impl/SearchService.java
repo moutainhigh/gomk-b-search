@@ -96,6 +96,8 @@ public class SearchService extends EsBaseService implements ISearchService {
         			.operator(Operator.AND)
         			.analyzer(analyzer);
         	query.must(matchQueryBuilder);
+        	//query.should(QueryBuilders.matchPhraseQuery(keyWord, "title").slop(1));
+        	//query.should(QueryBuilders.matchPhraseQuery(keyWord, "content").slop(1));
         }
         if (StringUtils.isNotBlank(tag)) {
         	query.must(QueryBuilders.matchPhraseQuery("tag", tag));

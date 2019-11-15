@@ -69,7 +69,9 @@ public class SchedulerService {
 	@Autowired
 	GTagFormulaMapper tagFormulaMapper;
 	
-	
+	/**
+	 * 从数据库中提取内置标签 存入g_tag表
+	 */
 	@Scheduled(cron = "0 0 1 * * ?")
 	//@Scheduled(fixedRate = 111150300)
 	public void insertFixedTag() {
@@ -152,16 +154,22 @@ public class SchedulerService {
 			fa.setFValue(masterTag);
 			fa.setTagId(entity.getId());
 			tagFormulaMapper.insert(fa);
+			
+//			GTagClassifyScope scope = new GTagClassifyScope();
+//			scope.setClassifyId(entity.getClassifyId());
+//			scope.setScopes(scopes);
 		}
 	}
 	
 	@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
 		esUtil.parseAndSaveEs(1);
+		esUtil.parseAndSaveEs(2);
+		esUtil.parseAndSaveEs(3);
 	}
 	
     //晚上1点 执行自动打标签
-	@Scheduled(cron = "0 0 1 * * ?")
+	@Scheduled(cron = "0 0 2 * * ?")
 	//@Scheduled(fixedRate = 111150300)
     public void task1() throws Exception {
 		log.info("定时任务：1点自动给文档打内置标签");
@@ -183,6 +191,7 @@ public class SchedulerService {
         	} else if (tagRule.equals(TagRuleTypeEnum.FORMULA.getValue())) {
         		updateIndexByFixed(query, tag.getId());
         	} else {
+        		//|| tagRule.equals(TagRuleTypeEnum.FIXED.getValue())
         		break;
         	}
 

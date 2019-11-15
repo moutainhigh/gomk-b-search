@@ -69,30 +69,36 @@ public class ZipAndRarTools {
 		}
 		ZipFile zip = new ZipFile(zipFile, Charset.forName("GBK"));
 		for (Enumeration entries = zip.entries(); entries.hasMoreElements();) {
-			ZipEntry entry = (ZipEntry) entries.nextElement();
-			String zipEntryName = entry.getName();
-			System.err.println(zipEntryName);
-			InputStream in = zip.getInputStream(entry);
-			String outPath = (descDir + File.separator + zipEntryName).replaceAll("\\*", "/");
-			System.err.println(outPath);
-			// 判断路径是否存在,不存在则创建文件路径
-			File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
-			if (!file.exists()) {
-				file.mkdirs();
+			try {
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+				
+				String zipEntryName = entry.getName();
+				System.err.println(zipEntryName);
+				InputStream in = zip.getInputStream(entry);
+				String outPath = (descDir + File.separator + zipEntryName).replaceAll("\\*", "/");
+				System.err.println(outPath);
+				// 判断路径是否存在,不存在则创建文件路径
+				File file = new File(outPath.substring(0, outPath.lastIndexOf('/')));
+				if (!file.exists()) {
+					file.mkdirs();
+				}
+				// 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
+				if (new File(outPath).isDirectory()) {
+					continue;
+				}
+				// 输出文件路径信息
+				OutputStream out = new FileOutputStream(outPath);
+				byte[] buf1 = new byte[1024];
+				int len;
+				while ((len = in.read(buf1)) > 0) {
+					out.write(buf1, 0, len);
+				}
+				in.close();
+				out.close();
+			}catch(IllegalArgumentException e) {
+				log.error("error:" +e.getMessage());
+				
 			}
-			// 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压
-			if (new File(outPath).isDirectory()) {
-				continue;
-			}
-			// 输出文件路径信息
-			OutputStream out = new FileOutputStream(outPath);
-			byte[] buf1 = new byte[1024];
-			int len;
-			while ((len = in.read(buf1)) > 0) {
-				out.write(buf1, 0, len);
-			}
-			in.close();
-			out.close();
 		}
 		log.info("文件:{}. 解压路径:{}. 解压完成. 耗时:{}ms. ", zipPath, descDir, System.currentTimeMillis() - start);
 

@@ -4,9 +4,12 @@
 import sys
 import difflib
  # -*- coding: utf-8 -*
+import codecs
+sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+
 def read_file(filename):
     try:
-        with open(filename, 'r') as f:
+        with open(filename, mode='r',encoding='utf-8') as f:
             return f.readlines()
     except IOError:
         print ("ERROR: 没有找到文件:%s或读取文件失败！" % filename)
@@ -20,7 +23,10 @@ def compare_file():
     d = difflib.HtmlDiff(tabsize=4,wrapcolumn=150)
     m = get_equal_rate_1(file1_content, file2_content)
     print (m)
-    print (d.make_table(file1_content, file2_content))
+    ss = d.make_table(file1_content, file2_content)
+   
+    print(ss)
+    #print (d.make_table(file1_content, file2_content))
     #result = d.make_file(file1_content, file2_content)
     #with open(out_file, 'w') as f:
     #   f.writelines(result)

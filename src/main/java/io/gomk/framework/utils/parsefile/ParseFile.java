@@ -409,10 +409,10 @@ public class ParseFile {
 //            List<String> lst = new ParseFile().parseTenderQualification(in1, DOC);
 //            String a0 = new ParseFile().parseTenderScope(in2, DOC);
 //            String a1 = new ParseFile().parseTechnicalRequirement(in3, DOCX);
-//            String a2 = new ParseFile().parseTenderMethod(in4, DOC);
-           // List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
+ //           String a2 = new ParseFile().parseTenderMethod(in4, DOC);
+            List<String> lst = new ParseFile().parseTenderQualification(in1, PDF);
            // String a0 = new ParseFile().parseTenderScope(in2, PDF);
-            String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
+            //String a1 = new ParseFile().parseTechnicalRequirement(in3, PDF);
 //            String a2 = new ParseFile().parseTenderMethod(in4, PDF);
 //            List<LinkedHashMap<Integer, String>> list = new ParseFile().parsePdfTable(in5);
 //            String a = "[['序号', '材料名称', '规格型号', '生产厂家', '数量', '单价', '总价'], ['1', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用聚乙烯绝缘\\n编织屏蔽通讯电\\n缆', 'MHYVR\\n1×4×7/0.43mm', '天津万博', '10000.0', '3.5', '34800.0'], ['', '矿用通信电缆', 'MHYV\\n4×2×7/0.37mm', '天津万博', '5000.0', '5.0', '25200.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×7/0.52mm', '天津万博', '170200.\\n0', '6.8', '1159062.0'], ['', '矿用聚氯乙烯绝\\n缘通信电缆', 'MHYVP\\n1×4×1/1.38mm', '天津万博', '76800.0', '5.9', '453888.0'], ['', '矿用通信软线', 'MHYV\\n10×2×0.75mm\\n10×2×1/0.97m\\nm', '天津万博', '90200.0', '11.0', '989494.0'], ['', '矿用通信软线', 'MHYV\\n5×2×0.75mm\\nMHYV\\n5×2×1/0.97mm', '天津万博', '99000.0', '6.0', '593010.0'], ['', '矿用聚乙烯绝缘\\n铝聚乙烯粘结护\\n层通信电缆', 'MHYAV\\n10×2×0.8mm', '天津万博', '800.0', '11.0', '8808.0'], ['2', '运输至最终目的地运杂费、保险费、卸车费等', '', '', '', '', '0.0'], ['3', '其它', '', '', '', '', '0.0'], ['4', '投标总价\\n3299062.0', '', '', '', '', '']]";
@@ -465,7 +465,8 @@ public class ParseFile {
         String t4 = "以下资格条件";
         for (String s : infos) {
         	if (!s.contains(t1) && !s.contains(t2) && !s.contains(t3) && !s.contains(t4)) {
-        		results.add(s.replaceFirst("^+\\s*\\d+.\\d*", ""));
+        		log.info("资格要求：" + s);
+        		results.add(s.replaceFirst("[^\\u4e00-\\u9fa5a-zA-Z]*", ""));
         	}
         }
 

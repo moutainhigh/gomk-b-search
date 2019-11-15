@@ -17,6 +17,7 @@ import java.util.Base64;
 import org.apache.catalina.startup.ClassLoaderFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.types.CharSet;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -42,15 +43,15 @@ public class RuntimeUtils {
 			FileUtils.copyInputStreamToFile(initialStream, targetFile);
 			log.info("projectPath:" + projectPath);
 			
-			InputStream txt1Stream = new ByteArrayInputStream(str1.getBytes());
-			InputStream txt2Stream = new ByteArrayInputStream(str2.getBytes());
+			InputStream txt1Stream = new ByteArrayInputStream(str1.getBytes("utf-8"));
+			InputStream txt2Stream = new ByteArrayInputStream(str2.getBytes("utf-8"));
 			FileUtils.copyInputStreamToFile(txt1Stream, temp1);
 			FileUtils.copyInputStreamToFile(txt2Stream, temp2);
 		 
 			String[] args1 = new String[] { "python", targetFile.getAbsolutePath(), temp1.getAbsolutePath(), temp2.getAbsolutePath() };
 			Process proc = Runtime.getRuntime().exec(args1);// 执行py文件
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream(), "utf-8"));
 			String line = null;
 			int i = 0;
 			while ((line = in.readLine()) != null) {
@@ -66,7 +67,7 @@ public class RuntimeUtils {
 			}
 			// 获取异常输出流
 
-			BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+			BufferedReader ine = new BufferedReader(new InputStreamReader(proc.getErrorStream(), "utf-8"));
 
 			String linee = null;
 
@@ -84,11 +85,11 @@ public class RuntimeUtils {
 			e.printStackTrace();
 		} finally {
 			temp1.delete();
-			temp1.delete();
+			temp2.delete();
 		}
 		
-		// System.out.println(sb.toString());
-		String encodedText = encoder.encodeToString(sb.toString().getBytes());
+		//log.info("文件比对结果：====" + sb.toString());
+		String encodedText = encoder.encodeToString(sb.toString().getBytes("utf-8"));
 		vo.setContent(encodedText);
 		return vo;
 	}
