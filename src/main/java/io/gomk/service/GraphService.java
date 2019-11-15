@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -116,37 +117,37 @@ public class GraphService implements GraphConstant {
 
     public void insertData() {
         prepareJanusGraphBean();
-        Integer pageNum = 0;
-        Page<TargetProjection> targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize,
-                Sort.by(Sort.Direction.DESC, "metaName")));
-        while (targetProjectionPage.getNumberOfElements() > 0) {
-            dealTarget(targetProjectionPage);
+        Integer from = 0,pageNum=0;
+       List<TargetProjection> targetProjectionList = repository.queryAllTargetNotPage(from, pageSize);
+        while (targetProjectionList!=null && targetProjectionList.size()>0) {
+            dealTarget(targetProjectionList);
+            from += pageSize;
             pageNum++;
-            log.info("处理第{}页数据", pageNum);
-            targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize));
+            log.info("处理第{}页数据,数量:{}",pageNum,from);
+            targetProjectionList = repository.queryAllTargetNotPage(from, pageSize);
         }
         log.info("数据处理完毕");
     }
 
     public void insertData(LocalDate localDate) {
         prepareJanusGraphBean();
-        Integer pageNum = 0;
-        Page<TargetProjection> targetProjectionPage = repository.queryTargetByDate(localDate.toString(), PageRequest.of(pageNum, pageSize,
-                Sort.by(Sort.Direction.DESC, "metaName")));
-        while (targetProjectionPage.getNumberOfElements() > 0) {
-            dealTarget(targetProjectionPage);
+        Integer from = 0,pageNum=0;
+        List<TargetProjection> targetProjectionList = repository.queryTargetByDateNotPage(localDate.toString(), from, pageSize);
+        while (targetProjectionList!=null && targetProjectionList.size()>0) {
+            dealTarget(targetProjectionList);
+            from += pageSize;
             pageNum++;
-            log.info("处理第{}页数据", pageNum);
-            targetProjectionPage = repository.queryAllTarget(PageRequest.of(pageNum, pageSize));
+            log.info("处理第{}页数据,数量:{}", pageNum, from);
+            targetProjectionList = repository.queryTargetByDateNotPage(localDate.toString(), from, pageSize);
         }
         log.info("数据处理完毕");
     }
 
 
-    private void dealTarget(Page<TargetProjection> targetProjectionPage) {
-        if (targetProjectionPage.hasContent()) {
+    private void dealTarget(List<TargetProjection> targetProjectionPage) {
+        if (targetProjectionPage!=null && targetProjectionPage.size()>0) {
 //            for (TargetProjection targetProjection : targetProjectionPage.getContent()) {
-            Lists.partition(targetProjectionPage.getContent(),50).parallelStream().forEach(targetProjections -> {
+            Lists.partition(targetProjectionPage,50).parallelStream().forEach(targetProjections -> {
                 for(TargetProjection targetProjection:targetProjections) {
                     String targetCode = MD5Util.MD5(targetProjection.getMetaName());
 //                System.out.println("************" + targetProjection.getMetaName() + "************");

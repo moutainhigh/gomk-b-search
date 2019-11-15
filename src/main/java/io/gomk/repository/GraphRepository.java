@@ -34,13 +34,25 @@ public interface GraphRepository extends JpaRepository<SupplyDO, String>, JpaSpe
             nativeQuery = true)
     Page<TargetProjection> queryAllTarget(Pageable pageable);
 
+    @Query(value = "SELECT distinct substring_index(item_wlmc , '\\\\', 1) AS metaName FROM I_GX_T_PRICE_LIST order by metaName limit " +
+            ":start," +
+            ":pageSize ",
+            nativeQuery = true)
+    List<TargetProjection> queryAllTargetNotPage(Integer start, Integer pageSize);
+
+    @Query(value = "SELECT substring_index(item_wlmc , '\\\\', 1) as metaName FROM I_GX_T_PRICE_LIST WHERE etl_time = :localDate order by" +
+            " metaName limit :start,:pageSize ",
+//            countQuery = "select count(*) from I_GX_T_PRICE_LIST where etl_time = :localDate",
+            nativeQuery = true)
+    List<TargetProjection> queryTargetByDateNotPage(String localDate, Integer start, Integer pageSize);
+
     /**
      * 根据日期查询标的物
      * @param localDate
      * @param pageable
      * @return
      */
-    @Query(value = "SELECT  substring_index(item_wlmc , '\\\\', 1) as metaName FROM I_GX_T_PRICE_LIST WHERE etl_time = :localDate ",
+    @Query(value = "SELECT substring_index(item_wlmc , '\\\\', 1) as metaName FROM I_GX_T_PRICE_LIST WHERE etl_time = :localDate ",
             countQuery = "select count(*) from I_GX_T_PRICE_LIST where etl_time = :localDate",
             nativeQuery = true)
     Page<TargetProjection> queryTargetByDate(String localDate, Pageable pageable);
