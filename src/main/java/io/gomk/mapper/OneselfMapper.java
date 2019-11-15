@@ -14,11 +14,12 @@ import io.gomk.task.ESInfoBean;
 
 @DS("oneself")
 public interface OneselfMapper {
-	@Insert("insert into biz_z_dfile_sign values(#{uuid})")
-	public void insertFileSign(String uuid);
 	
-	@Select("select uuid from biz_z_dfile_sign limit 1")
-	String selectSign();
+	@Select("select uuid from biz_z_dfile_sign where sign_type = #{type} limit 1")
+	String selectSign(int type);
+
+	@Update("update biz_z_dfile_sign set uuid = #{sign} where sign_type = #{type}")
+	public void updateSign(@Param("sign") String sign, @Param("type") int type);
 
 	
 	@Select("select uuid from biz_z_dfile_sign")
@@ -52,11 +53,10 @@ public interface OneselfMapper {
 //	})
 //	List<DBInfoBean> getTestALLDBInfo(@Param("ids") List<String> ids);
 
-	@Update("update biz_z_dfile_sign set uuid = #{storedatetime} where uuid = #{timeSign}")
-	public void updateTimeSign(@Param("timeSign") String timeSign, @Param("storedatetime") String storedatetime);
 
 	@Select("select product_name as title from t_g_product")
 	public List<String> selectCompletion();
+
 
 	
 }

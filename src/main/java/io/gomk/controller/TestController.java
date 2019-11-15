@@ -86,12 +86,26 @@ public class TestController {
 		out.close();
 	}
 
-	@ApiOperation("入库测试")
-	@PostMapping("/1")
-	public ResponseData<?> test1() throws Exception {
-		esUtil.parseAndSaveEs();
+	@ApiOperation("入库测试-招标文件")
+	@PostMapping("/init/1")
+	public ResponseData<?> test11() throws Exception {
+		esUtil.parseZhaobiaoEs();
 		return ResponseData.success();
 	}
+	@ApiOperation("入库测试-投标文件")
+	@PostMapping("/init/2")
+	public ResponseData<?> test12() throws Exception {
+		esUtil.parseTaobiaoEs();
+		return ResponseData.success();
+	}
+	@ApiOperation("入库测试-造价")
+	@PostMapping("/init/3")
+	public ResponseData<?> test13() throws Exception {
+		esUtil.parseZaojiaEs();
+		return ResponseData.success();
+	}
+	
+	
 
 	@ApiOperation("压缩文件处理")
 	@PostMapping("/2")

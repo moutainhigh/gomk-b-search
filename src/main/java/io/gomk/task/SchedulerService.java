@@ -157,7 +157,7 @@ public class SchedulerService {
 	
 	@Scheduled(cron = "0 0 1 * * ?")
 	public void insertEsTask() {
-		esUtil.parseAndSaveEs();
+		esUtil.parseAndSaveEs(1);
 	}
 	
     //晚上1点 执行自动打标签

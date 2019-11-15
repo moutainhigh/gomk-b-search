@@ -26,6 +26,61 @@ public interface MasterDBMapper {
 
 	@Select("select distinct substring_index(item_wlmc, '\\\\', 1) as ss from I_GX_T_PRICE_LIST ")
 	public List<String> selectCompletion();
+	
+	@Select({
+		"<script>",
+		"SELECT ",
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as pkjCode, a.xmmc as pkjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
+			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
+		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
+			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+			" FROM BIZ_Z_DFILE a " ,
+				"	inner join BIZ_Z_EFILE_COMPLETED b on a.uuid=b.puuid" ,
+				"	left join D_ZB_PKG c on a.xmbh=c.pkg_code" ,
+				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				" where b.store != 'FAILED' and a.syscode='ztb'  and a.wjtm like '招标文件及审批表%' ",
+                " order by b.STOREDATETIME limit #{numberSign}, 10",
+		"</script>"
+	})
+	public List<DBInfoBean> getDBInfoByNumber1(@Param("numberSign") int numberSign);
+	
+	@Select({
+		"<script>",
+		"SELECT ",
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as pkjCode, a.xmmc as pkjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
+			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
+		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
+			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+			" FROM BIZ_Z_DFILE a " ,
+				"	inner join BIZ_Z_EFILE_COMPLETED b on a.uuid=b.puuid" ,
+				"	left join D_ZB_PKG c on a.xmbh=c.pkg_code" ,
+				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				" where b.store != 'FAILED' and a.syscode='ztb'  and a.wjtm ='投标文件' ",
+                " order by b.STOREDATETIME limit #{numberSign}, 10",
+		"</script>"
+	})
+	public List<DBInfoBean> getDBInfoByNumber2(@Param("numberSign") int numberSign);
+	
+	@Select({
+		"<script>",
+		"SELECT ",
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as pkjCode, a.xmmc as pkjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
+			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
+		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
+			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+			" FROM BIZ_Z_DFILE a " ,
+				"	inner join BIZ_Z_EFILE_COMPLETED b on a.uuid=b.puuid" ,
+				"	left join D_ZB_PKG c on a.xmbh=c.pkg_code" ,
+				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				" where b.store != 'FAILED' and a.syscode='gczj'  and a.bz ='成果文件' ",
+                " order by b.STOREDATETIME limit #{numberSign}, 10",
+		"</script>"
+	})
+	public List<DBInfoBean> getDBInfoByNumber3(@Param("numberSign") int numberSign);
+	
 
 	@Select({
 		"<script>",
