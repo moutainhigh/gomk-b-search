@@ -3,3 +3,7 @@ spring:
     name: gomk-b-search
   profiles:
     active: @spring.active@
+cas:
+  server-url-prefix: https://test-IBS-app2:8443/cas/login
+  server-login-url: http://10.128.135.212:8080
+  client-host-url: http://10.212.169.159:10010

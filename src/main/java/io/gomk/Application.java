@@ -2,6 +2,7 @@ package io.gomk;
 
 import javax.sql.DataSource;
 
+import net.unicon.cas.client.configuration.EnableCasClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 @SpringBootApplication
 @EnableTransactionManagement
 @MapperScan("io.gomk.mapper*")
+@EnableCasClient
 public class Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
