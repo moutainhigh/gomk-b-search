@@ -3,8 +3,8 @@ server:
   servlet:
     context-path: /dac
 cas:
-  server-url-prefix: https://test-gcgsibs3-2-11:8443/cas/login
-  server-login-url: http://10.128.135.212:8080
+  server-url-prefix: https://test-gcgsibs3-2-11:8443/cas
+  server-login-url: https://test-gcgsibs3-2-11:8443/cas/login
   client-host-url: http://10.212.169.159:10010/dac
 cookie:
   domain: 39.105.18.142
