@@ -25,10 +25,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -63,6 +60,11 @@ public class CheckFileController {
     private DZbPkgService dZbPkgService;
     @Autowired
     private IDPrjManufacturCostService idPrjManufacturCostService;
+
+    @GetMapping
+    public String health(){
+        return "ok";
+    }
 
     @PostMapping("/zbwjcheck")
     @ApiOperation(value = "招标文件自检",notes = "招标文件自检")
