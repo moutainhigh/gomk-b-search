@@ -337,22 +337,26 @@ public class EsUtil {
 			List<DBInfoBean> list = new ArrayList<>();
 			String numberSign = db2esMapper.selectSign(type);
 			Integer kkk = Integer.parseInt(numberSign);
+			String sql = "";
 			switch (type) {
 			case 1:
-				list = masterDBMapper.getDBInfoByNumber1(kkk);
+				sql = "and a.syscode='ztb'  and a.wjtm like '招标文件及审批表%'";
+				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
 				break;
 			case 2:
-				list = masterDBMapper.getDBInfoByNumber2(kkk);
+				sql = "and a.syscode='ztb'  and a.wjtm ='投标文件'";
+				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
 				break;
 			case 3:
-				list = masterDBMapper.getDBInfoByNumber3(kkk);
+				sql = "and a.syscode='gczj'  and a.bz ='成果文件'";
+				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
 				break;
 
 			default:
 				break;
 			}
 			
-
+/**
 			// 暂时切到自己库
 			log.info("===size====" + list.size());
 			if (list.size() == 0)
@@ -449,6 +453,7 @@ public class EsUtil {
 					break;
 				}
 			}
+			**/
 		}
 
 	}

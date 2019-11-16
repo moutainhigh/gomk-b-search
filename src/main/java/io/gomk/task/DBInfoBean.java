@@ -50,5 +50,8 @@ public class DBInfoBean {
 	private String bz;
 	//入库时间
 	private String STOREDATETIME;
-		
+	
+	private String ifCentPurchas;
+	private String industryName;
+	private String capitalSource;
 }
