@@ -2,7 +2,6 @@ package io.gomk.config;
 
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 import org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter;
-import org.jasig.cas.client.validation.Cas30ProxyReceivingTicketValidationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-@Configuration
 public class CASAutoConfig {
     @Value("${cas.server-url-prefix}")
     private String serverUrlPrefix;
@@ -47,7 +45,7 @@ public class CASAutoConfig {
         // 设定匹配的路径
         registrationBean.addUrlPatterns("/*");
         Map<String, String> initParameters = new HashMap();
-        initParameters.put("casServerUrlPrefix", serverUrlPrefix);
+        initParameters.put("casServerUrlPrefix", "https://test-gcgsibs3-2-11:8443");
         initParameters.put("serverName", clientHostUrl);
         initParameters.put("encodeServiceUrl", "false");
 
@@ -58,5 +56,6 @@ public class CASAutoConfig {
         registrationBean.setOrder(2);
         return registrationBean;
     }
+
 
 }
