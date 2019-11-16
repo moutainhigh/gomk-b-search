@@ -41,9 +41,9 @@ public class CASAutoConfig {
         return registration;
     }
     @Bean
-    public FilterRegistrationBean Cas30ProxyReceivingTicketValidationFilter(){
+    public FilterRegistrationBean Cas20ProxyReceivingTicketValidationFilter(){
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-        registrationBean.setFilter(new Cas30ProxyReceivingTicketValidationFilter());
+        registrationBean.setFilter(new Cas20ProxyReceivingTicketValidationFilter());
         // 设定匹配的路径
         registrationBean.addUrlPatterns("/*");
         Map<String, String> initParameters = new HashMap();
