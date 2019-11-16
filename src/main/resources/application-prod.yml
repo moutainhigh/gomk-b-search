@@ -1,5 +1,6 @@
 server:
   port: 10010
+  context-path: /dac
   
 cookie:
   domain: 39.105.18.142
