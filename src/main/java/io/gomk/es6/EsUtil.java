@@ -248,72 +248,72 @@ public class EsUtil {
 		return indexName;
 	}
 
-	/**
-	 * 测试投标文件
-	 */
-	public void testTbFIle() {
-		List<DBInfoBean> list = masterDBMapper.getToubiaoDBInfo();
-		list.forEach(bean -> {
-			InputStream in = getInputStream(bean);
-			if (in != null) {
+//	/**
+//	 * 测试投标文件
+//	 */
+//	public void testTbFIle() {
+//		List<DBInfoBean> list = masterDBMapper.getToubiaoDBInfo();
+//		list.forEach(bean -> {
+//			InputStream in = getInputStream(bean);
+//			if (in != null) {
+////				try {
+////					saveTB(bean, in);
+////				} catch (IOException e1) {
+////					log.error("error:"+e1.getMessage());
+////				}
 //				try {
-//					saveTB(bean, in);
-//				} catch (IOException e1) {
-//					log.error("error:"+e1.getMessage());
+//					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//					byte[] buffer = new byte[1024];
+//					int len;
+//					while ((len = in.read(buffer)) > -1) {
+//						baos.write(buffer, 0, len);
+//					}
+//					baos.flush();
+//
+//					if (bean.getExt().contains("pdf")) {
+//
+//						GTbQuoteExtract qe = new GTbQuoteExtract();
+//						qe.setPrjCode(bean.getPrjCode());
+//						qe.setPrjName(bean.getPrjName());
+//						qe.setUuid(bean.getUuid());
+//						qe.setTitle(bean.getTitle());
+//						// 存分项报价
+//						tbQuoteExtractService.insertPrice(new ByteArrayInputStream(baos.toByteArray()), qe);
+//
+//						GTbIdcardExtract entity = new GTbIdcardExtract();
+//						entity.setPrjCode(bean.getPrjCode());
+//						entity.setPrjName(bean.getPrjName());
+//						entity.setUuid(bean.getUuid());
+//						entity.setTitle(bean.getTitle());
+//						// 存储身份证信息
+//						idcardOcr.insertIdcardInfo(new ByteArrayInputStream(baos.toByteArray()),
+//								new ByteArrayInputStream(baos.toByteArray()), entity);
+//					}
+//				} catch (IOException e) {
+//					log.error("io error" + e.getMessage());
 //				}
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					byte[] buffer = new byte[1024];
-					int len;
-					while ((len = in.read(buffer)) > -1) {
-						baos.write(buffer, 0, len);
-					}
-					baos.flush();
+//			}
+//		});
+//	}
 
-					if (bean.getExt().contains("pdf")) {
-
-						GTbQuoteExtract qe = new GTbQuoteExtract();
-						qe.setPrjCode(bean.getPrjCode());
-						qe.setPrjName(bean.getPrjName());
-						qe.setUuid(bean.getUuid());
-						qe.setTitle(bean.getTitle());
-						// 存分项报价
-						tbQuoteExtractService.insertPrice(new ByteArrayInputStream(baos.toByteArray()), qe);
-
-						GTbIdcardExtract entity = new GTbIdcardExtract();
-						entity.setPrjCode(bean.getPrjCode());
-						entity.setPrjName(bean.getPrjName());
-						entity.setUuid(bean.getUuid());
-						entity.setTitle(bean.getTitle());
-						// 存储身份证信息
-						idcardOcr.insertIdcardInfo(new ByteArrayInputStream(baos.toByteArray()),
-								new ByteArrayInputStream(baos.toByteArray()), entity);
-					}
-				} catch (IOException e) {
-					log.error("io error" + e.getMessage());
-				}
-			}
-		});
-	}
-
-	/**
-	 * 处理造价压缩文件
-	 */
-	public void parseRarAndZip() {
-		List<DBInfoBean> list = masterDBMapper.getRarAndZipDBInfo();
-		log.info("===size====" + list.size());
-		list.forEach(bean -> {
-			InputStream in = getInputStream(bean);
-			try {
-				if (in != null) {
-					disposeZJRARandZIP(bean, in);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-	}
+//	/**
+//	 * 处理造价压缩文件
+//	 */
+//	public void parseRarAndZip() {
+//		List<DBInfoBean> list = masterDBMapper.getRarAndZipDBInfo();
+//		log.info("===size====" + list.size());
+//		list.forEach(bean -> {
+//			InputStream in = getInputStream(bean);
+//			try {
+//				if (in != null) {
+//					disposeZJRARandZIP(bean, in);
+//				}
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		});
+//	}
 
 	/**
 	 * 下截文件--抽取内容--存储es索引
@@ -341,22 +341,22 @@ public class EsUtil {
 			switch (type) {
 			case 1:
 				sql = "and a.syscode='ztb'  and a.wjtm like '招标文件及审批表%'";
-				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
+				list = masterDBMapper.getDBInfoByNumber1(kkk);
 				break;
 			case 2:
 				sql = "and a.syscode='ztb'  and a.wjtm ='投标文件'";
-				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
+				list = masterDBMapper.getDBInfoByNumber2(kkk);
 				break;
 			case 3:
 				sql = "and a.syscode='gczj'  and a.bz ='成果文件'";
-				list = masterDBMapper.getDBInfoByNumber(kkk, sql);
+				list = masterDBMapper.getDBInfoByNumber3(kkk);
 				break;
 
 			default:
 				break;
 			}
 			
-/**
+
 			// 暂时切到自己库
 			log.info("===size====" + list.size());
 			if (list.size() == 0)
@@ -364,6 +364,7 @@ public class EsUtil {
 			//if (kkk > 1000) break; 
 			// 1. 下载文件 分页查询未处理的纪录
 			for (DBInfoBean bean : list) {
+				
 				// db2esMapper.insertFileSign(bean.getUuid());
 				++kkk;
 				db2esMapper.updateSign(kkk + "", type);
@@ -453,7 +454,7 @@ public class EsUtil {
 					break;
 				}
 			}
-			**/
+			
 		}
 
 	}
@@ -536,7 +537,7 @@ public class EsUtil {
 		}
 
 		// ==========存索引-资格要求及按条存数据库=======
-		if (zgyqList != null && zgyqList.size() > 0) {
+		if (zgyqList != null && zgyqList.size() > 0 && StringUtils.isNotBlank(zgyqList.toString())) {
 			esBean.setContent(zgyqList.toString());
 			saveES(zgyqIndex, esBean);
 			zgyqList.forEach(str -> {
@@ -693,7 +694,7 @@ public class EsUtil {
 		esBean.setWeight(0);
 		if (StringUtils.isNotBlank(esBean.getPrjCode())) {
 			Set<String> tagSet = getTagByPrjCode(esBean.getPrjCode());
-			esBean.setTags(tagSet);
+			esBean.setTag(tagSet);
 			esBean.setWeight(1);
 		}
 		IndexRequest request = new IndexRequest(index, "_doc");
@@ -766,7 +767,9 @@ public class EsUtil {
 			tagSet.add(prj.getPrjType()); // 项目类型
 			tagSet.add(prj.getIndustryName()); // 专业版块
 			tagSet.add(prj.getPrjNature()); // 项目阶段
-			tagSet.add(prj.getIfCentPurchas().equals("1") ? "是" : "否"); // 是否集采
+			if (prj.getIfCentPurchas() != null) {
+				tagSet.add(prj.getIfCentPurchas().equals("1") ? "集采" : "非集采"); // 是否集采
+			}
 			tagSet.add(prj.getCapitalSource()); // 资金来源
 
 			return tagSet;

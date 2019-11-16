@@ -1,6 +1,7 @@
 server:
-  port: 10010
-  context-path: /dac
+  port: 10019
+  servlet:
+    context-path: /dac
 cas:
   server-url-prefix: https://test-gcgsibs3-2-11:8443/cas/login
   server-login-url: http://10.128.135.212:8080
