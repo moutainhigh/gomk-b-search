@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.cors.CorsUtils;
 
 /**
  * @Auther: ZHG
@@ -54,16 +55,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         LOGGER.info("定义安全策略");
-        http.authorizeRequests()//配置安全策略
+        http.cors()
+                .and()
+                .csrf().disable().authorizeRequests()//配置安全策略
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 //.antMatchers("/","/login").permitAll()//定义/请求不需要验证
                 .antMatchers("/checkfile/**","/static/**","/swagger-ui.html","/webjars/**","/swagger-resources/**","/v2/**").permitAll()//graph 不需要认证
 //                .antMatchers(HttpMethod.POST,"graph").permitAll()
                 .anyRequest().authenticated()//其余的所有请求都需要验证
                 .and().logout().permitAll()//定义logout不需要验证
-                .and().formLogin();//使用form表单登录
+                .and().formLogin()//使用form表单登录
+                ;
 
-        http.exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint()).and().addFilter(casAuthenticationFilter()).addFilterBefore(casLogoutFilter(), LogoutFilter.class).addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class);
-        http.csrf().disable();
+        http.exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint())
+                .and().addFilter(casAuthenticationFilter())
+                .addFilterBefore(casLogoutFilter(), LogoutFilter.class)
+                .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class);
         http.headers().frameOptions().disable();
     }
 
