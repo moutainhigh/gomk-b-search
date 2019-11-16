@@ -32,7 +32,7 @@ public class CASAutoConfig {
         initParameters.put("casServerLoginUrl", serverLoginUrl);
         initParameters.put("serverName", clientHostUrl);
         //忽略的url，"|"分隔多个url
-        initParameters.put("ignorePattern", "/checkfile/*|swagger-ui.html|/webjars/*|/static/*|swagger-resources/*|v2/*");
+        initParameters.put("ignorePattern", "/index/*|/test/*|/checkfile/*|swagger-ui.html|/webjars/*|/static/*|swagger-resources/*|v2/*");
         registration.setInitParameters(initParameters);
         // 设定加载的顺序
         registration.setOrder(1);

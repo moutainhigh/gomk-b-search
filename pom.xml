@@ -328,7 +328,6 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-
 <!--		<dependency>-->
 <!--			<groupId>net.unicon.cas</groupId>-->
 <!--			<artifactId>cas-client-autoconfig-support</artifactId>-->

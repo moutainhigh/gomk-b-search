@@ -107,12 +107,12 @@ public class TestController {
 	
 	
 
-	@ApiOperation("压缩文件处理")
-	@PostMapping("/2")
-	public ResponseData<?> test2() throws Exception {
-		esUtil.parseRarAndZip();
-		return ResponseData.success();
-	}
+//	@ApiOperation("压缩文件处理")
+//	@PostMapping("/2")
+//	public ResponseData<?> test2() throws Exception {
+//		esUtil.parseRarAndZip();
+//		return ResponseData.success();
+//	}
 
 	@ApiOperation("分项报价抽取")
 	@PostMapping("/3")
@@ -140,12 +140,12 @@ public class TestController {
 		log.info(hbaseService.getAllTableNames().toString());
 		return ResponseData.success();
 	}
-	@ApiOperation("test 投标文件 ")
-	@PostMapping("/6")
-	public ResponseData<?> test6() throws Exception {
-		esUtil.testTbFIle();
-		return ResponseData.success();
-	}
+//	@ApiOperation("test 投标文件 ")
+//	@PostMapping("/6")
+//	public ResponseData<?> test6() throws Exception {
+//		esUtil.testTbFIle();
+//		return ResponseData.success();
+//	}
 //    @ApiOperation("内置标签入库")
 //    @PostMapping("/3")
 //    public ResponseData<?> test3() throws Exception {

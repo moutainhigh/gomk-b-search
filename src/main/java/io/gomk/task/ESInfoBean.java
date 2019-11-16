@@ -55,6 +55,6 @@ public class ESInfoBean {
 	//扩展名
 	private String ext;
 	//标签
-	private Set<String> tags;
+	private Set<String> tag;
 	
 }

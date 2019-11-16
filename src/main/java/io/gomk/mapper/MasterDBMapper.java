@@ -30,18 +30,18 @@ public interface MasterDBMapper {
 	@Select({
 		"<script>",
 		"SELECT ",
-			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName, a.hyfl as prjIndustry," ,
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
 			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
 		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
-			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+			"	d.PRJ_NATURE,d.CUST_NAME as prjCust,d.industry_name as industryName,d.prj_type as prjType,d.if_cent_purchas as ifCentPurchas, d.prj_nature,d.capital_source as capitalSource" ,
 			" FROM BIZ_Z_DFILE a inner join " ,
 				"	(select * from BIZ_Z_EFILE_COMPLETED where uuid in "
 				+ " (select max(uuid) from BIZ_Z_EFILE_COMPLETED group by puuid,title,pathname))"
 				+ " b on a.uuid=b.puuid" ,
-				"	left join D_ZB_PKG c on a.xmbh=c.prj_code" ,
-				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
-				" where b.store != 'FAILED' and a.syscode='ztb'  and a.wjtm like '招标文件及审批表%' ",
+				"	inner join D_ZB_PKG c on a.xmbh=c.prj_code" ,
+				"	inner join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				" where b.store != 'FAILED'  and a.syscode='ztb'  and a.wjtm like '招标文件及审批表%' ",
                 " order by b.STOREDATETIME limit #{numberSign}, 10",
 		"</script>"
 	})
@@ -50,17 +50,17 @@ public interface MasterDBMapper {
 	@Select({
 		"<script>",
 		"SELECT ",
-			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName, a.hyfl as prjIndustry," ,
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
 			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
 		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
-			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+		    "	d.PRJ_NATURE,d.CUST_NAME as prjCust,d.industry_name as industryName,d.prj_type as prjType,d.if_cent_purchas as ifCentPurchas, d.prj_nature,d.capital_source as capitalSource" ,
 			" FROM BIZ_Z_DFILE a inner join " ,
 			"	(select * from BIZ_Z_EFILE_COMPLETED where uuid in "
 					+ " (select max(uuid) from BIZ_Z_EFILE_COMPLETED group by puuid,title,pathname))"
 					+ " b on a.uuid=b.puuid" ,
-				"	left join D_ZB_PKG c on a.xmbh=c.prj_code" ,
-				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				"	inner join D_ZB_PKG c on a.xmbh=c.prj_code" ,
+				"	inner join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
 				" where b.store != 'FAILED' and a.syscode='ztb'  and a.wjtm ='投标文件' ",
                 " order by b.STOREDATETIME limit #{numberSign}, 10",
 		"</script>"
@@ -70,17 +70,17 @@ public interface MasterDBMapper {
 	@Select({
 		"<script>",
 		"SELECT ",
-			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName, a.xmlx as prjType , a.hyfl as prjIndustry," ,
+			"	b.uuid, a.bz,a.syscode as fileType,a.wjtm,a.xmbh as prjCode, a.xmmc as prjName,  a.hyfl as prjIndustry," ,
 			"	b.title,b.ext,b.store as storeType,b.storepath as storeUrl,b.pathname as pathName,date_format(b.STOREDATETIME, '%Y-%m-%d %H:%i:%s') as STOREDATETIME ," , 
 			"	c.PKG_WIN_BID_AMT as winAmount,c.PKG_NAME,c.PKG_CODE,c.BID_TYPE as zbType," ,
 		    "   c.ANNOUNC_DATE as noticeDate,c.entrust_amt," ,
-			"	d.PRJ_NATURE,d.CUST_NAME as prjCust" ,
+		    "	d.PRJ_NATURE,d.CUST_NAME as prjCust,d.industry_name as industryName,d.prj_type as prjType,d.if_cent_purchas as ifCentPurchas, d.prj_nature,d.capital_source as capitalSource" ,
 			" FROM BIZ_Z_DFILE a inner join " ,
 			"	(select * from BIZ_Z_EFILE_COMPLETED where uuid in "
 					+ " (select max(uuid) from BIZ_Z_EFILE_COMPLETED group by puuid,title,pathname))"
 					+ " b on a.uuid=b.puuid" ,
-				"	left join D_ZB_PKG c on a.xmbh=c.prj_code" ,
-				"	left join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
+				"	inner join D_ZB_PKG c on a.xmbh=c.prj_code" ,
+				"	inner join D_ZB_PRJ d on d.prj_code=c.prj_code" ,
 				" where b.store != 'FAILED' and a.syscode='gczj'  and a.bz ='成果文件' ",
                 " order by b.STOREDATETIME limit #{numberSign}, 10",
 		"</script>"
@@ -171,9 +171,8 @@ public interface MasterDBMapper {
 
 
 	@Select("select d.prj_code, d.INDUSTRY_NAME,d.PRJ_TYPE,d.PRJ_NATURE, d.IF_CENT_PURCHAS, d.CAPITAL_SOURCE"
-			+ " from BIZ_Z_DFILE a " + 
-			" inner join D_ZB_PRJ d on d.prj_code=a.xmbh"
-			+ "limit 0,1")
+			+ " from D_ZB_PRJ d "
+			+ " where d.prj_code=#{prjCode}")
 	DZbPrj getTagInfo(String prjCode);
 
 
