@@ -31,7 +31,7 @@ public class CASAutoConfig {
         // 设定匹配的路径
         registration.addUrlPatterns("/*");
         Map<String,String> initParameters = new HashMap<String, String>();
-        initParameters.put("casServerLoginUrl", serverUrlPrefix);
+        initParameters.put("casServerLoginUrl", serverLoginUrl);
         initParameters.put("serverName", clientHostUrl);
         //忽略的url，"|"分隔多个url
         initParameters.put("ignorePattern", "/index/*|/test/*|/checkfile/*|swagger-ui.html|/webjars/*|/static/*|swagger-resources/*|v2/*");
@@ -41,9 +41,9 @@ public class CASAutoConfig {
         return registration;
     }
     @Bean
-    public FilterRegistrationBean Cas30ProxyReceivingTicketValidationFilter(){
+    public FilterRegistrationBean Cas20ProxyReceivingTicketValidationFilter(){
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-        registrationBean.setFilter(new Cas30ProxyReceivingTicketValidationFilter());
+        registrationBean.setFilter(new Cas20ProxyReceivingTicketValidationFilter());
         // 设定匹配的路径
         registrationBean.addUrlPatterns("/*");
         Map<String, String> initParameters = new HashMap();
