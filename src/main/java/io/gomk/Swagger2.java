@@ -45,7 +45,7 @@ public class Swagger2 {
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("io.gomk"))
                 .paths(PathSelectors.any())
-                .build().pathMapping("/dac");
+                .build();
     		
     	return docket;
     }
