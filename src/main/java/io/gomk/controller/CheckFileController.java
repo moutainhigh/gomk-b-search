@@ -11,9 +11,6 @@ import io.gomk.enums.FileTypeEnum;
 import io.gomk.model.entity.DPrjManufacturCost;
 import io.gomk.model.entity.DZbPkg;
 import io.gomk.model.entity.DZbPrj;
-import io.gomk.service.DZbPkgService;
-import io.gomk.service.IDPrjManufacturCostService;
-import io.gomk.service.IDZbPrjService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.IOUtils;
@@ -22,13 +19,13 @@ import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -54,12 +51,6 @@ public class CheckFileController {
     private Resource pbbgRes;
     @Value("classpath:zjcg_check.json")
     private Resource zjcgRes;
-    @Autowired
-    private IDZbPrjService idZbPrjService;
-    @Autowired
-    private DZbPkgService dZbPkgService;
-    @Autowired
-    private IDPrjManufacturCostService idPrjManufacturCostService;
 
     @GetMapping
     public String health(){
@@ -72,16 +63,19 @@ public class CheckFileController {
                                     @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
                                     @ApiParam(name="pkgCodes",value = "标段包编号,以英文,分割",required = false) @RequestParam(name = "pkgCodes",required = false) String pkgCodes,
                                     @ApiParam(name="pkgNames",value = "标段包名称,以英文,分割",required = false) @RequestParam(name = "pkgNames",required = false) String pkgNames,
-                                    @ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
+                                    //@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
+                                    @ApiParam(name="bytes",value = "上传word文件",required = true) @RequestParam("filebytes") byte[] filebytes,
                                     @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
                                     @ApiParam(name="type",value = "文件类型：工程类传2：其他传1",defaultValue = "1" ,required = true) @RequestParam("type") String type
-                                    ){
+                                    ) throws Exception{
         ResponseData responseData = new ResponseData();
         List<String> result = new ArrayList<>();
 
-        if(file.isEmpty()){
+        InputStream fileinputstream = getFiles(filebytes);
+
+        if(filebytes.length==0){
             responseData.setSuccess(false);
-            responseData.setMessage("please upload file");
+            responseData.setMessage("please add file bytes");
             return responseData;
         }
         DZbPrj prj = new DZbPrj();
@@ -102,7 +96,7 @@ public class CheckFileController {
         }
         if ("docx".equals(fileType.name())) {
             try {
-                List<String> contexts = getDocxContent(file);
+                List<String> contexts = getDocxContent(fileinputstream);
                 for(String text : contexts){
                     checkText(prj,checkVOs, contexts,text);
                 }
@@ -119,7 +113,7 @@ public class CheckFileController {
             }
         }else {
             try {
-                List<String> resultList = getDocContent(file);
+                List<String> resultList = getDocContent(fileinputstream);
                 for(String text : resultList){
                     checkText(prj, checkVOs, resultList, text);
                 }
@@ -158,20 +152,23 @@ public class CheckFileController {
 
     @PostMapping("/pbbgcheck")
     @ApiOperation(value = "评标报告自检",notes = "评标报告自检")
-    public ResponseData checkResult(@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
+    public ResponseData checkResult(//@ApiParam(name="file",value = "上传word文件",required = true) @RequestParam("file") MultipartFile file,
+                                    @ApiParam(name="bytes",value = "上传word文件",required = true) @RequestParam("filebytes") byte[] filebytes,
                                     @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
                                     @ApiParam(name="startDate",value = "开标日期,格式：yyyy年MM月dd日",required = true)@RequestParam("startDate") String startDate,
                                     @ApiParam(name="custName",value = "委托人信息",required = true) @RequestParam("custName") String custName,
                                     @ApiParam(name="purchasingStrategy",value = "招标方式",required = true) @RequestParam("purchasingStrategy") String purchasingStrategy
-                                    ){
+                                    ) throws Exception{
         ResponseData responseData = new ResponseData();
         List<String> result = new ArrayList<>();
-        if(file.isEmpty()){
+        if(filebytes.length==0){
             responseData.setSuccess(false);
-            responseData.setMessage("please upload file");
+            responseData.setMessage("please add file");
             return responseData;
         }
+        InputStream fileinputstream = getFiles(filebytes);
+
         DZbPrj prj = new DZbPrj();
         prj.setPrjCode(prjCode);
         prj.setCustName(custName);
@@ -196,7 +193,7 @@ public class CheckFileController {
         }
         if ("docx".equals(fileType)) {
             try {
-                List<String> contexts = getDocxPbbgContent(file);
+                List<String> contexts = getDocxPbbgContent(fileinputstream);
                 pbbg(result, prj, checkVOs, contexts);
             } catch(IOException e){
                 responseData.setSuccess(false);
@@ -204,7 +201,7 @@ public class CheckFileController {
             }
         }else {
             try {
-                List<String> contents = getDocPbbgContent(file);
+                List<String> contents = getDocPbbgContent(fileinputstream);
                 pbbg(result, prj, checkVOs, contents);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -229,9 +226,12 @@ public class CheckFileController {
         return responseData;
     }
 
-    private List<String> getDocContent(MultipartFile file) throws IOException {
-        WordExtractor extractor = new WordExtractor(file.getInputStream());
+//    private List<String> getDocContent(MultipartFile file) throws IOException {
+    private List<String> getDocContent(InputStream file) throws IOException {
+        WordExtractor extractor = new WordExtractor(file);
         String[] paragraphs = extractor.getParagraphText();
+        //bytes[]】 转[] string
+       // String encoded = Base64.getEncoder().encodeToString(bytes);
         List<String> contents = new ArrayList<>(paragraphs.length);
         Collections.addAll(contents, paragraphs);
         List<String> results = new ArrayList<>();
@@ -246,18 +246,17 @@ public class CheckFileController {
         }
         return results;
     }
-    private List<String> getDocPbbgContent(MultipartFile file) throws IOException {
-        WordExtractor extractor = new WordExtractor(file.getInputStream());
+    private List<String> getDocPbbgContent(InputStream file) throws IOException {
+        WordExtractor extractor = new WordExtractor(file);
         String[] paragraphs = extractor.getParagraphText();
         List<String> contents = new ArrayList<>(paragraphs.length);
         Collections.addAll(contents, paragraphs);
         return contents;
     }
-    private List<String> getDocxContent(MultipartFile file) throws IOException {
+    private List<String> getDocxContent(InputStream file) throws IOException {
         List<String> contents = new ArrayList<>();
-        System.out.println(file.getContentType());
         ZipSecureFile.setMinInflateRatio(-1.0d);
-        XWPFDocument doc = new XWPFDocument(file.getInputStream());
+        XWPFDocument doc = new XWPFDocument(file);
         List<XWPFParagraph> paras = doc.getParagraphs();
         for (XWPFParagraph para : paras) {
             para.getParagraphText();
@@ -279,11 +278,11 @@ public class CheckFileController {
         return results;
     }
 
-    private List<String> getDocxPbbgContent(MultipartFile file) throws IOException {
+    private List<String> getDocxPbbgContent(InputStream file) throws IOException {
         List<String> contents = new ArrayList<>();
-        System.out.println(file.getContentType());
+//        System.out.println(file.getContentType());
         ZipSecureFile.setMinInflateRatio(-1.0d);
-        XWPFDocument doc = new XWPFDocument(file.getInputStream());
+        XWPFDocument doc = new XWPFDocument(file);
         List<XWPFParagraph> paras = doc.getParagraphs();
         for (XWPFParagraph para : paras) {
             para.getParagraphText();
@@ -320,16 +319,17 @@ public class CheckFileController {
 
     @PostMapping("/zjcgcheck")
     @ApiOperation(value = "造价成果自检",notes = "造价成果自检")
-    public ResponseData checkResult(@ApiParam(name="file1",value = "封面、签署页（控制价审核）文件",required = true) @RequestParam("file1") MultipartFile file1,
-                                    @ApiParam(name="file2",value = "目录（控制价审核）文件",required = true) @RequestParam("file2") MultipartFile file2,
-                                    @ApiParam(name="file3",value = "审核说明（控制价审核）文件",required = true) @RequestParam("file3") MultipartFile file3,
+    public ResponseData checkResult(
+                                    @ApiParam(name="file1",value = "封面、签署页（控制价审核）文件",required = true) @RequestParam("filebytes") byte[] file1,
+                                    @ApiParam(name="file2",value = "目录（控制价审核）文件",required = true) @RequestParam("filebytes") byte[] file2,
+                                    @ApiParam(name="file3",value = "审核说明（控制价审核）文件",required = true) @RequestParam("filebytes") byte[] file3,
                                     @ApiParam(name="fileType",value = "word文件类型:doc docx",required = true) @RequestParam("fileType") FileTypeEnum fileType,
                                     @ApiParam(name="prjCode",value = "项目编号",required = true) @RequestParam("prjCode") String prjCode,
                                     @ApiParam(name="prjName",value = "项目名称",required = true) @RequestParam("prjName") String prjName,
                                     @ApiParam(name="contractCode",value = "成果编号",required = false) @RequestParam(name = "contractCode", required = false) String contractCode,
                                     @ApiParam(name="dateTime",value = "封面日期,格式：yyyy年MM月dd日",required = true)@RequestParam("dateTime") String dateTime,
                                     @ApiParam(name="reportAmt",value = "估概预结中送审值",required = true) @RequestParam("reportAmt") double reportAmt
-                                    ) {
+                                    ) throws Exception{
         ResponseData responseData = new ResponseData();
         DPrjManufacturCost prj = new DPrjManufacturCost();//idPrjManufacturCostService.getPrjCostByPrjCode(prjCode);
         prj.setPrjCode(prjCode);
@@ -342,6 +342,8 @@ public class CheckFileController {
 //            responseData.setMessage("造价成果数据不存在");
 //            return responseData;
 //        }
+        InputStream fileinputstream1 = getFiles(file1);
+        InputStream fileinputstream3 = getFiles(file3);
         List<String> result = new ArrayList<>();
         String pbbgDate = null;
         try {
@@ -357,11 +359,11 @@ public class CheckFileController {
         }
         if ("docx".equals(fileType.toString())) {
             try {
-                List<String> contexts = getDocxContent(file1);
+                List<String> contexts = getDocxContent(fileinputstream1);
                 for(String text : contexts){
                     checkZjcgText(prj,checkVOs, contexts,text);
                 }
-                zjcgAmt(file3, checkVOs, contexts);
+                zjcgAmt(fileinputstream3, checkVOs, contexts);
 
             } catch(IOException e){
                 responseData.setSuccess(false);
@@ -369,11 +371,11 @@ public class CheckFileController {
             }
         }else {
             try {
-                List<String> resultList = getDocContent(file1);
+                List<String> resultList = getDocContent(fileinputstream1);
                 for(String text : resultList){
                     checkZjcgText(prj, checkVOs, resultList, text);
                 }
-                zjcgAmt(file3, checkVOs, resultList);
+                zjcgAmt(fileinputstream3, checkVOs, resultList);
 
 
             } catch (IOException e) {
@@ -399,7 +401,7 @@ public class CheckFileController {
         return responseData;
     }
 
-    private void zjcgAmt(@RequestParam("file3") @ApiParam(name = "file3", value = "审核说明（控制价审核）文件", required = true) MultipartFile file3, List<CheckVO> checkVOs, List<String> resultList) throws IOException {
+    private void zjcgAmt(@RequestParam("file3") @ApiParam(name = "file3", value = "审核说明（控制价审核）文件", required = true) InputStream file3, List<CheckVO> checkVOs, List<String> resultList) throws IOException {
         List<String> resultContents = getDocContent(file3);
         checkVOs.forEach(checkVO -> {
             if(CheckTypeEnum.OTHER.toString().equals(checkVO.getType())){
@@ -700,6 +702,10 @@ public class CheckFileController {
         return mc;
     }
 
+    private InputStream getFiles(byte[] bytes) throws Exception{
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        return inputStream;
+    }
     public static void main(String [] args){
 //        Pattern c = Pattern.compile(".*交货日期：.*");
 //        Pattern c = Pattern.compile("项目编号:[a-zA-Z0-9]+");
@@ -711,5 +717,7 @@ public class CheckFileController {
         System.out.println(b);
 
     }
+
+
 
 }
