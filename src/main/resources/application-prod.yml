@@ -1,5 +1,5 @@
 server:
-  port: 10019
+  port: 10010
   servlet:
     context-path: /dac
 cas:

@@ -44,27 +44,33 @@ public class SearchLibraryController {
     public ResponseData<IPage<Map<String,String>>> biddingProject(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
         Page<Map<String,String>> pageParam = new Page<>(page, pageSize);
-
-        IPage<Map<String,String>> pageResult = dZbPkgService.biddingProject(pageParam,keyWord);
-        return  ResponseData.success(pageResult);
+        if(StringUtils.isNotBlank(keyWord)) {
+            IPage<Map<String, String>> pageResult = dZbPkgService.biddingProject(pageParam, keyWord);
+            return ResponseData.success(pageResult);
+        }
+        return ResponseData.success();
     }
     @ApiOperation(value = "造价项目列表")
     @GetMapping("/costProject")
     public ResponseData<IPage<Map<String,String>>> costProject(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
         Page<Map<String,String>> pageParam = new Page<>(page, pageSize);
-
-        IPage<Map<String,String>> pageResult = dZbPkgService.costProject(pageParam,keyWord);
-        return  ResponseData.success(pageResult);
+        if(StringUtils.isNotBlank(keyWord)) {
+            IPage<Map<String, String>> pageResult = dZbPkgService.costProject(pageParam, keyWord);
+            return ResponseData.success(pageResult);
+        }
+        return ResponseData.success();
     }
     @ApiOperation(value = "客户列表")
     @GetMapping("/bindPerson")
     public ResponseData<IPage<Map<String,String>>> bindPerson(int page, int pageSize,String keyWord) throws Exception {
         // 当前页码，每页条数
         Page<Map<String,String>> pageParam = new Page<>(page, pageSize);
-
-        IPage<Map<String,String>> pageResult = dZbPkgService.biddingPerson(pageParam,keyWord);
-        return  ResponseData.success(pageResult);
+        if(StringUtils.isNotBlank(keyWord)) {
+            IPage<Map<String, String>> pageResult = dZbPkgService.biddingPerson(pageParam, keyWord);
+            return ResponseData.success(pageResult);
+        }
+        return ResponseData.success();
     }
 
     @ApiOperation(value = "专家列表分页(d_zb_expert)")

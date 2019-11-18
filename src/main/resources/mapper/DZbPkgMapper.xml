@@ -104,10 +104,10 @@
         where substring_index(t2.item_wlmc , '\\', 1)  = #{metaName}
     </select>
     <select id="biddingProject" parameterType="java.lang.String" resultType="java.util.Map">
-        SELECT
+      SELECT
         distinct
-         t.prj_code,t.prj_name,t1.pkg_code,t1.pkg_name,t2.document_code,
-         t.cust_name,t.tendering_content,
+        t.prj_code,t.prj_name,
+        t.cust_name,t.tendering_content,
         t.prj_type,
         t.industry_name,
         t.prj_nature,
@@ -115,8 +115,6 @@
         t.entrust_amt,
         DATE_FORMAT(t.set_time,'%Y-%m-%d')  set_time
         FROM D_ZB_PRJ t
-        left join D_ZB_PKG t1 on t1.prj_code=t.prj_code
-        left join F_ZB_SEL_BID_DETAIL t2 on t2.pkg_code=t1.pkg_code
         where t.prj_name like  concat('%', #{prjName}, '%')
     </select>
     <select id="costProject"  parameterType="java.lang.String" resultType="java.util.Map">
@@ -124,7 +122,7 @@
         t.prj_code,t.prj_name,t1.cust_name,t.prj_leader,t.prj_state,t.industry_name,t.prj_type,t.consultation_type,
         t.consultation_method,t.entrust_time,t.approve_amt,t.prj_file_time
          from D_PRJ_MANUFACTUR_COST t
-        left join D_CUST t1 on t1.cust_document_code = t.document_code
+        inner join D_CUST t1 on t1.cust_document_code = t.document_code
         where t.prj_name like concat('%', #{prjName}, '%')
     </select>
     <select id="biddingPerson"  parameterType="java.lang.String" resultType="java.util.Map">
@@ -154,8 +152,8 @@
          DATE_FORMAT(t.entrust_time,'%Y-%m-%d')   entrust_time,
          t.DOCUMENT_NAME
          from D_PRJ_MANUFACTUR_COST t
-        left join D_CUST t1 on t1.cust_document_code = t.document_code
-        left join I_PRJ_BUILD_MANUFACTUR t2 on t2.BUILD_PRJ_ID = t.build_prj_id
+        inner join D_CUST t1 on t1.cust_document_code = t.document_code
+        inner join I_PRJ_BUILD_MANUFACTUR t2 on t2.BUILD_PRJ_ID = t.build_prj_id
         where t.prj_code = #{prjCode}
     </select>
 </mapper>
