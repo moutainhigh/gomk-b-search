@@ -45,17 +45,17 @@ public class RestServiceAspect {
 		String path = request.getServletPath();
 		String token = request.getHeader("token");
 		//TODO 二级页面链接不需要token验证。
-		if (path.contains(IGNORE_URL)) {
-			return pjp.proceed();
-		}
-		if (StringUtils.isNotBlank(token)) {
-			if (!checkToken(token)) {
-				throw new BusinessException(StatusCode.PERMISSION_DENIED);
-			}
-		} else {
-			throw new BusinessException(StatusCode.PERMISSION_DENIED);
-		}
-		apiContext.createCookie(token);
+//		if (path.contains(IGNORE_URL)) {
+//			return pjp.proceed();
+//		}
+//		if (StringUtils.isNotBlank(token)) {
+//			if (!checkToken(token)) {
+//				throw new BusinessException(StatusCode.PERMISSION_DENIED);
+//			}
+//		} else {
+//			throw new BusinessException(StatusCode.PERMISSION_DENIED);
+//		}
+//		apiContext.createCookie(token);
 		return pjp.proceed();
 
 	}
