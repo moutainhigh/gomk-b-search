@@ -44,17 +44,18 @@ public class RestServiceAspect {
 		HttpServletRequest request = sra.getRequest();
 		String path = request.getServletPath();
 		String token = request.getHeader("token");
+		//TODO 二级页面链接不需要token验证。
 		if (path.contains(IGNORE_URL)) {
 			return pjp.proceed();
 		}
-//		if (StringUtils.isNotBlank(token)) {
-//			if (!checkToken(token)) {
-//				throw new BusinessException(StatusCode.PERMISSION_DENIED);
-//			}
-//		} else {
-//			throw new BusinessException(StatusCode.PERMISSION_DENIED);
-//		}
-//		apiContext.createCookie(token);
+		if (StringUtils.isNotBlank(token)) {
+			if (!checkToken(token)) {
+				throw new BusinessException(StatusCode.PERMISSION_DENIED);
+			}
+		} else {
+			throw new BusinessException(StatusCode.PERMISSION_DENIED);
+		}
+		apiContext.createCookie(token);
 		return pjp.proceed();
 
 	}
@@ -66,14 +67,16 @@ public class RestServiceAspect {
     	String salt = "shgc";
     	if (restore.startsWith(salt)) {
     		return true;
-    	}
-    	
-    	String userKey = restore.substring(salt.length());
-    	String obj = RedisUtil.getString(userKey);
-    	if (obj == null) {
-    		log.info("error:not in redis.");
+    	}else {
     		return false;
     	}
-		return true;
+    	
+//    	String userKey = restore.substring(salt.length());
+//    	String obj = RedisUtil.getString(userKey);
+//    	if (obj == null) {
+//    		log.info("error:not in redis.");
+//    		return false;
+//    	}
+//		return true;
 	}
 }
