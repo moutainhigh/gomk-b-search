@@ -59,4 +59,8 @@ public interface DZbPkgMapper extends BaseMapper<DZbPkg> {
     Map<String,Object> biddingDetails(@Param("prjCode")String prjCode);
 
     Map<String,Object> costDetails(@Param("prjCode")String prjCode);
+
+    Map<String,Object> costDetailsCust(@Param("custDocumentCode") String custDocumentCode);
+
+    Map<String,Object> costDetailsBuildPro(@Param("buildPrjId") String buildPrjId);
 }

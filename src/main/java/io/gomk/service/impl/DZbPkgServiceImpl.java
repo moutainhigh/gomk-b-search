@@ -256,6 +256,14 @@ public class DZbPkgServiceImpl extends ServiceImpl<DZbPkgMapper, DZbPkg> impleme
 
     @Override
     public Map<String, Object> costDetails(String prjCode) {
-        return dZbPkgMapper.costDetails(prjCode);
+        Map<String, Object> costdetails = dZbPkgMapper.costDetails(prjCode);
+        if(costdetails!=null) {
+            Map<String, Object> costdetailsCust = dZbPkgMapper.costDetailsCust(String.valueOf(costdetails.get("document_code")));
+            costdetails.put("cust_name",costdetailsCust.get("cust_name"));
+            Map<String, Object> costdetailsPro = dZbPkgMapper.costDetailsBuildPro(String.valueOf(costdetails.get("build_prj_id")));
+            costdetails.put("build_prj_id",costdetailsPro.get("build_prj_name"));
+        }
+
+        return costdetails;
     }
 }
