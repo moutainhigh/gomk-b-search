@@ -71,7 +71,7 @@
         left join F_ZB_SEL_BID_DETAIL t3 on t3.pkg_code=t.biaoduanbh
         left join D_ZB_SUPPL t4 on t4.suppl_document_code = t3.document_code
 		where substring_index(t.item_wlmc , '\\', 1) = #{mateName}
-		order by t.kaibiaodate desc
+		order by date_time desc
     </select>
     <select id="selectPriceCharts" parameterType="java.lang.String" resultType="java.util.Map">
         select distinct
@@ -79,8 +79,8 @@
         from I_GX_T_PRICE_LIST t
         where substring_index(t.item_wlmc , '\\', 1)= #{mateName}
         and t.toubiaobaojia is not null
-        group by t.kaibiaodate
-        order by  t.kaibiaodate
+        group by date_time
+        order by  date_time
     </select>
 
 </mapper>

@@ -44,8 +44,8 @@
         from SHZJ_PRODUCTPRICE_NEW t
         where t.product_name=#{productName}
         and t.unitprice is not null
-        group by t.operatedate
-		order by  t.operatedate
+        group by date_time
+		order by  date_time
     </select>
 
 </mapper>
